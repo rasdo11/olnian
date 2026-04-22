@@ -1,0 +1,14 @@
+<div class="collection-page page-enter page-width">
+  <header class="collection-page__header">
+    <h1 class="display-xl">{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <p class="collection-page__desc">{{ collection.description }}</p>
+    {%- endif -%}
+  </header>
+
+  <div class="sku-row__grid">
+    {%- for product in collection.products -%}
+      {%- render 'product-card', product: product -%}
+    {%- endfor -%}
+  </div>
+</div>

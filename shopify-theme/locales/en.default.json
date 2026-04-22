@@ -1,0 +1,50 @@
+{
+  "general": {
+    "password_page": {
+      "login_form_heading": "Enter password",
+      "login_form_password_label": "Password",
+      "login_form_password_placeholder": "Password",
+      "login_form_submit": "Enter",
+      "signup_form_email_label": "Email",
+      "signup_form_success": "We'll send you an email right before we open!",
+      "password_link": "Enter store using password",
+      "admin_link_html": "Are you the store owner? <a href=\"/admin\" target=\"_blank\">Log in here</a>"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Your batch",
+      "note": "Charged on ship — card authorized now",
+      "close": "Close",
+      "empty": "Your cart is empty.",
+      "checkout": "Reserve my batch →",
+      "subtotal": "Subtotal"
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Reserve my place in Batch 01",
+      "sold_out": "Batch closed",
+      "unavailable": "Unavailable",
+      "quantity": {
+        "label": "Quantity",
+        "increase": "Increase quantity",
+        "decrease": "Decrease quantity"
+      }
+    }
+  },
+  "sections": {
+    "header": {
+      "title": "Header"
+    },
+    "footer": {
+      "title": "Footer"
+    }
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "close": "Close",
+    "open_navigation_menu": "Open navigation menu",
+    "close_navigation_menu": "Close navigation menu"
+  }
+}

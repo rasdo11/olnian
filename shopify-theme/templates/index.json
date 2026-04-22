@@ -1,0 +1,67 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {}
+    },
+    "stat-strip": {
+      "type": "stat-strip",
+      "settings": {}
+    },
+    "story-block-1": {
+      "type": "story-block",
+      "settings": {
+        "eyebrow": "Why creatine after 37",
+        "headline": "Your muscles are running low. So is your mind.",
+        "body": "After 37, natural creatine synthesis slows. Strength dips. Sleep shallows. Recall falters. Clinical research in women 40+ shows that 3–5g daily restores what time quietly takes.",
+        "cta_text": "See the research",
+        "cta_url": "#proof",
+        "image": "creatine-hero.png",
+        "flip": false
+      }
+    },
+    "sku-row": {
+      "type": "sku-row",
+      "settings": {}
+    },
+    "proof": {
+      "type": "proof",
+      "settings": {}
+    },
+    "how-it-works": {
+      "type": "how-it-works",
+      "settings": {}
+    },
+    "story-block-2": {
+      "type": "story-block",
+      "settings": {
+        "eyebrow": "Made the week you order",
+        "headline": "No warehouse shelf. No expiry countdown.",
+        "body": "Each batch is made to order. We open a short reservation window, mix exactly what's needed, and ship in sequence. Your card isn't charged until your batch ships.",
+        "cta_text": "Learn the model",
+        "cta_url": "#how-it-works",
+        "image": "olnian-products.jpg",
+        "flip": true
+      }
+    },
+    "testing-strip": {
+      "type": "testing-strip",
+      "settings": {}
+    },
+    "batch-story": {
+      "type": "batch-story",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "stat-strip",
+    "story-block-1",
+    "sku-row",
+    "proof",
+    "how-it-works",
+    "story-block-2",
+    "testing-strip",
+    "batch-story"
+  ]
+}

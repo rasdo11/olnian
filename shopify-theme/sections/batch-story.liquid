@@ -1,0 +1,50 @@
+<section class="batch-story">
+  <div class="batch-story__inner page-width">
+    <p class="batch-story__eyebrow">{{ section.settings.eyebrow | default: 'Batch 01' }}</p>
+    <h2 class="batch-story__headline display-xl">
+      {{ section.settings.headline | default: 'Flamingo Hour.' | newline_to_br }}
+    </h2>
+    <p class="batch-story__body">
+      {{ section.settings.body | default: 'Named for the light that hits just right. The moment before everything shifts. This is Batch 01 — our first run, limited to 200 units.' }}
+    </p>
+    <a href="{{ section.settings.cta_url | default: '/products/creatine' }}" class="btn btn--tangerine btn--lg">
+      {{ section.settings.cta_text | default: 'Reserve Batch 01 →' }}
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Batch story",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Batch 01"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Flamingo Hour."
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body text"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA text",
+      "default": "Reserve Batch 01 →"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA URL"
+    }
+  ]
+}
+{% endschema %}

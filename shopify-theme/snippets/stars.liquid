@@ -1,0 +1,14 @@
+{%- liquid
+  assign star_rating = rating | default: 5
+  assign star_count = count | default: 0
+-%}
+<div class="stars" aria-label="{{ star_rating }} out of 5 stars{% if star_count > 0 %}, {{ star_count }} reviews{% endif %}">
+  {%- for i in (1..5) -%}
+    <svg class="star{% if i <= star_rating %} star--filled{% endif %}" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M7 1l1.545 3.13L12 4.635l-2.5 2.437.59 3.443L7 8.885l-3.09 1.63.59-3.443L2 4.635l3.455-.505L7 1z" fill="{% if i <= star_rating %}var(--gold){% else %}var(--espresso-12){% endif %}" stroke="{% if i <= star_rating %}var(--gold){% else %}var(--espresso-30){% endif %}" stroke-width="0.5"/>
+    </svg>
+  {%- endfor -%}
+  {%- if star_count > 0 -%}
+    <span class="stars__count">({{ star_count }})</span>
+  {%- endif -%}
+</div>

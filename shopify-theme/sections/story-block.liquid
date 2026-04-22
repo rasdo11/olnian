@@ -1,0 +1,76 @@
+<section class="story-block {% if section.settings.flip %}story-block--flip{% endif %}">
+  <div class="story-block__inner page-width">
+    <div class="story-block__image product-photo-bg">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 800 | image_tag: loading: 'lazy' }}
+      {%- else -%}
+        {{ section.settings.image_filename | asset_url | image_tag: loading: 'lazy' }}
+      {%- endif -%}
+    </div>
+
+    <div class="story-block__content">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="story-block__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+
+      <h2 class="story-block__headline display-md">{{ section.settings.headline }}</h2>
+      <p class="story-block__body">{{ section.settings.body }}</p>
+
+      {%- if section.settings.cta_text != blank -%}
+        <a href="{{ section.settings.cta_url | default: '#' }}" class="story-block__cta uline">
+          {{ section.settings.cta_text }} →
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Story block",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body text"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "CTA text"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA URL"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "image_filename",
+      "label": "Asset filename (fallback)",
+      "info": "Used when no image is uploaded above."
+    },
+    {
+      "type": "checkbox",
+      "id": "flip",
+      "label": "Flip layout (image right)",
+      "default": false
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,116 @@
+{%- assign current_product = product -%}
+{%- assign plan_key = 'onetime' -%}
+
+<div class="product-page page-enter">
+  <div class="product-page__above-fold page-width" id="purchase-plans">
+    <!-- Left: Product image -->
+    <div class="product-page__image product-photo-bg">
+      {%- if product.featured_image -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 800 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          width="{{ product.featured_image.width }}"
+          height="{{ product.featured_image.height }}"
+          loading="eager"
+        >
+      {%- else -%}
+        {%- render 'product-illustration', product: product -%}
+      {%- endif -%}
+
+      {%- if product.metafields.custom.badge != blank -%}
+        <div class="hero__image-badge">{{ product.metafields.custom.badge }}</div>
+      {%- else -%}
+        <div class="hero__image-badge">Batch 01 · Limited run</div>
+      {%- endif -%}
+    </div>
+
+    <!-- Right: Purchase panel -->
+    <div class="product-page__panel">
+      <p class="product-page__sku">{{ product.selected_or_first_available_variant.sku }}</p>
+      <h1 class="product-page__title display-md">{{ product.title }}</h1>
+      <p class="product-page__subtitle">{{ product.metafields.custom.subtitle | default: product.type }}</p>
+
+      <div class="trust-row">
+        {%- render 'stars', rating: 5, count: 47 -%}
+        <span class="trust-row__sep">·</span>
+        <span class="trust-row__text">Third-party tested</span>
+        <span class="trust-row__sep">·</span>
+        <span class="trust-row__text">Made in USA</span>
+      </div>
+
+      <p class="product-page__desc">{{ product.metafields.custom.long_description | default: product.description }}</p>
+
+      {%- render 'purchase-plan', product: product -%}
+
+      <div class="price-cta" id="price-cta">
+        <div class="price-cta__price">
+          <span class="price-cta__charged-label">Charged on ship</span>
+          <span class="price-cta__amount" id="cta-price">{{ product.price | money }}</span>
+        </div>
+        <form action="/cart/add" method="post" id="product-form">
+          <input type="hidden" name="id" id="variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="selling_plan" id="selling-plan-id" value="">
+          <input type="hidden" name="quantity" id="add-qty" value="1">
+          <input type="hidden" name="properties[quiz_verdict]" id="quiz-verdict-input" value="">
+          <button
+            type="submit"
+            class="btn btn--tangerine btn--lg btn--full"
+            id="add-to-cart-btn"
+          >
+            Reserve my place in Batch 01
+          </button>
+        </form>
+        <p class="price-cta__note">Card authorized now · charged only when your batch ships</p>
+      </div>
+
+      <!-- Batch model notice -->
+      <div class="batch-notice">
+        <div class="batch-notice__icon">📦</div>
+        <div>
+          <strong>How batches work</strong>
+          <p>We open a short reservation window, mix exactly what's ordered, then ship in sequence. Your card is authorized now but only charged when your batch leaves our facility.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingredients -->
+  {%- if product.metafields.custom.ingredients != blank -%}
+  <section class="ingredients-section page-width">
+    <h2 class="ingredients-section__title display-md">What's inside.</h2>
+    <div class="ingredients-section__table">
+      {%- for ingredient in product.metafields.custom.ingredients.value -%}
+        <div class="ingredient-row">
+          <span class="ingredient-name">{{ ingredient.name }}</span>
+          <span class="ingredient-amount">{{ ingredient.amount }}</span>
+        </div>
+      {%- endfor -%}
+    </div>
+    <p class="ingredients-section__note">No fillers. No sweeteners. No proprietary blends.</p>
+  </section>
+  {%- endif -%}
+
+  <!-- Testimonials -->
+  <section class="product-testimonials page-width">
+    <h2 class="product-testimonials__title display-md">What women are saying.</h2>
+    <div class="product-testimonials__grid">
+      <div class="testimonial-card">
+        {%- render 'stars', rating: 5 -%}
+        <p class="testimonial-card__quote">"I didn't expect to notice a difference in two weeks. My afternoon slump is just... gone."</p>
+        <p class="testimonial-card__author">— Margaux, 41, San Francisco</p>
+      </div>
+      <div class="testimonial-card">
+        {%- render 'stars', rating: 5 -%}
+        <p class="testimonial-card__quote">"The batch model was the thing that got me. I hate subscriptions. This feels different."</p>
+        <p class="testimonial-card__author">— Dr. Priya S., 44, Boston</p>
+      </div>
+      <div class="testimonial-card">
+        {%- render 'stars', rating: 5 -%}
+        <p class="testimonial-card__quote">"Clean label, clean taste. I take it in my morning coffee and forget it's there."</p>
+        <p class="testimonial-card__author">— Rena K., 38, Austin</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+{{ 'purchase-plan.js' | asset_url | script_tag }}

@@ -1,0 +1,45 @@
+<div class="cart-overlay" id="cart-overlay" aria-hidden="true"></div>
+
+<div class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping cart" aria-hidden="true">
+  <div class="cart-drawer__header">
+    <h2 class="cart-drawer__title brand">Your batch</h2>
+    <button class="cart-drawer__close" id="cart-close" aria-label="Close cart">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="cart-drawer__body" id="cart-body">
+    <!-- Populated by cart.js -->
+    <div class="cart-empty" id="cart-empty">
+      <p>Your cart is empty.</p>
+      <a href="/collections/all" class="btn btn--tangerine btn--sm">Browse products</a>
+    </div>
+    <div class="cart-lines" id="cart-lines" style="display:none;"></div>
+  </div>
+
+  <div class="cart-drawer__footer" id="cart-footer" style="display:none;">
+    <div class="cart-drawer__batch-notice">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" stroke="var(--espresso-30)" stroke-width="1"/>
+        <path d="M8 5v3.5L10 10" stroke="var(--espresso-60)" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>Ships <strong id="cart-ship-date">—</strong> · charged on ship</span>
+    </div>
+
+    <div class="cart-drawer__subtotal">
+      <span>Subtotal</span>
+      <span id="cart-subtotal">$0.00</span>
+    </div>
+
+    <p class="cart-drawer__free-ship" id="cart-free-ship" style="display:none;">
+      ✓ Free shipping included
+    </p>
+
+    <a href="/checkout" class="btn btn--tangerine btn--lg btn--full" id="cart-checkout-btn">
+      Reserve my batch →
+    </a>
+    <p class="cart-drawer__note">Card authorized now · charged only when your batch ships</p>
+  </div>
+</div>

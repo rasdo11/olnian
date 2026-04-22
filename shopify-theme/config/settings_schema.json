@@ -1,0 +1,84 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Olnian",
+    "theme_version": "1.0.0",
+    "theme_author": "Olnian",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_tangerine",
+        "label": "Tangerine accent",
+        "default": "#FF7E5F"
+      },
+      {
+        "type": "color",
+        "id": "color_espresso",
+        "label": "Espresso (text)",
+        "default": "#5C1A00"
+      },
+      {
+        "type": "color",
+        "id": "color_blush",
+        "label": "Blush (background)",
+        "default": "#FFF8F0"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "label": "Body font",
+        "default": "figtree_n3"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_header_font",
+        "label": "Header font",
+        "default": "montserrat_n3"
+      }
+    ]
+  },
+  {
+    "name": "Batch settings",
+    "settings": [
+      {
+        "type": "text",
+        "id": "batch_name",
+        "label": "Current batch name",
+        "default": "Batch 01 — Flamingo Hour"
+      },
+      {
+        "type": "text",
+        "id": "batch_close_date",
+        "label": "Batch close date (display only)",
+        "info": "Shown in emails and banners. Format: May 15, 2026",
+        "default": ""
+      },
+      {
+        "type": "number",
+        "id": "batch_units",
+        "label": "Batch size (units)",
+        "default": 200
+      }
+    ]
+  },
+  {
+    "name": "Social & SEO",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "share_image",
+        "label": "Default social sharing image"
+      }
+    ]
+  }
+]

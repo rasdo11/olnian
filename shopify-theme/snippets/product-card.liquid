@@ -1,0 +1,51 @@
+{%- liquid
+  assign card_accent = product.metafields.custom.accent_color | default: 'var(--tangerine)'
+  assign card_sku = product.metafields.custom.sku | default: product.variants.first.sku
+  assign card_subtitle = product.metafields.custom.subtitle | default: product.type
+  assign card_count = product.metafields.custom.count | default: ''
+-%}
+
+<div class="product-card" style="--card-accent: {{ card_accent }};">
+  <a href="{{ product.url }}" class="product-card__image-link product-photo-bg" aria-hidden="true" tabindex="-1">
+    {%- if product.featured_image -%}
+      <img
+        src="{{ product.featured_image | image_url: width: 500 }}"
+        alt="{{ product.featured_image.alt | escape }}"
+        width="500"
+        height="500"
+        loading="lazy"
+      >
+    {%- else -%}
+      {%- render 'product-illustration', product: product -%}
+    {%- endif -%}
+  </a>
+
+  <div class="product-card__body">
+    {%- if card_sku != blank -%}
+      <p class="product-card__sku">{{ card_sku }}</p>
+    {%- endif -%}
+
+    <h3 class="product-card__name">
+      <a href="{{ product.url }}">{{ product.title }}</a>
+    </h3>
+
+    {%- if card_subtitle != blank -%}
+      <p class="product-card__subtitle">{{ card_subtitle }}</p>
+    {%- endif -%}
+
+    {%- if product.description != blank -%}
+      <p class="product-card__desc">{{ product.description | strip_html | truncate: 90 }}</p>
+    {%- endif -%}
+
+    {%- if card_count != blank -%}
+      <p class="product-card__count">{{ card_count }}</p>
+    {%- endif -%}
+
+    <div class="product-card__footer">
+      <span class="product-card__price">{{ product.price | money }}</span>
+      <a href="{{ product.url }}" class="btn btn--sm" style="background: {{ card_accent }}; color: var(--espresso);">
+        Reserve →
+      </a>
+    </div>
+  </div>
+</div>

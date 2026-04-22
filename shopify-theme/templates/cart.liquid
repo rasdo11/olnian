@@ -1,0 +1,42 @@
+<!-- Cart page fallback; cart drawer is the primary experience -->
+<div class="cart-page page-enter page-width">
+  <h1 class="display-md">Your Cart</h1>
+
+  {%- if cart.item_count == 0 -%}
+    <div class="cart-page__empty">
+      <p>Your cart is empty.</p>
+      <a href="/" class="btn btn--tangerine">Browse products</a>
+    </div>
+  {%- else -%}
+    <div class="cart-page__lines">
+      {%- for item in cart.items -%}
+        <div class="cart-line">
+          <div class="cart-line__img">
+            {%- if item.image -%}
+              <img src="{{ item.image | image_url: width: 120 }}" alt="{{ item.title | escape }}" width="60" height="60">
+            {%- endif -%}
+          </div>
+          <div class="cart-line__info">
+            <p class="cart-line__name">{{ item.product.title }}</p>
+            <p class="cart-line__sub">{{ item.variant.title }}</p>
+          </div>
+          <div class="cart-line__qty">
+            <a href="{{ routes.cart_change_url }}?id={{ item.key }}&quantity={{ item.quantity | minus: 1 }}" class="qty-btn">−</a>
+            <span>{{ item.quantity }}</span>
+            <a href="{{ routes.cart_change_url }}?id={{ item.key }}&quantity={{ item.quantity | plus: 1 }}" class="qty-btn">+</a>
+          </div>
+          <p class="cart-line__price">{{ item.final_line_price | money }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="cart-page__footer">
+      <div class="cart-page__subtotal">
+        <span>Subtotal</span>
+        <span>{{ cart.total_price | money }}</span>
+      </div>
+      <p class="cart-page__note">Charged on ship · card authorized now</p>
+      <a href="/checkout" class="btn btn--tangerine btn--lg btn--full">Reserve my batch →</a>
+    </div>
+  {%- endif -%}
+</div>

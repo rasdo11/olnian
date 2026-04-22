@@ -1,0 +1,36 @@
+<header class="site-header" id="site-header">
+  <div class="site-header__inner page-width">
+    <a href="/" class="site-header__logo brand" aria-label="{{ shop.name }} home">
+      ØLNIAN
+    </a>
+
+    <nav class="site-header__nav" aria-label="Main navigation">
+      <a href="/collections/all">Products</a>
+      <a href="#proof">Research</a>
+      <a href="#how-it-works">How it works</a>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        class="site-header__cart"
+        id="cart-toggle"
+        aria-label="Open cart"
+        aria-expanded="false"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 01-8 0"/>
+        </svg>
+        <span class="cart-count" id="cart-count" aria-live="polite">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": []
+}
+{% endschema %}

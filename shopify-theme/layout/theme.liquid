@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FFF8F0">
+
+  <title>
+    {%- if page_title == blank -%}
+      {{ shop.name }} — Made the week you order.
+    {%- else -%}
+      {{ page_title }} — {{ shop.name }}
+    {%- endif -%}
+  </title>
+
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+
+  {{ content_for_header }}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  <!-- MailerLite Universal -->
+  <script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[]).push(arguments);},l=d.createElement(e),l.async=1,l.src=u,n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})(window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', 'YOUR_MAILERLITE_ACCOUNT_ID');
+  </script>
+  <!-- End MailerLite Universal -->
+</head>
+
+<body class="page-enter">
+  {%- render 'cart-drawer' -%}
+  {%- render 'quiz-modal' -%}
+
+  {%- section 'header' -%}
+
+  <main id="main-content" tabindex="-1">
+    {{ content_for_layout }}
+  </main>
+
+  {%- section 'footer' -%}
+
+  <div class="subscribe-banner" id="subscribe-banner" aria-hidden="true">
+    <div class="subscribe-banner__inner page-width">
+      <span class="subscribe-banner__text">Subscribe &amp; save 10% — free shipping every batch.</span>
+      <a href="#purchase-plans" class="subscribe-banner__cta btn btn--dark">Subscribe now</a>
+    </div>
+  </div>
+
+  {{ 'theme.js' | asset_url | script_tag }}
+  {{ 'cart.js' | asset_url | script_tag }}
+  {{ 'quiz.js' | asset_url | script_tag }}
+</body>
+</html>

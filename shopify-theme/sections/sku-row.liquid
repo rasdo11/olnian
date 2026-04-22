@@ -1,0 +1,85 @@
+<section class="sku-row" id="products">
+  <div class="sku-row__header page-width">
+    <h2 class="display-md">{{ section.settings.headline | default: 'The formulas.' }}</h2>
+    {%- if section.settings.subhead != blank -%}
+      <p class="sku-row__subhead">{{ section.settings.subhead }}</p>
+    {%- endif -%}
+  </div>
+
+  <div class="sku-row__grid page-width">
+    {%- assign collection = collections['all'] -%}
+    {%- if collection.products.size > 0 -%}
+      {%- for product in collection.products limit: 3 -%}
+        {%- render 'product-card', product: product -%}
+      {%- endfor -%}
+    {%- else -%}
+      <!-- Fallback static cards when no collection is set up yet -->
+      <div class="product-card" style="--card-accent: var(--tangerine);">
+        <div class="product-card__image product-photo-bg">
+          {{ 'creatine-hero.png' | asset_url | image_tag: alt: 'Olnian Creatine', loading: 'lazy' }}
+        </div>
+        <div class="product-card__body">
+          <p class="product-card__sku">OLN-CRE-30</p>
+          <h3 class="product-card__name">Creatine</h3>
+          <p class="product-card__subtitle">Pure Creatine Monohydrate</p>
+          <p class="product-card__desc">Three to five grams per serving. For women 37+.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">$42</span>
+            <a href="/products/creatine" class="btn btn--tangerine btn--sm">Reserve →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" style="--card-accent: var(--mint);">
+        <div class="product-card__image product-photo-bg">
+          {{ 'olnian-products.jpg' | asset_url | image_tag: alt: 'Olnian Magnesium', loading: 'lazy' }}
+        </div>
+        <div class="product-card__body">
+          <p class="product-card__sku">OLN-MAG-90</p>
+          <h3 class="product-card__name">Magnesium</h3>
+          <p class="product-card__subtitle">Glycinate</p>
+          <p class="product-card__desc">200mg chelated. For sleep, calm, and recovery.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">$38</span>
+            <a href="/products/magnesium" class="btn btn--mint btn--sm">Reserve →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" style="--card-accent: var(--gold);">
+        <div class="product-card__image product-photo-bg">
+          {{ 'olnian-products.jpg' | asset_url | image_tag: alt: 'Olnian Bundle', loading: 'lazy' }}
+        </div>
+        <div class="product-card__body">
+          <p class="product-card__sku">OLN-BUN-01</p>
+          <h3 class="product-card__name">The Bundle</h3>
+          <p class="product-card__subtitle">Creatine + Magnesium</p>
+          <p class="product-card__desc">Both formulas. Morning and night. Save $8.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">$72</span>
+            <a href="/products/bundle" class="btn btn--gold btn--sm">Reserve →</a>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SKU row",
+  "settings": [
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline",
+      "default": "The formulas."
+    },
+    {
+      "type": "text",
+      "id": "subhead",
+      "label": "Subheadline"
+    }
+  ]
+}
+{% endschema %}

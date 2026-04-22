@@ -1,0 +1,67 @@
+<section class="hero" id="hero">
+  <div class="hero__inner page-width">
+    <div class="hero__content">
+      <p class="hero__eyebrow">Batch 01 — Now open</p>
+      <h1 class="hero__headline display-xl">
+        {%- if section.settings.headline != blank -%}
+          {{ section.settings.headline | newline_to_br }}
+        {%- else -%}
+          Clean Creatine.<br>Clear Thinking.
+        {%- endif -%}
+      </h1>
+      <p class="hero__body">
+        Pure creatine monohydrate, formulated for women 37 and up. Made in the USA. Charged only when your batch ships.
+      </p>
+      <div class="hero__ctas">
+        <a href="/products/creatine" class="btn btn--tangerine btn--lg">
+          Reserve Batch 01 →
+        </a>
+        <button class="btn btn--ghost btn--lg" id="quiz-open-btn" type="button">
+          Take the quiz
+        </button>
+      </div>
+    </div>
+
+    <div class="hero__image product-photo-bg">
+      {%- assign hero_product = all_products['creatine'] -%}
+      {%- if hero_product.featured_image -%}
+        <img
+          src="{{ hero_product.featured_image | image_url: width: 800 }}"
+          alt="{{ hero_product.featured_image.alt | escape }}"
+          width="800"
+          height="800"
+          loading="eager"
+          fetchpriority="high"
+        >
+      {%- else -%}
+        {{ 'creatine-hero.png' | asset_url | image_tag: alt: 'Olnian Creatine', loading: 'eager' }}
+      {%- endif -%}
+
+      {%- if section.settings.show_badge -%}
+        <div class="hero__image-badge">
+          <a href="#proof" class="uline">Third-party tested</a>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Headline",
+      "default": "Clean Creatine.\nClear Thinking."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show testing badge",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

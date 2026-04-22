@@ -1,0 +1,42 @@
+{%- liquid
+  assign base_price = product.price
+  assign monthly_price = base_price | times: 0.9 | round
+  assign quarterly_price = base_price | times: 0.85 | round
+-%}
+
+<div class="purchase-plans" id="purchase-plans-selector">
+  <p class="purchase-plans__label">Choose your plan</p>
+
+  <label class="purchase-plan purchase-plan--selected" id="plan-onetime">
+    <input type="radio" name="purchase-plan" value="onetime" checked class="purchase-plan__radio">
+    <div class="purchase-plan__content">
+      <div class="purchase-plan__top">
+        <span class="purchase-plan__name">One-time purchase</span>
+        <span class="purchase-plan__price" data-price="{{ base_price }}">{{ base_price | money }}</span>
+      </div>
+      <p class="purchase-plan__sub">Reserve your spot in the current batch</p>
+    </div>
+  </label>
+
+  <label class="purchase-plan" id="plan-monthly">
+    <input type="radio" name="purchase-plan" value="monthly" class="purchase-plan__radio">
+    <div class="purchase-plan__content">
+      <div class="purchase-plan__top">
+        <span class="purchase-plan__name">Subscribe monthly <span class="purchase-plan__badge">SAVE 10%</span></span>
+        <span class="purchase-plan__price" data-price="{{ monthly_price }}">{{ monthly_price | money }}</span>
+      </div>
+      <p class="purchase-plan__sub">Free shipping · early access to each new batch</p>
+    </div>
+  </label>
+
+  <label class="purchase-plan" id="plan-quarterly">
+    <input type="radio" name="purchase-plan" value="quarterly" class="purchase-plan__radio">
+    <div class="purchase-plan__content">
+      <div class="purchase-plan__top">
+        <span class="purchase-plan__name">Subscribe quarterly <span class="purchase-plan__badge">SAVE 15%</span></span>
+        <span class="purchase-plan__price" data-price="{{ quarterly_price }}">{{ quarterly_price | money }}</span>
+      </div>
+      <p class="purchase-plan__sub">3-month supply · free shipping · priority allocation</p>
+    </div>
+  </label>
+</div>

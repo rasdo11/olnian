@@ -1,0 +1,30 @@
+{%- liquid
+  assign prod_handle = product.handle | default: ''
+  if prod_handle contains 'creatine'
+    assign illus_color = '#FF7E5F'
+    assign illus_label = 'Creatine'
+  elsif prod_handle contains 'magnesium'
+    assign illus_color = '#3ECFB2'
+    assign illus_label = 'Magnesium'
+  else
+    assign illus_color = '#FFD166'
+    assign illus_label = 'Bundle'
+  endif
+-%}
+
+<div class="product-illustration" style="background: {{ illus_color }}20; border-radius: 16px; padding: 40px; display: flex; align-items: center; justify-content: center; min-height: 320px;">
+  <svg width="120" height="200" viewBox="0 0 120 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Container body -->
+    <rect x="25" y="40" width="70" height="130" rx="12" fill="{{ illus_color }}" opacity="0.9"/>
+    <!-- Lid -->
+    <rect x="20" y="20" width="80" height="28" rx="8" fill="{{ illus_color }}"/>
+    <!-- Label area -->
+    <rect x="30" y="80" width="60" height="60" rx="6" fill="white" opacity="0.3"/>
+    <!-- Label text placeholder -->
+    <rect x="38" y="92" width="44" height="4" rx="2" fill="white" opacity="0.7"/>
+    <rect x="42" y="102" width="36" height="4" rx="2" fill="white" opacity="0.5"/>
+    <rect x="38" y="112" width="44" height="4" rx="2" fill="white" opacity="0.7"/>
+    <rect x="44" y="122" width="32" height="4" rx="2" fill="white" opacity="0.4"/>
+  </svg>
+  <span class="visually-hidden">{{ illus_label }}</span>
+</div>
