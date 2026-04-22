@@ -1,0 +1,2428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Olnian — Made the week you order.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Proxima Nova preferred; falls back to Montserrat (closest widely-available match) when not installed locally. -->
+
+<style>
+  :root {
+    --tangerine: #FF7E5F;
+    --flamingo: #FEB3A0;
+    --gold: #FFD166;
+    --mint: #3ECFB2;
+    --blush: #FFF8F0;
+    --espresso: #5C1A00;
+    --espresso-60: rgba(92, 26, 0, 0.6);
+    --espresso-30: rgba(92, 26, 0, 0.3);
+    --espresso-12: rgba(92, 26, 0, 0.12);
+    --espresso-06: rgba(92, 26, 0, 0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--blush);
+    color: var(--espresso);
+    font-family: 'Figtree', system-ui, sans-serif;
+    font-weight: 300;
+    --display-font: 'proxima-nova', 'Proxima Nova', 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .serif { font-family: var(--display-font); font-style: normal; font-weight: 300; letter-spacing: -0.025em; }
+  .display-xl { font-family: var(--display-font); font-weight: 300; letter-spacing: -0.035em; line-height: 0.95; }
+  .display-md { font-family: var(--display-font); font-weight: 300; letter-spacing: -0.025em; line-height: 1.02; }
+  .brand { font-family: var(--display-font); font-weight: 400; letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { margin: 0; font-weight: 400; letter-spacing: -0.01em; }
+  p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; padding: 0; }
+  img { display: block; max-width: 100%; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--espresso-12); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--espresso-30); }
+
+  /* Fade / slide transitions */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+  @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+
+  .page-enter { animation: fadeIn 0.5s ease both; }
+
+  /* Ensure images on blush background blend */
+  .product-photo-bg {
+    background-color: var(--blush);
+    background-image: radial-gradient(circle at 30% 40%, rgba(255, 209, 102, 0.18), transparent 55%),
+                      radial-gradient(circle at 80% 70%, rgba(254, 179, 160, 0.22), transparent 60%);
+  }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--tangerine);
+    outline-offset: 3px;
+  }
+
+  /* Mark link underline */
+  .uline {
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 1px;
+  }
+</style>
+
+<!-- Speaker notes placeholder: none for interactive prototype -->
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+
+
+
+
+
+/* =========================================================================
+   TWEAKABLE DEFAULTS — stored so host can persist edits on disk
+   ========================================================================= */
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "simulatedToday": "2026-05-10",
+  "heroHeadline": "Clean Creatine.\nClear Thinking.",
+  "heroVariant": "editorial",
+  "accentForCTAs": "tangerine",
+  "showShipBadge": true,
+  "productRowLayout": "editorial"
+} /*EDITMODE-END*/;
+
+/* =========================================================================
+   SHIP DATE LOGIC — dynamic, as spec requires
+   ========================================================================= */
+function parseSimDate(iso) {
+  // iso YYYY-MM-DD
+  if (!iso) return new Date();
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function computeShipDate(today) {
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const day = today.getDate();
+  let shipYear = year,shipMonth = month;
+  if (day >= 15) {
+    shipMonth = month + 1;
+    if (shipMonth > 11) {shipMonth = 0;shipYear++;}
+  }
+  return new Date(shipYear, shipMonth, 15);
+}
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function fmtShipLong(d) {return `${MONTHS[d.getMonth()]} ${d.getDate()}`;}
+function fmtShipShort(d) {return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`;}
+
+function cutoffNotice(today) {
+  const cutoff = new Date(today.getFullYear(), today.getMonth(), 14);
+  const nextCutoff = today.getDate() >= 15 ?
+  new Date(today.getFullYear(), today.getMonth() + 1, 14) :
+  cutoff;
+  const diff = Math.ceil((nextCutoff - today) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
+/* =========================================================================
+   PRODUCT DATA
+   ========================================================================= */
+const PRODUCTS = [
+{
+  id: 'creatine',
+  hero: true,
+  name: 'Creatine',
+  subtitle: 'Pure Creatine Monohydrate',
+  count: '60 capsules',
+  doseDesc: '30-day supply',
+  price: 42,
+  color: 'var(--tangerine)',
+  containerLabel: 'Tangerine bottle · 180g',
+  sku: 'OLN-CRE-30',
+  blurb: 'Pure crystallized creatine monohydrate. For women 37 and up.',
+  long: 'Three grams of pure, micronized creatine monohydrate per serving. No fillers, no sweeteners, no proprietary blends. Studied specifically in women after 40 for strength, cognition, mood, and bone density.',
+  ingredients: [
+  { name: 'Creatine Monohydrate', amount: '3 g' },
+  { name: 'Reusable Container', amount: 'no micro-plastics' }]
+
+},
+{
+  id: 'magnesium',
+  name: 'Magnesium',
+  subtitle: 'Glycinate',
+  count: '90 capsules',
+  doseDesc: '45-day supply',
+  price: 38,
+  color: 'var(--mint)',
+  containerLabel: 'Mint cylinder · 90ct',
+  sku: 'OLN-MAG-90',
+  blurb: 'Chelated magnesium for sleep, calm, and recovery.',
+  long: 'Two hundred milligrams of magnesium glycinate per serving — the chelated form the body absorbs without the usual laxative effect.',
+  ingredients: [
+  { name: 'Magnesium Glycinate', amount: '200 mg' },
+  { name: 'Reusable Container', amount: 'no micro-plastics' }]
+
+},
+{
+  id: 'bundle',
+  name: 'The Bundle',
+  subtitle: 'Creatine + Magnesium',
+  count: '60 + 90 capsules',
+  doseDesc: '30 days, both',
+  price: 72,
+  color: 'var(--gold)',
+  containerLabel: 'Both bottles · save $8',
+  sku: 'OLN-BUN-01',
+  blurb: 'Both formulas together. Morning and night.',
+  long: 'Our complete daily protocol. Creatine with breakfast, magnesium before sleep.',
+  ingredients: [
+  { name: 'Creatine Monohydrate', amount: '3 g' },
+  { name: 'Magnesium Glycinate', amount: '200 mg' }]
+
+}];
+
+
+/* =========================================================================
+   APP SHELL — routing, cart state, ship-date context
+   ========================================================================= */
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+function useEditMode() {
+  const [editing, setEditing] = useState(false);
+  useEffect(() => {
+    function onMsg(e) {
+      if (!e.data || typeof e.data !== 'object') return;
+      if (e.data.type === '__activate_edit_mode') setEditing(true);else
+      if (e.data.type === '__deactivate_edit_mode') setEditing(false);
+    }
+    window.addEventListener('message', onMsg);
+    try {window.parent.postMessage({ type: '__edit_mode_available' }, '*');} catch {}
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+  return editing;
+}
+
+function persistTweak(key, value) {
+  try {
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: value } }, '*');
+  } catch {}
+}
+
+function App() {
+  const [tweaks, setTweaks] = useState(TWEAKS);
+  const editing = useEditMode();
+
+  const today = useMemo(() => parseSimDate(tweaks.simulatedToday), [tweaks.simulatedToday]);
+  const shipDate = useMemo(() => computeShipDate(today), [today]);
+  const daysToCutoff = useMemo(() => cutoffNotice(today), [today]);
+
+  // Routing
+  const [route, setRoute] = useState(() => {
+    try {return JSON.parse(localStorage.getItem('olnian_route')) || { name: 'home' };}
+    catch {return { name: 'home' };}
+  });
+  const go = useCallback((name, params = {}) => {
+    const r = { name, ...params };
+    setRoute(r);
+    try {localStorage.setItem('olnian_route', JSON.stringify(r));} catch {}
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
+
+  // Cart
+  const [cart, setCart] = useState(() => {
+    try {return JSON.parse(localStorage.getItem('olnian_cart')) || [];}
+    catch {return [];}
+  });
+  useEffect(() => {
+    try {localStorage.setItem('olnian_cart', JSON.stringify(cart));} catch {}
+  }, [cart]);
+
+  const [cartOpen, setCartOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  const addToCart = useCallback((productId, qty = 1) => {
+    setCart((prev) => {
+      const existing = prev.find((l) => l.id === productId);
+      if (existing) {
+        return prev.map((l) => l.id === productId ? { ...l, qty: l.qty + qty } : l);
+      }
+      return [...prev, { id: productId, qty }];
+    });
+    setCartOpen(true);
+  }, []);
+
+  const updateQty = useCallback((productId, qty) => {
+    setCart((prev) => qty <= 0 ?
+    prev.filter((l) => l.id !== productId) :
+    prev.map((l) => l.id === productId ? { ...l, qty } : l));
+  }, []);
+
+  const cartCount = cart.reduce((n, l) => n + l.qty, 0);
+  const subtotal = cart.reduce((sum, l) => {
+    const p = PRODUCTS.find((p) => p.id === l.id);
+    return sum + (p ? p.price * l.qty : 0);
+  }, 0);
+
+  const setTweak = (key, value) => {
+    setTweaks((t) => ({ ...t, [key]: value }));
+    persistTweak(key, value);
+  };
+
+  const ctx = {
+    today, shipDate, daysToCutoff,
+    tweaks, cart, cartCount, subtotal,
+    addToCart, updateQty, setCartOpen, go,
+    openQuiz: () => setQuizOpen(true),
+  };
+
+  return (
+    <div>
+      <Header cartCount={cartCount} onOpenCart={() => setCartOpen(true)} go={go} route={route} />
+
+      <main>
+        {route.name === 'home' && <HomePage ctx={ctx} />}
+        {route.name === 'product' && <ProductPage ctx={ctx} productId={route.id} />}
+        {route.name === 'checkout' && <CheckoutPage ctx={ctx} />}
+        {route.name === 'confirmation' && <ConfirmationPage ctx={ctx} order={route.order} />}
+      </main>
+
+      <Footer />
+
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cart={cart}
+        subtotal={subtotal}
+        shipDate={ctx.shipDate}
+        today={ctx.today}
+        daysToCutoff={ctx.daysToCutoff}
+        updateQty={updateQty}
+        onCheckout={() => {setCartOpen(false);go('checkout');}} />
+      
+
+      {editing && <TweaksPanel tweaks={tweaks} setTweak={setTweak} />}
+
+      <QuizModal
+        open={quizOpen}
+        onClose={() => setQuizOpen(false)}
+        onOrder={() => { setQuizOpen(false); go('product', { id: 'creatine' }); }}
+      />
+    </div>);
+
+}
+
+/* =========================================================================
+   HEADER
+   ========================================================================= */
+function Header({ cartCount, onOpenCart, go, route }) {
+  return (
+    <header style={{
+      position: 'sticky', top: 0, zIndex: 20,
+      background: 'rgba(246, 225, 200, 0.88)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      borderBottom: '1px solid rgba(92, 26, 0, 0.18)'
+    }}>
+      <div style={{
+        maxWidth: 1320, margin: '0 auto',
+        padding: '18px 32px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        <button onClick={() => go('home')} style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <span className="brand" style={{ fontSize: 26, letterSpacing: '-0.02em', fontWeight: 500 }}>ØLNIAN</span>
+          <span style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>EST. 2022</span>
+        </button>
+
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 32, fontSize: 14 }}>
+          <button onClick={() => go('product', { id: 'creatine' })}
+          style={{ opacity: route.name === 'product' ? 1 : 0.72 }}>
+            Shop
+          </button>
+          <button onClick={onOpenCart} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            Cart
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              minWidth: 20, height: 20, padding: '0 6px',
+              background: cartCount > 0 ? 'var(--tangerine)' : 'transparent',
+              color: cartCount > 0 ? 'white' : 'var(--espresso-60)',
+              border: cartCount > 0 ? 'none' : '1px solid var(--espresso-12)',
+              fontSize: 11, fontVariantNumeric: 'tabular-nums',
+              borderRadius: 999
+            }}>{cartCount}</span>
+          </button>
+        </nav>
+      </div>
+    </header>);
+
+}
+
+/* =========================================================================
+   STAT STRIP — science numbers (seed.com rhythm)
+   ========================================================================= */
+function StatStrip() {
+  const stats = [
+  { num: '3g', label: 'Creatine monohydrate', note: 'The dose studied in women 40+' },
+  { num: '200mg', label: 'Magnesium glycinate', note: 'Chelated. Gentler than citrate.' },
+  { num: '0', label: 'Fillers, sweeteners, dyes', note: 'Capsule, creatine, magnesium.' },
+  { num: 'Oregon', label: 'Made in small batches', note: 'Shipped within days of production.' }];
+
+  return (
+    <section style={{
+      borderTop: '1px solid var(--espresso-12)',
+      borderBottom: '1px solid var(--espresso-12)'
+    }}>
+      <div style={{
+        maxWidth: 1320, margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)'
+      }}>
+        {stats.map((s, i) =>
+        <div key={s.num} style={{
+          padding: '36px 32px',
+          borderLeft: i === 0 ? 'none' : '1px solid var(--espresso-12)'
+        }}>
+            <div className="display-md" style={{ fontSize: 48, fontWeight: 300, lineHeight: 1 }}>
+              {s.num}
+            </div>
+            <div style={{ marginTop: 12, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--espresso)' }}>
+              {s.label}
+            </div>
+            <div style={{ marginTop: 6, fontSize: 13, color: 'var(--espresso-60)', lineHeight: 1.45 }}>
+              {s.note}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>);
+
+}
+
+/* =========================================================================
+   STORY BLOCK — alternating editorial section
+   ========================================================================= */
+function StoryBlock({ kicker, headline, body, bg, textColor, imgSide, color }) {
+  const txt = textColor || 'var(--espresso)';
+  return (
+    <section style={{ background: bg, color: txt, padding: '120px 32px' }}>
+      <div style={{
+        maxWidth: 1320, margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 80,
+        alignItems: 'center',
+        direction: imgSide === 'left' ? 'rtl' : 'ltr'
+      }}>
+        <div style={{ direction: 'ltr' }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.6 }}>
+            {kicker}
+          </div>
+          <h2 className="display-xl" style={{
+            marginTop: 20,
+            fontSize: 'clamp(44px, 6vw, 80px)',
+            fontWeight: 300,
+            textWrap: 'balance'
+          }}>
+            {headline}
+          </h2>
+          <p style={{ marginTop: 28, fontSize: 17, lineHeight: 1.6, maxWidth: 520, opacity: 0.85 }}>
+            {body}
+          </p>
+        </div>
+        <div style={{
+          direction: 'ltr',
+          aspectRatio: '4 / 5',
+          background: color || 'var(--flamingo)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <StoryPattern variant={imgSide} color={txt} />
+        </div>
+      </div>
+    </section>);
+
+}
+
+function StoryPattern({ variant, color }) {
+  // Abstract editorial graphic — concentric arcs / parallel lines
+  const stroke = color === 'var(--blush)' ? 'rgba(255,248,240,0.35)' : 'rgba(92,26,0,0.22)';
+  if (variant === 'left') {
+    return (
+      <svg viewBox="0 0 400 500" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        {Array.from({ length: 9 }).map((_, i) =>
+        <circle key={i} cx="200" cy="260" r={40 + i * 26} fill="none" stroke={stroke} strokeWidth="1" />
+        )}
+      </svg>);
+
+  }
+  return (
+    <svg viewBox="0 0 400 500" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+      {Array.from({ length: 20 }).map((_, i) =>
+      <line key={i} x1={i * 22} y1="0" x2={i * 22 - 180} y2="500" stroke={stroke} strokeWidth="1" />
+      )}
+    </svg>);
+
+}
+
+/* =========================================================================
+   HOW IT WORKS — four step batch model explainer
+   ========================================================================= */
+function HowItWorks({ ctx }) {
+  const { shipDate } = ctx;
+  const steps = [
+  { n: '01', title: 'You order, any day.', body: 'Every order is a one-time purchase. No subscription, no commitment, no cancellation emails.' },
+  { n: '02', title: 'We batch by the 14th.', body: 'Orders placed before the 15th join that month\u2019s batch. Orders after the 15th join the next one.' },
+  { n: '03', title: 'Production the first half.', body: 'Your capsules are encapsulated and tested against the exact formulation a week before they ship.' },
+  { n: '04', title: `Ship on the 15th.`, body: `The entire batch leaves our Oregon facility on the 15th. Your next one arrives on ${fmtShipLong(shipDate)}.` }];
+
+  return (
+    <section style={{ padding: '120px 32px', background: 'var(--blush)' }}>
+      <div style={{ maxWidth: 1320, margin: '0 auto' }}>
+        <div style={{ maxWidth: 680, marginBottom: 72 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>
+            How it ships
+          </div>
+          <h2 className="display-xl" style={{
+            marginTop: 20,
+            fontSize: 'clamp(40px, 5.5vw, 72px)',
+            fontWeight: 300,
+            textWrap: 'balance'
+          }}>
+            A supplement, on a calendar.
+          </h2>
+        </div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 24,
+          borderTop: '1px solid var(--espresso-12)'
+        }}>
+          {steps.map((s) =>
+          <div key={s.n} style={{
+            padding: '32px 0',
+            borderRight: '0'
+          }}>
+              <div style={{ fontSize: 12, letterSpacing: '0.22em', color: 'var(--tangerine)' }}>
+                {s.n}
+              </div>
+              <h3 className="display-md" style={{ marginTop: 14, fontSize: 26, fontWeight: 400, letterSpacing: '-0.02em' }}>
+                {s.title}
+              </h3>
+              <p style={{ marginTop: 12, fontSize: 14, color: 'var(--espresso-60)', lineHeight: 1.55 }}>
+                {s.body}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>);
+
+}
+
+/* =========================================================================
+   TESTING STRIP
+   ========================================================================= */
+function TestingStrip() {
+  const items = [
+  'Third-party tested',
+  'Heavy metals cleared',
+  'FDA-registered facility',
+  'Manufactured in Oregon',
+  'Certificate of analysis'];
+
+  return (
+    <section style={{ background: 'var(--gold)', padding: '28px 32px' }}>
+      <div style={{
+        maxWidth: 1320, margin: '0 auto',
+        display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between',
+        gap: 16, alignItems: 'center',
+        fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase',
+        color: 'var(--espresso)'
+      }}>
+        {items.map((s, i) =>
+        <span key={s} style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
+            {s}
+            {i < items.length - 1 && <span style={{ opacity: 0.4 }}>•</span>}
+          </span>
+        )}
+      </div>
+    </section>);
+
+}
+
+/* =========================================================================
+   HOMEPAGE
+   ========================================================================= */
+function HomePage({ ctx }) {
+  return (
+    <div className="page-enter" data-screen-label="Home">
+      <Hero ctx={ctx} />
+      <StatStrip />
+      <StoryBlock
+        kicker="The formula"
+        headline={<>Creatine. Magnesium. <em style={{ fontStyle: 'italic', fontWeight: 300 }}>Nothing else.</em></>}
+        body="Two ingredients studied specifically in women after 38. Three grams of creatine monohydrate for muscle, brain, and mitochondrial support. Two hundred milligrams of magnesium glycinate for sleep and nervous-system calm. No proprietary blends. No hidden dose."
+        bg="var(--blush)"
+        imgSide="right"
+        color={null} />
+      
+      <SKURow ctx={ctx} />
+      <StoryBlock
+        kicker="Made to order"
+        headline={<>Your batch is made the week you order it.</>}
+        body="Most supplements sit in warehouses for eighteen months before they reach you. Ours are produced in small batches and shipped on the 15th of the month. Every bottle leaves our Oregon facility within days of production."
+        bg="var(--tangerine)"
+        textColor="var(--blush)"
+        imgSide="left"
+        color="var(--blush)" />
+      
+      <HowItWorks ctx={ctx} />
+      <ProofSection />
+      <TestingStrip />
+      <BatchStory ctx={ctx} />
+    </div>);
+
+}
+
+function Hero({ ctx }) {
+  const { shipDate, daysToCutoff, today, tweaks, go } = ctx;
+  const preCutoff = today.getDate() < 15;
+
+  return (
+    <section style={{
+      maxWidth: 1320, margin: '0 auto',
+      padding: '80px 32px 100px'
+    }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1.15fr 1fr',
+        gap: 80,
+        alignItems: 'center'
+      }}>
+        <div>
+          <h1 className="display-xl" style={{
+
+            marginTop: 28,
+            textWrap: 'balance',
+            fontWeight: 300, fontSize: "68px",
+            whiteSpace: 'pre-line'
+          }}>
+            {tweaks.heroHeadline}
+          </h1>
+          <p style={{
+            maxWidth: 460,
+            marginTop: 32,
+            fontSize: 18,
+            lineHeight: 1.55,
+            color: 'var(--espresso)',
+            opacity: 0.78,
+            fontWeight: 300
+          }}>Pure crystallized creatine monohydrate. Third-party tested for heavy metals. Formulated for women 37 and up.
+          </p>
+          <div style={{ marginTop: 44, display: 'flex', alignItems: 'center', gap: 24 }}>
+            <button
+              onClick={() => go('product', { id: 'creatine' })}
+              style={ctaStyle()}>
+              
+              Order this batch <Arrow />
+            </button>
+            <button
+              onClick={() => ctx.openQuiz()}
+              style={{ fontSize: 14, color: 'var(--espresso-60)' }}
+              className="uline">
+              
+              Should I take creatine?
+            </button>
+          </div>
+        </div>
+
+        <HeroImage />
+      </div>
+    </section>);
+
+}
+
+function HeroImage() {
+  return (
+    <div className="product-photo-bg" style={{
+      aspectRatio: '4 / 5',
+      position: 'relative',
+      overflow: 'hidden',
+      background: 'var(--blush)'
+    }}>
+      <img
+        src="assets/olnian-products.jpg"
+        alt="Three Olnian supplement containers on a warm stone surface"
+        style={{
+          width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center'
+        }} />
+      
+      <div style={{
+        position: 'absolute', left: 20, bottom: 20,
+        fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+        color: 'rgba(92, 26, 0, 0.75)',
+        background: 'rgba(255, 248, 240, 0.85)',
+        padding: '6px 10px'
+      }}>Third-party tested · Oregon</div>
+    </div>);
+
+}
+
+function Arrow() {
+  return (
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="none" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+      <path d="M1 6H15M15 6L10 1M15 6L10 11" stroke="currentColor" strokeWidth="1.2" />
+    </svg>);
+
+}
+
+function ctaStyle(variant = 'primary') {
+  const base = {
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    padding: '14px 24px',
+    fontSize: 14, letterSpacing: '0.02em',
+    transition: 'all 0.2s ease',
+    fontWeight: 400
+  };
+  if (variant === 'primary') {
+    return { ...base, background: 'var(--espresso)', color: 'var(--blush)' };
+  }
+  if (variant === 'secondary') {
+    return { ...base, background: 'var(--tangerine)', color: 'white' };
+  }
+  return { ...base, background: 'transparent', color: 'var(--espresso)', border: '1px solid var(--espresso-30)' };
+}
+
+/* =========================================================================
+   SKU ROW — editorial, not cards
+   ========================================================================= */
+function SKURow({ ctx }) {
+  const { go } = ctx;
+  return (
+    <section id="skus" style={{
+      maxWidth: 1320, margin: '0 auto',
+      padding: '80px 32px',
+      borderTop: '1px solid var(--espresso-12)'
+    }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+        marginBottom: 48
+      }}>
+        <h2 className="display-md" style={{ fontSize: 42, fontWeight: 400, letterSpacing: '-0.03em' }}>Three formats.</h2>
+        <span style={{ fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>
+          One formula
+        </span>
+      </div>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 32
+      }}>
+        {PRODUCTS.map((p, i) =>
+        <SKUCard key={p.id} p={p} index={i} onClick={() => go('product', { id: p.id })} />
+        )}
+      </div>
+    </section>);
+
+}
+
+function SKUCard({ p, index, onClick }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <article
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ cursor: 'pointer' }}>
+      
+      <div style={{
+        aspectRatio: '4 / 5',
+        background: p.color,
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'transform 0.4s ease',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)'
+      }}>
+        <ProductIllustration product={p} />
+        <div style={{
+          position: 'absolute', top: 20, left: 20,
+          fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
+          color: p.id === 'clarity' ? 'var(--espresso)' : 'rgba(255, 248, 240, 0.85)',
+          fontWeight: 500
+        }}>0{index + 1}</div>
+        <div style={{
+          position: 'absolute', bottom: 20, left: 20, right: 20,
+          fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: p.id === 'clarity' ? 'var(--espresso)' : 'rgba(255, 248, 240, 0.9)',
+          display: 'flex', justifyContent: 'space-between'
+        }}>
+          <span>{p.subtitle}</span>
+          <span>{p.count}</span>
+        </div>
+      </div>
+      <div style={{
+        marginTop: 20,
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        gap: 20
+      }}>
+        <div>
+          <h3 className="display-md" style={{ fontSize: 32, letterSpacing: '-0.025em', fontWeight: 400 }}>
+            {p.name}
+          </h3>
+          <p style={{ marginTop: 10, fontSize: 14, color: 'var(--espresso-60)', maxWidth: 320 }}>
+            {p.blurb}
+          </p>
+        </div>
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 18 }}>${p.price}</div>
+          <div style={{
+            marginTop: 8, fontSize: 12,
+            letterSpacing: '0.02em',
+            color: hovered ? 'var(--tangerine)' : 'var(--espresso-60)',
+            transition: 'color 0.2s ease'
+          }}>
+            View <Arrow />
+          </div>
+        </div>
+      </div>
+    </article>);
+
+}
+
+/* Abstract SVG product illustration inside the SKU swatch — a simple
+   representation of the container silhouette, not a copy of real packaging */
+function ProductIllustration({ product }) {
+  // Real product photo for the hero SKU.
+  if (product.id === 'creatine') {
+    return (
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '8%',
+      }}>
+        <img
+          src="assets/creatine-hero.png"
+          alt="Olnian Creatine container"
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 24px 48px rgba(92, 26, 0, 0.18))',
+          }}
+        />
+      </div>
+    );
+  }
+
+  const accent = product.id === 'bundle' ? 'rgba(92,26,0,0.25)' : 'rgba(255,248,240,0.22)';
+  const stroke = product.id === 'bundle' ? 'rgba(92,26,0,0.4)' : 'rgba(255,248,240,0.5)';
+
+  let shape;
+  if (product.id === 'magnesium') {
+    // same silhouette as creatine (taller cylinder) so the set reads as a family
+    shape =
+    <g>
+        <rect x="100" y="75" width="90" height="22" fill={accent} />
+        <rect x="92" y="97" width="106" height="190" fill={accent} stroke={stroke} strokeWidth="1.2" />
+        <line x1="115" y1="175" x2="175" y2="175" stroke={stroke} strokeWidth="0.8" />
+        <line x1="120" y1="195" x2="170" y2="195" stroke={stroke} strokeWidth="0.8" />
+      </g>;
+  } else {
+    // bundle: two containers side-by-side
+    shape =
+    <g>
+        <g transform="translate(-35, 0)">
+          <rect x="100" y="95" width="90" height="22" fill={accent} />
+          <rect x="92" y="117" width="106" height="170" fill={accent} stroke={stroke} strokeWidth="1.2" />
+        </g>
+        <g transform="translate(35, 0)">
+          <rect x="100" y="95" width="90" height="22" fill={accent} />
+          <rect x="92" y="117" width="106" height="170" fill={accent} stroke={stroke} strokeWidth="1.2" />
+        </g>
+      </g>;
+  }
+
+  return (
+    <svg viewBox="0 0 290 320" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+      {shape}
+    </svg>);
+
+}
+
+/* =========================================================================
+   PROOF / SCIENCE STRIP
+   ========================================================================= */
+function ProofSection() {
+  const facts = [
+  { num: '01', text: 'Women store about 70 to 80 percent as much creatine as men. The gap widens after 40.' },
+  { num: '02', text: 'Magnesium glycinate is the chelated form the body absorbs without the usual laxative effect.' },
+  { num: '03', text: 'Three grams daily is the dose studied in peri- and post-menopausal women. Not five. Not ten.' }];
+
+  return (
+    <section style={{
+      background: 'var(--espresso)',
+      color: 'var(--blush)',
+      padding: '120px 32px'
+    }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.6, marginBottom: 40 }}>
+          What the research says
+        </div>
+        {facts.map((f, i) =>
+        <div key={f.num} style={{
+          display: 'grid',
+          gridTemplateColumns: '80px 1fr',
+          gap: 40,
+          padding: '40px 0',
+          borderTop: i === 0 ? 'none' : '1px solid rgba(255,248,240,0.12)',
+          alignItems: 'baseline'
+        }}>
+            <div className="display-md" style={{ fontSize: 40, opacity: 0.35, fontWeight: 400 }}>{f.num}</div>
+            <p className="display-md" style={{
+            fontSize: 'clamp(28px, 4vw, 44px)',
+            fontWeight: 300,
+            letterSpacing: '-0.025em',
+            lineHeight: 1.1,
+            textWrap: 'balance'
+          }}>
+              {f.text}
+            </p>
+          </div>
+        )}
+      </div>
+    </section>);
+
+}
+
+/* =========================================================================
+   BATCH STORY — end of home
+   ========================================================================= */
+function BatchStory({ ctx }) {
+  const { shipDate, go } = ctx;
+  return (
+    <section style={{ padding: '120px 32px', background: 'var(--flamingo)' }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>
+          The 15th
+        </div>
+        <h2 className="display-xl" style={{
+          fontSize: 'clamp(44px, 6.5vw, 84px)',
+          fontWeight: 300,
+          marginTop: 24,
+          textWrap: 'balance'
+        }}>
+          Every bottle leaves within days of production. Not months.
+        </h2>
+        <p style={{ marginTop: 36, fontSize: 17, maxWidth: 560, margin: '36px auto 0', lineHeight: 1.55, opacity: 0.8 }}>
+          Pure ingredients, third-party tested, made in small batches. Not a subscription — just a better way to buy.
+        </p>
+        <div style={{ marginTop: 40, display: 'inline-flex', gap: 16, alignItems: 'center' }}>
+          <button onClick={() => go('product', { id: 'creatine' })} style={ctaStyle()}>
+            Reserve this batch <Arrow />
+          </button>
+          <div style={{ fontSize: 13, color: 'var(--espresso-60)' }}>
+            Ships {fmtShipLong(shipDate)}
+          </div>
+        </div>
+      </div>
+    </section>);
+
+}
+
+/* =========================================================================
+   PRODUCT PAGE
+   ========================================================================= */
+function ProductPage({ ctx, productId }) {
+  const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
+  const others = PRODUCTS.filter((p) => p.id !== product.id);
+  const { addToCart, go } = ctx;
+  const [qty, setQty] = useState(1);
+  const isHero = product.id === 'creatine';
+
+  return (
+    <div className="page-enter" data-screen-label={`Product · ${product.name}`}>
+      {/* =========================================================
+             ABOVE THE FOLD — sales-forward for Creatine.
+             Viewport-height grid, product left, purchase right.
+             ========================================================= */}
+      <section style={{
+        minHeight: 'calc(100vh - 72px)',
+        background: 'var(--blush)',
+        position: 'relative'
+      }}>
+        <div style={{
+          maxWidth: 1440, margin: '0 auto',
+          padding: '32px 32px 40px',
+          display: 'grid',
+          gridTemplateColumns: '1.05fr 1fr',
+          gap: 64,
+          alignItems: 'stretch',
+          minHeight: 'calc(100vh - 72px)'
+        }}>
+          {/* LEFT: product image + trust badges stack */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <button onClick={() => go('home')} style={{
+              fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase',
+              color: 'var(--espresso-60)', alignSelf: 'flex-start'
+            }}>
+              ← Back
+            </button>
+            <div style={{
+              flex: 1,
+              background: product.color,
+              position: 'relative',
+              overflow: 'hidden',
+              minHeight: 520
+            }}>
+              <ProductIllustration product={product} />
+              <div style={{
+                position: 'absolute', top: 24, left: 24,
+                fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+                color: product.id === 'bundle' ? 'var(--espresso)' : 'rgba(255,248,240,0.85)'
+              }}>
+                {product.subtitle}
+              </div>
+              <div style={{
+                position: 'absolute', bottom: 24, left: 24, right: 24,
+                display: 'flex', justifyContent: 'space-between',
+                fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+                color: product.id === 'bundle' ? 'var(--espresso)' : 'rgba(255,248,240,0.9)'
+              }}>
+                <span>{product.containerLabel}</span>
+                <span>SKU · {product.sku}</span>
+              </div>
+            </div>
+            {/* Trust row */}
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 0,
+              border: '1px solid var(--espresso-12)'
+            }}>
+              {[
+              { t: '3-5g', s: 'Pure dose' },
+              { t: '0', s: 'Fillers' },
+              { t: 'USA', s: 'Made' },
+              { t: '3rd', s: 'Party tested' }].
+              map((x, i) =>
+              <div key={x.t} style={{
+                padding: '14px 12px',
+                borderLeft: i === 0 ? 'none' : '1px solid var(--espresso-12)',
+                textAlign: 'center'
+              }}>
+                  <div className="display-md" style={{ fontSize: 22, fontWeight: 400, lineHeight: 1 }}>{x.t}</div>
+                  <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--espresso-60)', marginTop: 6 }}>
+                    {x.s}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT: purchase panel — everything needed to buy, above the fold */}
+          <div style={{
+            display: 'flex', flexDirection: 'column',
+            justifyContent: 'center',
+            padding: '16px 0'
+          }}>
+            {isHero &&
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
+              color: 'var(--tangerine)', marginBottom: 20
+            }}>
+                <span style={{ width: 6, height: 6, background: 'var(--tangerine)', borderRadius: '50%', display: 'inline-block' }} />
+                Best seller
+              </div>
+            }
+
+            <h1 className="display-xl" style={{
+              fontSize: 'clamp(64px, 7vw, 108px)',
+              fontWeight: 300,
+              lineHeight: 0.92,
+              letterSpacing: '-0.035em'
+            }}>
+              {product.name}.
+            </h1>
+
+            <p className="display-md" style={{
+              marginTop: 16,
+              fontSize: 22,
+              fontWeight: 300,
+              lineHeight: 1.25,
+              letterSpacing: '-0.01em',
+              color: 'var(--espresso)',
+              maxWidth: 520,
+              textWrap: 'balance'
+            }}>
+              {isHero ?
+              'Pure crystallized creatine monohydrate for women 37 and up. Strength. Clarity. Bone density. Better sleep.' :
+              product.long}
+            </p>
+
+            {/* Star rating */}
+            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Stars n={5} />
+              <span style={{ fontSize: 13, color: 'var(--espresso-60)' }}>
+                4.9 · 1,284 reviews
+              </span>
+            </div>
+
+            {/* Quick bullets — the persuasive above-fold content */}
+            <ul style={{ margin: '28px 0 0', padding: 0, listStyle: 'none' }}>
+              {(isHero ? [
+              'Shown to improve lean muscle, cognition, and mood after 40.  ',
+              'Supports bone density through perimenopause and beyond',
+              '3-5g pure micronized creatine monohydrate · 0 fillers',
+              'Third-party tested for heavy metals, every batch'] :
+              [
+              'Pure pharmaceutical-grade ingredients',
+              'No proprietary blends or hidden doses',
+              'Third-party tested for heavy metals',
+              'Made in small batches in Oregon']).
+              map((b) =>
+              <li key={b} style={{
+                display: 'grid', gridTemplateColumns: '18px 1fr',
+                gap: 12, padding: '8px 0',
+                fontSize: 15, lineHeight: 1.4,
+                color: 'var(--espresso)'
+              }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" style={{ marginTop: 3 }}>
+                    <path d="M3 8.5L6.5 12L13 4.5" stroke="var(--tangerine)" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span>{b}</span>
+                </li>
+              )}
+            </ul>
+
+            {/* Price + stepper + CTA — one tight row */}
+            <div style={{
+              marginTop: 32,
+              padding: '24px',
+              background: 'white',
+              border: '1px solid var(--espresso-12)',
+              display: 'grid',
+              gridTemplateColumns: 'auto 1fr',
+              gap: 20,
+              alignItems: 'center'
+            }}>
+              <div>
+                <div className="display-md" style={{ fontSize: 44, fontWeight: 300, lineHeight: 1 }}>
+                  ${product.price}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 6, letterSpacing: '0.02em' }}>
+                  {product.doseDesc}
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'stretch', gap: 12 }}>
+                <Stepper value={qty} onChange={setQty} />
+                <button
+                  onClick={() => addToCart(product.id, qty)}
+                  style={{
+                    flex: 1,
+                    ...ctaStyle(),
+                    justifyContent: 'center',
+                    fontSize: 15,
+                    padding: '18px 24px'
+                  }}>
+                  Select <Arrow />
+                </button>
+              </div>
+            </div>
+
+            <div style={{
+              marginTop: 14, display: 'flex', gap: 20, flexWrap: 'wrap',
+              fontSize: 12, color: 'var(--espresso-60)'
+            }}>
+              <span>✓ Free shipping with subscription</span>
+              <span>✓ 60-day guarantee</span>
+              <span>✓ Reusable container</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+             BELOW THE FOLD — proof, ingredients, related
+             ========================================================= */}
+      <section style={{ background: 'var(--espresso)', color: 'var(--blush)', padding: '80px 32px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48 }}>
+          {[
+          { q: '"I sleep through the night again. My joints stopped aching by week three."', a: 'Marisol, 52' },
+          { q: '"I can finally finish a workout without the 3pm crash. Noticeable in a week."', a: 'Dana, 44' },
+          { q: '"Clean ingredients I can actually pronounce. This is what I\'ve wanted for years."', a: 'Priya, 48' }].
+          map((t) =>
+          <blockquote key={t.a} style={{ margin: 0 }}>
+              <p className="display-md" style={{
+              fontSize: 22, fontWeight: 300, lineHeight: 1.3, letterSpacing: '-0.015em',
+              textWrap: 'balance'
+            }}>
+                {t.q}
+              </p>
+              <footer style={{ marginTop: 16, fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.6 }}>
+                {t.a}
+              </footer>
+            </blockquote>
+          )}
+        </div>
+      </section>
+
+      <div style={{ maxWidth: 1320, margin: '0 auto', padding: '120px 32px' }}>
+        {/* Ingredients */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 2fr',
+          gap: 80,
+          alignItems: 'start'
+        }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>
+              Ingredients
+            </div>
+            <h3 className="display-md" style={{ fontSize: 48, marginTop: 16, lineHeight: 1, letterSpacing: '-0.03em', fontWeight: 300 }}>
+              Nothing you can't read aloud.
+            </h3>
+          </div>
+          <div>
+            {product.ingredients.map((ing, i) =>
+            <div key={ing.name} style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr auto',
+              padding: '20px 0',
+              borderTop: i === 0 ? '1px solid var(--espresso-12)' : 'none',
+              borderBottom: '1px solid var(--espresso-12)',
+              alignItems: 'baseline'
+            }}>
+                <div className="display-md" style={{ fontSize: 28, fontWeight: 400, letterSpacing: '-0.02em' }}>{ing.name}</div>
+                <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 14, color: 'var(--espresso-60)' }}>
+                  {ing.amount}
+                </div>
+              </div>
+            )}
+            <p style={{ marginTop: 24, fontSize: 13, color: 'var(--espresso-60)', maxWidth: 500, lineHeight: 1.6 }}>Manufactured in an FDA-registered facility and packaged in the USA. Each batch is third-party tested for identity, potency, and heavy metals.
+
+            </p>
+          </div>
+        </div>
+
+        {/* Related */}
+        <div style={{ marginTop: 120 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)', marginBottom: 32 }}>
+            Pairs with
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+            {others.map((p) =>
+            <SKUCard key={p.id} p={p} index={PRODUCTS.indexOf(p)} onClick={() => go('product', { id: p.id })} />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>);
+
+}
+
+function Stars({ n }) {
+  return (
+    <div style={{ display: 'flex', gap: 2 }}>
+      {Array.from({ length: n }).map((_, i) =>
+      <svg key={i} width="14" height="14" viewBox="0 0 14 14">
+          <path d="M7 1l1.9 3.9 4.3.6-3.1 3 .7 4.3L7 10.8 3.2 12.8l.7-4.3-3.1-3 4.3-.6z"
+        fill="var(--tangerine)" />
+        </svg>
+      )}
+    </div>);
+
+}
+
+function Stepper({ value, onChange }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center',
+      border: '1px solid var(--espresso-30)',
+      height: 50
+    }}>
+      <button onClick={() => onChange(Math.max(1, value - 1))}
+      style={{ width: 44, height: '100%', fontSize: 18 }}>−</button>
+      <div style={{ minWidth: 36, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{value}</div>
+      <button onClick={() => onChange(value + 1)}
+      style={{ width: 44, height: '100%', fontSize: 18 }}>+</button>
+    </div>);
+
+}
+
+/* =========================================================================
+   CART DRAWER
+   ========================================================================= */
+function CartDrawer({ open, onClose, cart, subtotal, shipDate, today, daysToCutoff, updateQty, onCheckout }) {
+  const [mounted, setMounted] = useState(open);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      document.body.style.overflow = 'hidden';
+    } else if (mounted) {
+      setClosing(true);
+      const t = setTimeout(() => {setMounted(false);setClosing(false);}, 280);
+      document.body.style.overflow = '';
+      return () => clearTimeout(t);
+    }
+    return () => {document.body.style.overflow = '';};
+  }, [open]);
+
+  if (!mounted) return null;
+  const preCutoff = today.getDate() < 15;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50 }}>
+      <div
+        onClick={onClose}
+        style={{
+          position: 'absolute', inset: 0,
+          background: 'rgba(92, 26, 0, 0.35)',
+          animation: `${closing ? 'overlayOut' : 'overlayIn'} 0.28s ease both`
+        }} />
+      
+      <aside style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0,
+        width: 'min(480px, 100vw)',
+        background: 'var(--blush)',
+        display: 'flex', flexDirection: 'column',
+        animation: `${closing ? 'slideOutRight' : 'slideInRight'} 0.28s ease both`,
+        boxShadow: '-20px 0 40px rgba(92,26,0,0.08)'
+      }}>
+        <div style={{
+          padding: '24px 28px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+          borderBottom: '1px solid var(--espresso-12)'
+        }}>
+          <h2 className="serif" style={{ fontSize: 32 }}>Your order</h2>
+          <button onClick={onClose} style={{ fontSize: 13, color: 'var(--espresso-60)' }}>Close</button>
+        </div>
+
+        {/* Ship date message — as spec requires */}
+        
+
+        <div style={{ flex: 1, overflow: 'auto', padding: '12px 28px' }}>
+          {cart.length === 0 ?
+          <div style={{
+            padding: '80px 0', textAlign: 'center',
+            color: 'var(--espresso-60)'
+          }}>
+              <p className="serif" style={{ fontSize: 28, color: 'var(--espresso)' }}>Nothing here yet.</p>
+              <p style={{ marginTop: 12, fontSize: 14 }}>Choose a format to begin.</p>
+            </div> :
+
+          cart.map((line) => {
+            const p = PRODUCTS.find((p) => p.id === line.id);
+            if (!p) return null;
+            return (
+              <div key={p.id} style={{
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr auto',
+                gap: 16,
+                padding: '20px 0',
+                borderBottom: '1px solid var(--espresso-12)',
+                alignItems: 'flex-start'
+              }}>
+                  <div style={{ width: 80, height: 100, background: p.color, position: 'relative' }}>
+                    <ProductIllustration product={p} />
+                  </div>
+                  <div>
+                    <div className="serif" style={{ fontSize: 24, lineHeight: 1 }}>{p.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 4, letterSpacing: '0.02em' }}>
+                      {p.subtitle} · {p.count}
+                    </div>
+                    <div style={{ marginTop: 12, display: 'inline-flex', border: '1px solid var(--espresso-12)' }}>
+                      <button onClick={() => updateQty(p.id, line.qty - 1)} style={{ width: 32, height: 32, fontSize: 14 }}>−</button>
+                      <div style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontVariantNumeric: 'tabular-nums' }}>{line.qty}</div>
+                      <button onClick={() => updateQty(p.id, line.qty + 1)} style={{ width: 32, height: 32, fontSize: 14 }}>+</button>
+                    </div>
+                  </div>
+                  <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 15 }}>
+                    ${p.price * line.qty}
+                  </div>
+                </div>);
+
+          })
+          }
+        </div>
+
+        {cart.length > 0 &&
+        <div style={{ borderTop: '1px solid var(--espresso-12)', padding: '20px 28px 24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 4 }}>
+              <span style={{ color: 'var(--espresso-60)' }}>Subtotal</span>
+              <span style={{ fontVariantNumeric: 'tabular-nums' }}>${subtotal}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 16 }}>
+              <span style={{ color: 'var(--espresso-60)' }}>Shipping</span>
+              <span style={{ color: 'var(--espresso-60)' }}>Calculated at checkout</span>
+            </div>
+            <button onClick={onCheckout} style={{
+            ...ctaStyle(),
+            width: '100%',
+            justifyContent: 'center',
+            fontSize: 15,
+            padding: '18px 24px'
+          }}>
+              Continue to checkout <Arrow />
+            </button>
+            <p style={{ marginTop: 14, fontSize: 11, color: 'var(--espresso-60)', textAlign: 'center', lineHeight: 1.5 }}>
+              One-time purchase. No subscription.
+            </p>
+          </div>
+        }
+      </aside>
+    </div>);
+
+}
+
+/* =========================================================================
+   CHECKOUT (simplified — simulates Shopify native checkout)
+   ========================================================================= */
+function CheckoutPage({ ctx }) {
+  const { cart, subtotal, go } = ctx;
+  // Shopify-friendly field names (matches Shopify Storefront / Admin API address + customer schema).
+  // Mapped:  contact.email -> customer.email
+  //          contact.phone -> customer.phone / address.phone (SMS opt-in via acceptsSmsMarketing)
+  //          shipping_address.{first_name, last_name, address1, city, province, zip, country}
+  //          note attributes -> {health_checkin_opt_in: true/false}
+  const [step, setStep] = useState('info'); // info | payment
+  const [form, setForm] = useState({
+    email: '',
+    phone: '',
+    acceptsSmsMarketing: true,
+    healthCheckin: true, // note_attribute: olnian_health_checkin
+    first_name: '',
+    last_name: '',
+    address1: '',
+    address2: '',
+    city: '',
+    province: '',
+    zip: '',
+    country: 'United States',
+    card: '', exp: '', cvc: ''
+  });
+  const [errors, setErrors] = useState({});
+  const shipping = subtotal >= 60 ? 0 : 6;
+  const tax = Math.round(subtotal * 0.0875 * 100) / 100;
+  const total = subtotal + shipping + tax;
+
+  if (cart.length === 0) {
+    return (
+      <div className="page-enter" style={{ padding: '120px 32px', textAlign: 'center' }} data-screen-label="Checkout empty">
+        <h1 className="display-md" style={{ fontSize: 56, fontWeight: 300 }}>Nothing to check out.</h1>
+        <p style={{ marginTop: 16, color: 'var(--espresso-60)' }}>Your bag is empty.</p>
+        <button onClick={() => go('home')} style={{ ...ctaStyle(), marginTop: 32 }}>Back to Olnian</button>
+      </div>);
+
+  }
+
+  function validateInfo() {
+    const e = {};
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) e.email = 'Enter a valid email';
+    if (!/^[\d\s\-\(\)\+]{10,}$/.test(form.phone)) e.phone = 'Enter a valid phone number';
+    if (!form.first_name) e.first_name = 'Required';
+    if (!form.last_name) e.last_name = 'Required';
+    if (!form.address1) e.address1 = 'Required';
+    if (!form.city) e.city = 'Required';
+    if (!form.province) e.province = 'Required';
+    if (!form.zip) e.zip = 'Required';
+    return e;
+  }
+  function validatePayment() {
+    const e = {};
+    if (form.card.replace(/\s/g, '').length < 12) e.card = 'Invalid card';
+    if (!/^\d{2}\/\d{2}$/.test(form.exp)) e.exp = 'MM/YY';
+    if (form.cvc.length < 3) e.cvc = '3 digits';
+    return e;
+  }
+
+  function onContinue() {
+    const e = validateInfo();
+    setErrors(e);
+    if (Object.keys(e).length === 0) {
+      setStep('payment');
+      window.scrollTo({ top: 0 });
+    }
+  }
+
+  function onPlace() {
+    const e = validatePayment();
+    setErrors(e);
+    if (Object.keys(e).length === 0) {
+      // Shopify-shaped payload. When this connects to a Storefront API,
+      // it can be sent directly as checkoutCreate input + customer update.
+      const shopifyPayload = {
+        email: form.email,
+        phone: form.phone,
+        acceptsSmsMarketing: form.acceptsSmsMarketing,
+        shippingAddress: {
+          firstName: form.first_name,
+          lastName: form.last_name,
+          address1: form.address1,
+          address2: form.address2,
+          city: form.city,
+          province: form.province,
+          zip: form.zip,
+          country: form.country,
+          phone: form.phone
+        },
+        lineItems: cart.map((l) => {
+          const p = PRODUCTS.find((x) => x.id === l.id);
+          return { variantSku: p && p.sku, quantity: l.qty, title: p && p.name };
+        }),
+        noteAttributes: [
+        { name: 'olnian_health_checkin', value: form.healthCheckin ? 'opted_in' : 'declined' },
+        { name: 'source', value: 'web_storefront' }]
+
+      };
+      const order = {
+        id: 'OL-' + Math.floor(Math.random() * 900000 + 100000),
+        email: form.email,
+        phone: form.phone,
+        firstName: form.first_name,
+        healthCheckin: form.healthCheckin,
+        lines: [...cart],
+        subtotal, shipping, tax, total,
+        shopify: shopifyPayload
+      };
+      // eslint-disable-next-line no-console
+      console.log('Shopify checkout payload →', shopifyPayload);
+      try {localStorage.setItem('olnian_cart', '[]');} catch {}
+      cart.forEach((l) => ctx.updateQty(l.id, 0));
+      go('confirmation', { order });
+    }
+  }
+
+  return (
+    <div className="page-enter" data-screen-label="Checkout">
+      <div style={{
+        maxWidth: 1200, margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: '1.2fr 1fr',
+        minHeight: 'calc(100vh - 80px)'
+      }}>
+        {/* Left — form */}
+        <div style={{ padding: '56px 56px 80px' }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)' }}>
+            Checkout — Step {step === 'info' ? '1' : '2'} of 2
+          </div>
+          <h1 className="display-md" style={{ fontSize: 56, fontWeight: 300, marginTop: 16, lineHeight: 1, letterSpacing: '-0.03em' }}>
+            {step === 'info' ? 'Where should we send it?' : 'Last thing.'}
+          </h1>
+
+          {step === 'info' ?
+          <form onSubmit={(e) => {e.preventDefault();onContinue();}} style={{ marginTop: 40 }}>
+              {/* Contact */}
+              <SectionLabel>Contact</SectionLabel>
+              <Field name="email" type="email" autoComplete="email"
+            label="Email" value={form.email}
+            onChange={(v) => setForm((f) => ({ ...f, email: v }))}
+            error={errors.email} placeholder="you@example.com" />
+              <Field name="phone" type="tel" autoComplete="tel"
+            label="Mobile phone" value={form.phone}
+            onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
+            error={errors.phone} placeholder="(555) 555-0100"
+            hint="We'll send shipping updates. Never spam." />
+
+              {/* Health check-in opt-in */}
+              <Checkbox
+              checked={form.healthCheckin}
+              onChange={(v) => setForm((f) => ({ ...f, healthCheckin: v }))}
+              title="Yes, include me in the Olnian health check-in"
+              body="Our clinical team will text you twice — at week 4 and week 12 — to ask how you're feeling and offer dosage guidance. No cost. No obligation. Text STOP at any time." />
+            
+              <Checkbox
+              checked={form.acceptsSmsMarketing}
+              onChange={(v) => setForm((f) => ({ ...f, acceptsSmsMarketing: v }))}
+              title="Text me about new batches and restocks"
+              body="Occasional SMS from Olnian. Msg & data rates may apply." />
+            
+
+              {/* Shipping */}
+              <SectionLabel style={{ marginTop: 32 }}>Ship to</SectionLabel>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <Field name="first_name" autoComplete="given-name"
+              label="First name" value={form.first_name}
+              onChange={(v) => setForm((f) => ({ ...f, first_name: v }))}
+              error={errors.first_name} />
+                <Field name="last_name" autoComplete="family-name"
+              label="Last name" value={form.last_name}
+              onChange={(v) => setForm((f) => ({ ...f, last_name: v }))}
+              error={errors.last_name} />
+              </div>
+              <Field name="address1" autoComplete="address-line1"
+            label="Street address" value={form.address1}
+            onChange={(v) => setForm((f) => ({ ...f, address1: v }))}
+            error={errors.address1} />
+              <Field name="address2" autoComplete="address-line2"
+            label="Apt, suite, etc. (optional)" value={form.address2}
+            onChange={(v) => setForm((f) => ({ ...f, address2: v }))} />
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 16 }}>
+                <Field name="city" autoComplete="address-level2"
+              label="City" value={form.city}
+              onChange={(v) => setForm((f) => ({ ...f, city: v }))}
+              error={errors.city} />
+                <Field name="province" autoComplete="address-level1"
+              label="State" value={form.province}
+              onChange={(v) => setForm((f) => ({ ...f, province: v }))}
+              error={errors.province} placeholder="CA" />
+                <Field name="zip" autoComplete="postal-code"
+              label="ZIP" value={form.zip}
+              onChange={(v) => setForm((f) => ({ ...f, zip: v }))}
+              error={errors.zip} />
+              </div>
+              <button type="submit" style={{ ...ctaStyle(), marginTop: 24, width: '100%', justifyContent: 'center', padding: '18px' }}>
+                Continue to payment <Arrow />
+              </button>
+            </form> :
+
+          <form onSubmit={(e) => {e.preventDefault();onPlace();}} style={{ marginTop: 40 }}>
+              <SectionLabel>Payment</SectionLabel>
+              <Field name="cc-number" autoComplete="cc-number"
+            label="Card number" value={form.card}
+            onChange={(v) => setForm((f) => ({ ...f, card: v }))}
+            error={errors.card} placeholder="4242 4242 4242 4242" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <Field name="cc-exp" autoComplete="cc-exp"
+              label="Expiry" value={form.exp}
+              onChange={(v) => setForm((f) => ({ ...f, exp: v }))}
+              error={errors.exp} placeholder="MM/YY" />
+                <Field name="cc-csc" autoComplete="cc-csc"
+              label="CVC" value={form.cvc}
+              onChange={(v) => setForm((f) => ({ ...f, cvc: v }))}
+              error={errors.cvc} placeholder="123" />
+              </div>
+              <button type="submit" style={{ ...ctaStyle(), marginTop: 24, width: '100%', justifyContent: 'center', padding: '18px' }}>
+                Place order — ${total.toFixed(2)} <Arrow />
+              </button>
+              <button type="button" onClick={() => setStep('info')} style={{ marginTop: 12, fontSize: 13, color: 'var(--espresso-60)' }} className="uline">
+                ← Back to shipping
+              </button>
+            </form>
+          }
+
+          <p style={{ marginTop: 32, fontSize: 11, color: 'var(--espresso-60)', lineHeight: 1.6, maxWidth: 480 }}>
+            Your information is encrypted and processed via Shopify's PCI-compliant checkout.
+            By placing your order you agree to the Terms and Privacy Policy.
+          </p>
+        </div>
+
+        {/* Right — order summary (no ship-date chrome) */}
+        <div style={{
+          background: 'var(--flamingo)',
+          padding: '56px 48px'
+        }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)', marginBottom: 20 }}>
+            Your order
+          </div>
+
+          {cart.map((line) => {
+            const p = PRODUCTS.find((p) => p.id === line.id);
+            if (!p) return null;
+            return (
+              <div key={p.id} style={{
+                display: 'grid',
+                gridTemplateColumns: '60px 1fr auto',
+                gap: 14,
+                padding: '14px 0',
+                alignItems: 'center'
+              }}>
+                <div style={{ width: 60, height: 75, background: p.color, position: 'relative' }}>
+                  <ProductIllustration product={p} />
+                  <div style={{
+                    position: 'absolute', top: -6, right: -6,
+                    background: 'var(--espresso)', color: 'var(--blush)',
+                    width: 22, height: 22, borderRadius: '50%',
+                    fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontVariantNumeric: 'tabular-nums'
+                  }}>{line.qty}</div>
+                </div>
+                <div>
+                  <div className="display-md" style={{ fontSize: 20, lineHeight: 1, fontWeight: 400 }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 3 }}>{p.count}</div>
+                </div>
+                <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 14 }}>${p.price * line.qty}</div>
+              </div>);
+
+          })}
+
+          <div style={{ borderTop: '1px solid var(--espresso-12)', marginTop: 20, paddingTop: 20 }}>
+            <SummaryRow label="Subtotal" value={`$${subtotal.toFixed(2)}`} />
+            <SummaryRow label="Shipping" value={shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`} />
+            <SummaryRow label="Tax (est.)" value={`$${tax.toFixed(2)}`} />
+          </div>
+          <div style={{ borderTop: '1px solid var(--espresso-12)', marginTop: 16, paddingTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+            <div className="display-md" style={{ fontSize: 26, fontWeight: 400 }}>Total</div>
+            <div className="display-md" style={{ fontSize: 26, fontVariantNumeric: 'tabular-nums', fontWeight: 400 }}>${total.toFixed(2)}</div>
+          </div>
+
+          {form.healthCheckin &&
+          <div style={{
+            marginTop: 28,
+            padding: '14px 16px',
+            border: '1px solid rgba(92, 26, 0, 0.3)',
+            fontSize: 12, lineHeight: 1.5,
+            color: 'var(--espresso)'
+          }}>
+              <strong style={{ fontWeight: 500 }}>Health check-in enabled.</strong>{' '}
+              Week 4 and week 12 texts from our clinical team. Text STOP anytime.
+            </div>
+          }
+        </div>
+      </div>
+    </div>);
+
+}
+
+function SectionLabel({ children, style }) {
+  return (
+    <div style={{
+      fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+      color: 'var(--espresso-60)',
+      marginBottom: 14,
+      ...style
+    }}>{children}</div>);
+
+}
+
+function Checkbox({ checked, onChange, title, body }) {
+  return (
+    <label style={{
+      display: 'grid', gridTemplateColumns: '24px 1fr',
+      gap: 12, padding: '12px 0',
+      cursor: 'pointer',
+      alignItems: 'flex-start'
+    }}>
+      <div
+        role="checkbox"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        style={{
+          width: 20, height: 20,
+          border: `1.5px solid ${checked ? 'var(--tangerine)' : 'var(--espresso-30)'}`,
+          background: checked ? 'var(--tangerine)' : 'transparent',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginTop: 1
+        }}>
+        
+        {checked &&
+        <svg width="12" height="12" viewBox="0 0 16 16">
+            <path d="M3 8.5L6.5 12L13 4.5" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        }
+      </div>
+      <div onClick={() => onChange(!checked)}>
+        <div style={{ fontSize: 14, fontWeight: 400, color: 'var(--espresso)' }}>{title}</div>
+        <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 4, lineHeight: 1.5 }}>{body}</div>
+      </div>
+    </label>);
+
+}
+
+function Field({ label, value, onChange, error, placeholder, name, type, autoComplete, hint }) {
+  return (
+    <label style={{ display: 'block', marginBottom: 16 }}>
+      <div style={{
+        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+        fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase',
+        color: 'var(--espresso-60)', marginBottom: 6
+      }}>
+        <span>{label}</span>
+        {hint && <span style={{ textTransform: 'none', letterSpacing: 0, fontSize: 11, opacity: 0.8 }}>{hint}</span>}
+      </div>
+      <input
+        name={name}
+        type={type || 'text'}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          width: '100%', padding: '14px 16px',
+          background: 'white',
+          border: `1px solid ${error ? 'var(--tangerine)' : 'var(--espresso-12)'}`,
+          fontFamily: 'inherit', fontSize: 15, color: 'var(--espresso)',
+          outline: 'none'
+        }} />
+      
+      {error && <div style={{ fontSize: 12, color: 'var(--tangerine)', marginTop: 4 }}>{error}</div>}
+    </label>);
+
+}
+
+function SummaryRow({ label, value }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 14 }}>
+      <span style={{ color: 'var(--espresso-60)' }}>{label}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{value}</span>
+    </div>);
+
+}
+
+/* =========================================================================
+   ORDER CONFIRMATION
+   ========================================================================= */
+function ConfirmationPage({ ctx, order }) {
+  if (!order) {
+    return (
+      <div style={{ padding: '120px 32px', textAlign: 'center' }}>
+        <p>No order to show.</p>
+        <button onClick={() => ctx.go('home')} style={{ ...ctaStyle(), marginTop: 24 }}>Back home</button>
+      </div>);
+
+  }
+  const shipDate = new Date(order.shipDate);
+  return (
+    <div className="page-enter" data-screen-label="Order confirmation" style={{ padding: '80px 32px 120px' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto' }}>
+        <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--mint)' }}>
+          ● Order received
+        </div>
+        <h1 className="serif" style={{ fontSize: 'clamp(56px, 7vw, 96px)', lineHeight: 0.95, marginTop: 20, letterSpacing: '-0.02em', textWrap: 'balance' }}>
+          Thank you, {order.firstName}.
+        </h1>
+        <p style={{ marginTop: 24, fontSize: 18, lineHeight: 1.55, opacity: 0.8, maxWidth: 580 }}>
+          We've saved your place in the {fmtShipLong(shipDate)} batch. A confirmation is on its way to <strong style={{ fontWeight: 400 }}>{order.email}</strong>.
+        </p>
+
+        <div style={{
+          marginTop: 48,
+          background: 'var(--mint)',
+          padding: '32px 36px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 24
+        }}>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.7 }}>
+              Ships in small batches
+            </div>
+            <div className="serif" style={{ fontSize: 44, marginTop: 8, lineHeight: 1 }}>
+              {fmtShipLong(shipDate)}
+            </div>
+            <div style={{ fontSize: 14, marginTop: 6, opacity: 0.8 }}>{shipDate.getFullYear()}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.7 }}>
+              Order number
+            </div>
+            <div className="serif" style={{ fontSize: 32, marginTop: 8, fontStyle: 'normal', fontVariantNumeric: 'tabular-nums', fontFamily: "'Figtree', sans-serif" }}>
+              #{order.id}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 48 }}>
+          {order.lines.map((line) => {
+            const p = PRODUCTS.find((p) => p.id === line.id);
+            if (!p) return null;
+            return (
+              <div key={p.id} style={{
+                display: 'grid',
+                gridTemplateColumns: '80px 1fr auto',
+                gap: 20,
+                padding: '20px 0',
+                borderBottom: '1px solid var(--espresso-12)',
+                alignItems: 'center'
+              }}>
+                <div style={{ width: 80, height: 100, background: p.color, position: 'relative' }}>
+                  <ProductIllustration product={p} />
+                </div>
+                <div>
+                  <div className="serif" style={{ fontSize: 26 }}>{p.name}</div>
+                  <div style={{ fontSize: 13, color: 'var(--espresso-60)' }}>{p.subtitle} · {p.count} · qty {line.qty}</div>
+                </div>
+                <div style={{ fontVariantNumeric: 'tabular-nums' }}>${p.price * line.qty}</div>
+              </div>);
+
+          })}
+          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between' }}>
+            <div className="serif" style={{ fontSize: 28 }}>Total</div>
+            <div className="serif" style={{ fontSize: 28, fontVariantNumeric: 'tabular-nums' }}>${order.total.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 64, padding: '32px', border: '1px solid var(--espresso-12)' }}>
+          <h3 className="serif" style={{ fontSize: 28, lineHeight: 1.1 }}>What happens next.</h3>
+          <ol style={{ marginTop: 20, paddingLeft: 0, listStyle: 'none', counterReset: 'step' }}>
+            {[
+            'We produce your batch during the first half of the month.',
+            `On ${fmtShipLong(shipDate)}, every order in the batch leaves our facility in Oregon.`,
+            'A tracking number arrives in your inbox. Most U.S. orders arrive within 3–5 business days.'].
+            map((t, i) =>
+            <li key={i} style={{
+              display: 'grid',
+              gridTemplateColumns: '40px 1fr',
+              padding: '14px 0',
+              borderTop: i === 0 ? 'none' : '1px solid var(--espresso-12)',
+              alignItems: 'baseline'
+            }}>
+                <span className="serif" style={{ fontSize: 22, color: 'var(--espresso-60)' }}>0{i + 1}</span>
+                <span style={{ fontSize: 15, lineHeight: 1.5 }}>{t}</span>
+              </li>
+            )}
+          </ol>
+        </div>
+
+        <div style={{ marginTop: 48, display: 'flex', gap: 16 }}>
+          <button onClick={() => ctx.go('home')} style={ctaStyle()}>Back to Olnian <Arrow /></button>
+        </div>
+      </div>
+    </div>);
+
+}
+
+/* =========================================================================
+   FOOTER
+   ========================================================================= */
+/* =========================================================================
+   QUIZ MODAL — "Should I take creatine?"
+   Four questions. Three verdicts. No data capture.
+   ========================================================================= */
+function QuizModal({ open, onClose, onOrder }) {
+  const [mounted, setMounted] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [step, setStep] = useState(0); // 0 = intro, 1..4 = questions, 5 = result
+  const [answers, setAnswers] = useState({ q1: null, q2: [], q3: null, q4: null });
+
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+      setClosing(false);
+      setStep(0);
+      setAnswers({ q1: null, q2: [], q3: null, q4: null });
+      document.body.style.overflow = 'hidden';
+    } else if (mounted) {
+      setClosing(true);
+      const t = setTimeout(() => { setMounted(false); setClosing(false); }, 240);
+      document.body.style.overflow = '';
+      return () => clearTimeout(t);
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  if (!mounted) return null;
+
+  function verdict() {
+    // Physician gate — non-negotiable
+    if (answers.q3 === 'yes') return 'physician';
+    if (answers.q1 === 'no') return 'no';
+    return 'yes';
+  }
+
+  function yesCopy() {
+    // Nuanced yes copy based on Q4 + Q2
+    const hasSymptoms = answers.q2.length > 0 && !answers.q2.includes('none');
+    if (answers.q4 === 'meh') {
+      return {
+        headline: 'Creatine — this time, done right.',
+        body: "Your answers suggest creatine is a strong fit. If you've tried it before without noticeable effect, it was likely the dose or the form. Pure micronized monohydrate at 3–5g daily is the studied amount — and the majority of off-the-shelf powders miss that mark. Olnian doesn't.",
+      };
+    }
+    if (answers.q4 === 'good') {
+      return {
+        headline: 'You already know.',
+        body: "You've felt the effect. Olnian is the cleanest version of it we know how to make — pharmaceutical-grade monohydrate, nothing else, tested for heavy metals every batch.",
+      };
+    }
+    if (!hasSymptoms) {
+      return {
+        headline: 'A quiet yes.',
+        body: "Even without specific symptoms, the research on women 30+ is some of the most compelling in the category — strength, cognition, bone density, mood. Creatine isn't a fix for a problem. It's a floor you set, daily.",
+      };
+    }
+    return {
+      headline: 'Creatine was made for this.',
+      body: "Your answers suggest creatine + magnesium glycinate is a strong fit. The research on women in your demographic is some of the most compelling in the category — and Olnian is the cleanest version of it we know how to make. Every batch tested. Ships within days of production.",
+    };
+  }
+
+  const v = verdict();
+  const panelBg = v === 'yes' ? 'var(--tangerine)' : v === 'physician' ? 'var(--mint)' : 'var(--blush)';
+  const panelFg = v === 'yes' ? 'var(--blush)' : 'var(--espresso)';
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 100,
+        background: closing ? 'rgba(35, 12, 0, 0)' : 'rgba(35, 12, 0, 0.42)',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+        transition: 'background 240ms ease',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '24px',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 720,
+          maxHeight: 'calc(100vh - 48px)',
+          overflow: 'auto',
+          background: step === 5 ? panelBg : 'var(--blush)',
+          color: step === 5 ? panelFg : 'var(--espresso)',
+          position: 'relative',
+          transform: closing ? 'translateY(16px)' : 'translateY(0)',
+          opacity: closing ? 0 : 1,
+          transition: 'transform 240ms ease, opacity 240ms ease',
+        }}
+      >
+        {/* Close */}
+        <button
+          aria-label="Close"
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 18, right: 18, zIndex: 2,
+            width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: step === 5 ? panelFg : 'var(--espresso)',
+            opacity: 0.7,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18">
+            <path d="M3 3L15 15M15 3L3 15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+        </button>
+
+        {/* Progress dots for steps 1–4 */}
+        {step >= 1 && step <= 4 && (
+          <div style={{ padding: '28px 48px 0', display: 'flex', gap: 6, alignItems: 'center' }}>
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} style={{
+                height: 2, flex: 1,
+                background: n <= step ? 'var(--espresso)' : 'var(--espresso-12)',
+                transition: 'background 180ms ease',
+              }} />
+            ))}
+            <div style={{
+              fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'var(--espresso-60)', marginLeft: 14, fontVariantNumeric: 'tabular-nums',
+            }}>
+              {step} / 4
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        <div style={{ padding: step === 5 ? '72px 48px 56px' : '44px 48px 56px' }}>
+          {step === 0 && (
+            <QuizIntro onStart={() => setStep(1)} />
+          )}
+
+          {step === 1 && (
+            <QuizQuestion
+              label="Question 1"
+              title="Are you a woman over 30?"
+              options={[
+                { v: 'yes', label: 'Yes' },
+                { v: 'no', label: 'No' },
+              ]}
+              selected={answers.q1}
+              onSelect={(v) => { setAnswers(a => ({...a, q1: v})); setTimeout(() => setStep(2), 160); }}
+            />
+          )}
+
+          {step === 2 && (
+            <QuizQuestion
+              label="Question 2"
+              title="Do you experience any of the following?"
+              hint="Select all that apply."
+              multi
+              options={[
+                { v: 'fog', label: 'Brain fog or difficulty concentrating' },
+                { v: 'fatigue', label: 'Low energy or muscle fatigue' },
+                { v: 'sleep', label: 'Poor or disrupted sleep' },
+                { v: 'none', label: 'None of the above' },
+              ]}
+              selected={answers.q2}
+              onSelect={(v) => {
+                setAnswers(a => {
+                  let next;
+                  if (v === 'none') next = a.q2.includes('none') ? [] : ['none'];
+                  else {
+                    const cleaned = a.q2.filter(x => x !== 'none');
+                    next = cleaned.includes(v) ? cleaned.filter(x => x !== v) : [...cleaned, v];
+                  }
+                  return { ...a, q2: next };
+                });
+              }}
+              onContinue={answers.q2.length > 0 ? () => setStep(3) : null}
+            />
+          )}
+
+          {step === 3 && (
+            <QuizQuestion
+              label="Question 3"
+              title="Are you currently pregnant, breastfeeding, or managing a kidney condition?"
+              options={[
+                { v: 'no', label: 'No' },
+                { v: 'yes', label: 'Yes' },
+              ]}
+              selected={answers.q3}
+              onSelect={(v) => { setAnswers(a => ({...a, q3: v})); setTimeout(() => setStep(v === 'yes' ? 5 : 4), 160); }}
+            />
+          )}
+
+          {step === 4 && (
+            <QuizQuestion
+              label="Question 4"
+              title="Have you tried creatine before?"
+              options={[
+                { v: 'never', label: 'No, never tried it' },
+                { v: 'meh', label: "Yes, and I didn't notice much" },
+                { v: 'good', label: 'Yes, and I had a good experience' },
+              ]}
+              selected={answers.q4}
+              onSelect={(v) => { setAnswers(a => ({...a, q4: v})); setTimeout(() => setStep(5), 160); }}
+            />
+          )}
+
+          {step === 5 && (
+            <QuizResult
+              verdict={v}
+              yesCopy={yesCopy()}
+              onOrder={onOrder}
+              onRetake={() => { setAnswers({ q1: null, q2: [], q3: null, q4: null }); setStep(1); }}
+              onClose={onClose}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function QuizIntro({ onStart }) {
+  return (
+    <div>
+      <div style={{
+        fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+        color: 'var(--espresso-60)',
+      }}>
+        Four questions · 30 seconds
+      </div>
+      <h2 className="display-md" style={{
+        fontFamily: "'Instrument Serif', serif", fontStyle: 'italic',
+        fontSize: 'clamp(44px, 6vw, 68px)', fontWeight: 400,
+        lineHeight: 0.98, letterSpacing: '-0.02em',
+        marginTop: 16,
+        textWrap: 'balance',
+      }}>
+        Should I take creatine?
+      </h2>
+      <p style={{
+        marginTop: 20, fontSize: 16, lineHeight: 1.55, maxWidth: 520,
+        color: 'var(--espresso)', fontWeight: 300,
+      }}>
+        An honest look at whether Olnian is for you. No email required.
+        No sales pitch if the answer is no.
+      </p>
+      <button
+        onClick={onStart}
+        style={{ ...ctaStyle(), marginTop: 36 }}
+      >
+        Begin <Arrow />
+      </button>
+      <p style={{
+        marginTop: 40, fontSize: 11, color: 'var(--espresso-60)',
+        opacity: 0.7, lineHeight: 1.5, maxWidth: 460, fontWeight: 300,
+      }}>
+        This quiz is for informational purposes only and does not constitute medical advice.
+      </p>
+    </div>
+  );
+}
+
+function QuizQuestion({ label, title, hint, options, selected, onSelect, multi, onContinue }) {
+  const isSelected = (v) => multi ? selected.includes(v) : selected === v;
+  return (
+    <div>
+      <div style={{
+        fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+        color: 'var(--espresso-60)', marginTop: 8,
+      }}>
+        {label}
+      </div>
+      <h2 style={{
+        fontFamily: "'Instrument Serif', serif", fontStyle: 'italic',
+        fontSize: 'clamp(34px, 4.6vw, 52px)', fontWeight: 400,
+        lineHeight: 1.02, letterSpacing: '-0.015em',
+        marginTop: 14, textWrap: 'balance',
+      }}>
+        {title}
+      </h2>
+      {hint && (
+        <div style={{
+          marginTop: 10, fontSize: 14, fontWeight: 300, color: 'var(--espresso-60)',
+        }}>
+          {hint}
+        </div>
+      )}
+      <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {options.map(opt => (
+          <button
+            key={opt.v}
+            onClick={() => onSelect(opt.v)}
+            style={{
+              width: '100%',
+              padding: '18px 22px',
+              border: '1px solid var(--espresso-30)',
+              background: isSelected(opt.v) ? 'var(--tangerine)' : 'transparent',
+              color: isSelected(opt.v) ? 'var(--blush)' : 'var(--espresso)',
+              fontSize: 15, textAlign: 'left',
+              fontFamily: 'inherit',
+              transition: 'background 120ms ease, color 120ms ease',
+              cursor: 'pointer',
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+      {multi && onContinue && (
+        <button
+          onClick={onContinue}
+          style={{ ...ctaStyle(), marginTop: 24 }}
+        >
+          Continue <Arrow />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function QuizResult({ verdict, yesCopy, onOrder, onRetake, onClose }) {
+  let content;
+  if (verdict === 'yes') {
+    content = (
+      <>
+        <ResultHeadline>{yesCopy.headline}</ResultHeadline>
+        <ResultBody>{yesCopy.body}</ResultBody>
+        <button
+          onClick={onOrder}
+          style={{
+            marginTop: 36,
+            background: 'var(--espresso)', color: 'var(--blush)',
+            padding: '18px 28px',
+            fontSize: 14, letterSpacing: '0.02em',
+            display: 'inline-flex', alignItems: 'center', gap: 12,
+            cursor: 'pointer',
+          }}
+        >
+          Order this batch <Arrow />
+        </button>
+      </>
+    );
+  } else if (verdict === 'no') {
+    content = (
+      <>
+        <ResultHeadline>Creatine probably isn't your next move.</ResultHeadline>
+        <ResultBody>
+          Based on your answers, creatine isn't the right fit right now. That's the honest answer.
+          If things change or you want to revisit, we'll be here.
+        </ResultBody>
+        <button
+          onClick={onClose}
+          className="uline"
+          style={{
+            marginTop: 32, fontSize: 14, color: 'var(--espresso-60)',
+            background: 'transparent',
+          }}
+        >
+          Learn what we make and why →
+        </button>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <ResultHeadline>Talk to your doctor first.</ResultHeadline>
+        <ResultBody>
+          One of your answers flags a situation where a physician should weigh in before you
+          start any new supplement. That's not a no — it's just the right order of operations.
+          We'd rather you ask first.
+        </ResultBody>
+      </>
+    );
+  }
+
+  return (
+    <div>
+      {content}
+      <div style={{ marginTop: 48, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 24 }}>
+        <p style={{
+          fontSize: 11, opacity: 0.5, lineHeight: 1.5, fontWeight: 300,
+          maxWidth: 460,
+        }}>
+          This quiz is for informational purposes only and does not constitute medical advice.
+        </p>
+        <button
+          onClick={onRetake}
+          className="uline"
+          style={{ fontSize: 12, opacity: 0.7, whiteSpace: 'nowrap' }}
+        >
+          Retake →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ResultHeadline({ children }) {
+  return (
+    <h2 style={{
+      fontFamily: "'Instrument Serif', serif", fontStyle: 'italic',
+      fontSize: 'clamp(44px, 6vw, 72px)', fontWeight: 400,
+      lineHeight: 0.96, letterSpacing: '-0.02em',
+      textWrap: 'balance',
+    }}>
+      {children}
+    </h2>
+  );
+}
+
+function ResultBody({ children }) {
+  return (
+    <p style={{
+      marginTop: 22, fontSize: 17, lineHeight: 1.55, maxWidth: 560,
+      fontWeight: 300,
+    }}>
+      {children}
+    </p>
+  );
+}
+
+function Footer() {
+  return (
+    <footer style={{
+      borderTop: '1px solid var(--espresso-12)',
+      padding: '40px 32px',
+      background: 'var(--blush)'
+    }}>
+      <div style={{
+        maxWidth: 1320, margin: '0 auto',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+        flexWrap: 'wrap', gap: 20
+      }}>
+        <div className="serif" style={{ fontSize: 24 }}>Olnian</div>
+        <div style={{ fontSize: 12, color: 'var(--espresso-60)', display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <span>© 2026 Olnian Inc.</span>
+          <a className="uline" href="#">Terms</a>
+          <a className="uline" href="#">Privacy</a>
+          <a className="uline" href="#">Contact</a>
+        </div>
+      </div>
+    </footer>);
+
+}
+
+/* =========================================================================
+   TWEAKS PANEL
+   ========================================================================= */
+function TweaksPanel({ tweaks, setTweak }) {
+  return (
+    <div style={{
+      position: 'fixed', bottom: 20, right: 20,
+      width: 320,
+      background: 'var(--blush)',
+      border: '1px solid var(--espresso-30)',
+      padding: 20,
+      zIndex: 100,
+      fontSize: 13,
+      boxShadow: '0 12px 40px rgba(92,26,0,0.15)',
+      maxHeight: '80vh',
+      overflow: 'auto'
+    }}>
+      <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)', marginBottom: 12 }}>
+        Tweaks
+      </div>
+
+      <TweakRow label="Simulated today">
+        <input
+          type="date"
+          value={tweaks.simulatedToday}
+          onChange={(e) => setTweak('simulatedToday', e.target.value)}
+          style={tweakInputStyle} />
+        
+      </TweakRow>
+
+      <TweakRow label="Hero headline">
+        <select
+          value={tweaks.heroHeadline}
+          onChange={(e) => setTweak('heroHeadline', e.target.value)}
+          style={tweakInputStyle}>
+          
+          <option value={"Clean Creatine.\nClear Thinking."}>Clean Creatine. / Clear Thinking.</option>
+          <option>Made the week you order.</option>
+          <option>Your cells. Replenished.</option>
+          <option>A supplement on a calendar.</option>
+          <option>Not a subscription. A batch.</option>
+        </select>
+      </TweakRow>
+
+      <TweakRow label="Show ship-date badge">
+        <input
+          type="checkbox"
+          checked={tweaks.showShipBadge}
+          onChange={(e) => setTweak('showShipBadge', e.target.checked)} />
+        
+      </TweakRow>
+
+      <p style={{ fontSize: 11, color: 'var(--espresso-60)', marginTop: 16, lineHeight: 1.5 }}>
+        Change "Simulated today" to see how ship-date copy updates before and after the 15th.
+      </p>
+    </div>);
+
+}
+
+const tweakInputStyle = {
+  width: '100%',
+  padding: '8px 10px',
+  background: 'white',
+  border: '1px solid var(--espresso-12)',
+  fontFamily: 'inherit', fontSize: 13, color: 'var(--espresso)'
+};
+
+function TweakRow({ label, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, color: 'var(--espresso-60)', marginBottom: 4 }}>{label}</div>
+      {children}
+    </div>);
+
+}
+
+/* =========================================================================
+   MOUNT
+   ========================================================================= */
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
