@@ -153,16 +153,16 @@ const PRODUCTS = [
   hero: true,
   name: 'Creatine',
   subtitle: 'Pure Creatine Monohydrate',
-  count: '60 capsules',
+  count: '30 servings',
   doseDesc: '30-day supply',
   price: 42,
   color: 'var(--tangerine)',
   containerLabel: 'Tangerine bottle · 180g',
   sku: 'OLN-CRE-30',
-  blurb: 'Pure crystallized creatine monohydrate. For women 37 and up.',
-  long: 'Three grams of pure, micronized creatine monohydrate per serving. No fillers, no sweeteners, no proprietary blends. Studied specifically in women after 40 for strength, cognition, mood, and bone density.',
+  blurb: 'Pure micronized creatine monohydrate. For women 37 and up.',
+  long: 'Three to five grams of pure, micronized creatine monohydrate per serving. No fillers, no sweeteners, no proprietary blends. Studied specifically in women after 40 for strength, cognition, mood, and bone density.',
   ingredients: [
-  { name: 'Creatine Monohydrate', amount: '3 g' },
+  { name: 'Creatine Monohydrate', amount: '3-5 g' },
   { name: 'Reusable Container', amount: 'no micro-plastics' }]
 
 },
@@ -187,7 +187,7 @@ const PRODUCTS = [
   id: 'bundle',
   name: 'The Bundle',
   subtitle: 'Creatine + Magnesium',
-  count: '60 + 90 capsules',
+  count: '30 servings + 90 caps',
   doseDesc: '30 days, both',
   price: 72,
   color: 'var(--gold)',
@@ -201,6 +201,16 @@ const PRODUCTS = [
 
 }];
 
+
+/* =========================================================================
+   PRICING — subscription gives 10% off, qty 3+ gives 15%, qty 6+ gives 20%
+   Discounts stack. Tier discount replaces qty discount when both apply.
+   ========================================================================= */
+function lineUnitPrice(product, line) {
+  const qtyDisc = line.qty >= 6 ? 0.20 : line.qty >= 3 ? 0.15 : 0;
+  const subDisc = line.isSubscription ? 0.10 : 0;
+  return Math.round(product.price * (1 - qtyDisc - subDisc) * 100) / 100;
+}
 
 /* =========================================================================
    APP SHELL — routing, cart state, ship-date context
@@ -281,8 +291,7 @@ function App() {
   const subtotal = cart.reduce((sum, l) => {
     const p = PRODUCTS.find((p) => p.id === l.id);
     if (!p) return sum;
-    const linePrice = l.isSubscription ? Math.round(p.price * 0.9 * 100) / 100 : p.price;
-    return sum + linePrice * l.qty;
+    return sum + lineUnitPrice(p, l) * l.qty;
   }, 0);
 
   const setTweak = (key, value) => {
@@ -290,11 +299,14 @@ function App() {
     persistTweak(key, value);
   };
 
+  const [quizVerdict, setQuizVerdict] = useState(null);
   const ctx = {
     today, shipDate, daysToCutoff,
     tweaks, cart, cartCount, subtotal,
     addToCart, updateQty, setCartOpen, go,
     openQuiz: () => setQuizOpen(true),
+    quizVerdict, setQuizVerdict,
+    skipCartToCheckout: () => { setCartOpen(false); go('checkout'); },
   };
 
   return (
@@ -327,6 +339,7 @@ function App() {
       <QuizModal
         open={quizOpen}
         onClose={() => setQuizOpen(false)}
+        onVerdict={(v) => setQuizVerdict(v)}
         onOrder={() => { setQuizOpen(false); go('product', { id: 'creatine' }); }}
       />
     </div>);
@@ -386,7 +399,7 @@ function StatStrip() {
   { num: '3g', label: 'Creatine monohydrate', note: 'The dose studied in women 40+' },
   { num: '200mg', label: 'Magnesium glycinate', note: 'Chelated. Gentler than citrate.' },
   { num: '0', label: 'Fillers, sweeteners, dyes', note: 'Capsule, creatine, magnesium.' },
-  { num: 'Oregon', label: 'Made in small batches', note: 'Shipped within days of production.' }];
+  { num: 'USA', label: 'Made in small batches', note: 'Charged only when your batch ships.' }];
 
   return (
     <section style={{
@@ -494,7 +507,7 @@ function HowItWorks({ ctx }) {
   { n: '01', title: 'You order, any day.', body: 'Every order is a one-time purchase. No subscription, no commitment, no cancellation emails.' },
   { n: '02', title: 'We batch by the 14th.', body: 'Orders placed before the 15th join that month\u2019s batch. Orders after the 15th join the next one.' },
   { n: '03', title: 'Production the first half.', body: 'Your capsules are encapsulated and tested against the exact formulation a week before they ship.' },
-  { n: '04', title: `Ship on the 15th.`, body: `The entire batch leaves our Oregon facility on the 15th. Your next one arrives on ${fmtShipLong(shipDate)}.` }];
+  { n: '04', title: `Ship — and charge.`, body: `The entire batch leaves our USA facility together. Your card is charged the day your batch ships — never before. Your next one arrives on ${fmtShipLong(shipDate)}.` }];
 
   return (
     <section style={{ padding: '120px 32px', background: 'var(--blush)' }}>
@@ -548,7 +561,7 @@ function TestingStrip() {
   'Third-party tested',
   'Heavy metals cleared',
   'FDA-registered facility',
-  'Manufactured in Oregon',
+  'Made in USA',
   'Certificate of analysis'];
 
   return (
@@ -591,7 +604,7 @@ function HomePage({ ctx }) {
       <StoryBlock
         kicker="Made to order"
         headline={<>Your batch is made the week you order it.</>}
-        body="Most supplements sit in warehouses for eighteen months before they reach you. Ours are produced in small batches and shipped on the 15th of the month. Every bottle leaves our Oregon facility within days of production."
+        body="Most supplements sit in warehouses for eighteen months before they reach you. Ours are produced in limited batches in the USA. You're assigned a batch at checkout and charged only when it ships — not a day before."
         bg="var(--tangerine)"
         textColor="var(--blush)"
         imgSide="left"
@@ -679,13 +692,18 @@ function HeroImage() {
           objectFit: 'cover', objectPosition: 'center'
         }} />
       
-      <div style={{
-        position: 'absolute', left: 20, bottom: 20,
-        fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
-        color: 'rgba(92, 26, 0, 0.75)',
-        background: 'rgba(255, 248, 240, 0.85)',
-        padding: '6px 10px'
-      }}>Third-party tested · Oregon</div>
+      <a
+        href="#proof"
+        style={{
+          position: 'absolute', left: 20, bottom: 20,
+          fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: 'rgba(92, 26, 0, 0.75)',
+          background: 'rgba(255, 248, 240, 0.92)',
+          padding: '6px 10px',
+          textDecoration: 'none',
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+        }}
+      >Third-party tested · Made in USA <span style={{ opacity: 0.6 }}>↓</span></a>
     </div>);
 
 }
@@ -882,10 +900,11 @@ function ProofSection() {
   { num: '03', text: 'Three grams daily is the dose studied in peri- and post-menopausal women. Not five. Not ten.' }];
 
   return (
-    <section style={{
+    <section id="proof" style={{
       background: 'var(--espresso)',
       color: 'var(--blush)',
-      padding: '120px 32px'
+      padding: '120px 32px',
+      scrollMarginTop: 80,
     }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', opacity: 0.6, marginBottom: 40 }}>
@@ -958,14 +977,60 @@ function BatchStory({ ctx }) {
 function ProductPage({ ctx, productId }) {
   const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0];
   const others = PRODUCTS.filter((p) => p.id !== product.id);
-  const { addToCart, go } = ctx;
-  const [qty, setQty] = useState(1);
-  const [purchaseType, setPurchaseType] = useState('subscribe');
+  const { addToCart, go, skipCartToCheckout } = ctx;
+  const [planKey, setPlanKey] = useState('monthly');
+  const [scrolled, setScrolled] = useState(false);
   const isHero = product.id === 'creatine';
-  const subPrice = Math.round(product.price * 0.9 * 100) / 100;
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 480);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const plans = {
+    onetime:   { label: 'One-time purchase',      qty: 1, isSub: false, discount: 0,     sub: 'Single batch · ships once' },
+    monthly:   { label: 'Subscribe monthly',      qty: 1, isSub: true,  discount: 0.10,  sub: '1 bottle every month · free shipping · cancel anytime', badge: 'SAVE 10%' },
+    quarterly: { label: 'Subscribe quarterly',    qty: 3, isSub: true,  discount: 0.15,  sub: '3-month supply every quarter · free shipping', badge: 'SAVE 15%' },
+  };
+  const plan = plans[planKey];
+  const planUnit = Math.round(product.price * (1 - plan.discount) * 100) / 100;
+  const planTotal = Math.round(planUnit * plan.qty * 100) / 100;
 
   return (
     <div className="page-enter" data-screen-label={`Product · ${product.name}`}>
+      {/* Sticky subscribe reminder (shown after scroll) */}
+      {scrolled && (
+        <div style={{
+          position: 'fixed', bottom: 20, left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 30,
+          background: 'var(--espresso)', color: 'var(--blush)',
+          padding: '14px 20px',
+          display: 'flex', alignItems: 'center', gap: 14,
+          fontSize: 13, letterSpacing: '0.01em',
+          boxShadow: '0 12px 36px rgba(92, 26, 0, 0.25)',
+          animation: 'fadeIn 0.3s ease both',
+          maxWidth: 'calc(100vw - 32px)',
+        }}>
+          <span style={{
+            background: 'var(--tangerine)', color: 'white',
+            padding: '3px 8px', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+          }}>Save 10%</span>
+          <span>Subscribe & get free shipping. No charge until shipped.</span>
+          <button
+            onClick={() => { setPlanKey('monthly'); addToCart(product.id, 1, true); skipCartToCheckout(); }}
+            style={{
+              background: 'var(--tangerine)', color: 'white',
+              padding: '8px 14px', fontSize: 12, fontWeight: 500,
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            Subscribe <Arrow />
+          </button>
+        </div>
+      )}
+
       {/* =========================================================
              ABOVE THE FOLD — sales-forward for Creatine.
              Viewport-height grid, product left, purchase right.
@@ -1103,7 +1168,7 @@ function ProductPage({ ctx, productId }) {
               'Pure pharmaceutical-grade ingredients',
               'No proprietary blends or hidden doses',
               'Third-party tested for heavy metals',
-              'Made in small batches in Oregon']).
+              'Made in small batches in the USA']).
               map((b) =>
               <li key={b} style={{
                 display: 'grid', gridTemplateColumns: '18px 1fr',
@@ -1119,64 +1184,55 @@ function ProductPage({ ctx, productId }) {
               )}
             </ul>
 
-            {/* Subscription toggle */}
+            {/* Purchase plan selector */}
             <div style={{ marginTop: 32, border: '1px solid var(--espresso-12)' }}>
-              {[
-                {
-                  key: 'subscribe',
-                  label: 'Subscribe & Save',
-                  sub: `$${subPrice.toFixed(2)} / month · Free shipping · Cancel anytime`,
-                  badge: '10% OFF',
-                },
-                {
-                  key: 'onetime',
-                  label: 'One-time purchase',
-                  sub: `$${product.price} · Shipping calculated at checkout`,
-                  badge: null,
-                },
-              ].map((opt, i) => (
-                <button
-                  key={opt.key}
-                  onClick={() => setPurchaseType(opt.key)}
-                  style={{
-                    width: '100%',
-                    display: 'grid',
-                    gridTemplateColumns: '20px 1fr auto',
-                    alignItems: 'center',
-                    gap: 14,
-                    padding: '16px 20px',
-                    background: purchaseType === opt.key ? 'white' : 'transparent',
-                    borderTop: i === 0 ? 'none' : '1px solid var(--espresso-12)',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <div style={{
-                    width: 18, height: 18, borderRadius: '50%',
-                    border: `1.5px solid ${purchaseType === opt.key ? 'var(--tangerine)' : 'var(--espresso-30)'}`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    {purchaseType === opt.key && (
-                      <div style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--tangerine)' }} />
-                    )}
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--espresso)' }}>{opt.label}</div>
-                    <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 2 }}>{opt.sub}</div>
-                  </div>
-                  {opt.badge && (
+              {Object.entries(plans).map(([k, opt], i) => {
+                const unit = Math.round(product.price * (1 - opt.discount) * 100) / 100;
+                const selected = planKey === k;
+                return (
+                  <button
+                    key={k}
+                    onClick={() => setPlanKey(k)}
+                    style={{
+                      width: '100%',
+                      display: 'grid',
+                      gridTemplateColumns: '20px 1fr auto',
+                      alignItems: 'center',
+                      gap: 14,
+                      padding: '16px 20px',
+                      background: selected ? 'white' : 'transparent',
+                      borderTop: i === 0 ? 'none' : '1px solid var(--espresso-12)',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <div style={{
-                      fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
-                      background: 'var(--tangerine)', color: 'white',
-                      padding: '3px 7px',
-                    }}>{opt.badge}</div>
-                  )}
-                </button>
-              ))}
+                      width: 18, height: 18, borderRadius: '50%',
+                      border: `1.5px solid ${selected ? 'var(--tangerine)' : 'var(--espresso-30)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      {selected && <div style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--tangerine)' }} />}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--espresso)' }}>
+                        {opt.label} · ${unit.toFixed(2)}{opt.qty > 1 ? ` × ${opt.qty}` : ''}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 2 }}>{opt.sub}</div>
+                    </div>
+                    {opt.badge && (
+                      <div style={{
+                        fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+                        background: 'var(--tangerine)', color: 'white',
+                        padding: '3px 7px',
+                      }}>{opt.badge}</div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Price + stepper + CTA */}
+            {/* Price + CTA */}
             <div style={{
               marginTop: 12,
               padding: '20px 24px',
@@ -1189,35 +1245,42 @@ function ProductPage({ ctx, productId }) {
             }}>
               <div>
                 <div className="display-md" style={{ fontSize: 44, fontWeight: 300, lineHeight: 1 }}>
-                  ${purchaseType === 'subscribe' ? subPrice.toFixed(2) : product.price}
+                  ${planTotal.toFixed(2)}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 6, letterSpacing: '0.02em' }}>
-                  {product.doseDesc}{purchaseType === 'subscribe' ? ' · monthly' : ''}
+                  {planKey === 'onetime' ? product.doseDesc : planKey === 'monthly' ? 'Charged monthly when your batch ships' : 'Charged quarterly · 3-month supply'}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'stretch', gap: 12 }}>
-                <Stepper value={qty} onChange={setQty} />
-                <button
-                  onClick={() => addToCart(product.id, qty, purchaseType === 'subscribe')}
-                  style={{
-                    flex: 1,
-                    ...ctaStyle(),
-                    justifyContent: 'center',
-                    fontSize: 15,
-                    padding: '18px 24px'
-                  }}>
-                  {purchaseType === 'subscribe' ? 'Subscribe' : 'Add to bag'} <Arrow />
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  addToCart(product.id, plan.qty, plan.isSub);
+                  if (plan.isSub) skipCartToCheckout();
+                }}
+                style={{
+                  ...ctaStyle(),
+                  justifyContent: 'center',
+                  fontSize: 15,
+                  padding: '18px 24px',
+                  flexDirection: 'column',
+                  gap: 2,
+                  alignItems: 'center',
+                }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                  {planKey === 'onetime' ? 'Reserve my batch' : 'Start my subscription'} <Arrow />
+                </span>
+                <span style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', opacity: 0.75 }}>
+                  No charge until shipped · 60-day guarantee
+                </span>
+              </button>
             </div>
 
             <div style={{
               marginTop: 14, display: 'flex', gap: 20, flexWrap: 'wrap',
               fontSize: 12, color: 'var(--espresso-60)'
             }}>
+              <span>✓ Charged only when batch ships</span>
               <span>✓ Free shipping on subscriptions</span>
-              <span>✓ 60-day guarantee</span>
-              <span>✓ Cancel anytime</span>
+              <span>✓ Cancel anytime before ship</span>
             </div>
           </div>
         </div>
@@ -1432,11 +1495,11 @@ function CartDrawer({ open, onClose, cart, subtotal, shipDate, today, daysToCuto
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 15 }}>
-                      ${(line.isSubscription ? Math.round(p.price * 0.9 * 100) / 100 : p.price) * line.qty}
+                      ${(lineUnitPrice(p, line) * line.qty).toFixed(2)}
                     </div>
-                    {line.isSubscription && (
+                    {(line.isSubscription || line.qty >= 3) && (
                       <div style={{ fontSize: 11, color: 'var(--espresso-60)', marginTop: 2, textDecoration: 'line-through' }}>
-                        ${p.price * line.qty}
+                        ${(p.price * line.qty).toFixed(2)}
                       </div>
                     )}
                   </div>
@@ -1701,7 +1764,7 @@ function CheckoutPage({ ctx }) {
               error={errors.cvc} placeholder="123" />
               </div>
               <button type="submit" style={{ ...ctaStyle(), marginTop: 24, width: '100%', justifyContent: 'center', padding: '18px' }}>
-                Place order — ${total.toFixed(2)} <Arrow />
+                Reserve my batch — ${total.toFixed(2)} <Arrow />
               </button>
               <button type="button" onClick={() => setStep('info')} style={{ marginTop: 12, fontSize: 13, color: 'var(--espresso-60)' }} className="uline">
                 ← Back to shipping
@@ -1710,8 +1773,7 @@ function CheckoutPage({ ctx }) {
           }
 
           <p style={{ marginTop: 32, fontSize: 11, color: 'var(--espresso-60)', lineHeight: 1.6, maxWidth: 480 }}>
-            Your information is encrypted and processed via Shopify's PCI-compliant checkout.
-            By placing your order you agree to the Terms and Privacy Policy.
+            <strong style={{ fontWeight: 500, color: 'var(--espresso)' }}>Your card is authorized now and charged only when your batch ships.</strong> You can cancel or swap batches before that moment with no charge. Information is encrypted and processed via Shopify's PCI-compliant checkout. Placing an order means you agree to the Terms and Privacy Policy.
           </p>
         </div>
 
@@ -1723,6 +1785,17 @@ function CheckoutPage({ ctx }) {
           <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--espresso-60)', marginBottom: 20 }}>
             Your order
           </div>
+
+          {ctx.quizVerdict === 'yes' && (
+            <div style={{
+              marginBottom: 20, padding: '12px 14px',
+              background: 'white',
+              borderLeft: '3px solid var(--tangerine)',
+              fontSize: 12, lineHeight: 1.5, color: 'var(--espresso)',
+            }}>
+              <strong style={{ fontWeight: 500 }}>Recommended for you.</strong> Based on your quiz answers, creatine is a strong fit.
+            </div>
+          )}
 
           {cart.map((line) => {
             const p = PRODUCTS.find((p) => p.id === line.id);
@@ -1755,8 +1828,8 @@ function CheckoutPage({ ctx }) {
                   <div style={{ fontSize: 12, color: 'var(--espresso-60)', marginTop: 3 }}>{p.count}{line.isSubscription ? ' · monthly' : ''}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 14 }}>${((line.isSubscription ? Math.round(p.price * 0.9 * 100) / 100 : p.price) * line.qty).toFixed(2)}</div>
-                  {line.isSubscription && <div style={{ fontSize: 11, color: 'var(--espresso-60)', textDecoration: 'line-through' }}>${(p.price * line.qty).toFixed(2)}</div>}
+                  <div style={{ fontVariantNumeric: 'tabular-nums', fontSize: 14 }}>${(lineUnitPrice(p, line) * line.qty).toFixed(2)}</div>
+                  {(line.isSubscription || line.qty >= 3) && <div style={{ fontSize: 11, color: 'var(--espresso-60)', textDecoration: 'line-through' }}>${(p.price * line.qty).toFixed(2)}</div>}
                 </div>
               </div>);
 
@@ -1778,8 +1851,11 @@ function CheckoutPage({ ctx }) {
             <SummaryRow label="Shipping" value={shipping === 0 ? (hasSubscription ? 'Free (subscription)' : 'Free') : `$${shipping.toFixed(2)}`} />
             <SummaryRow label="Tax (est.)" value={`$${tax.toFixed(2)}`} />
           </div>
-          <div style={{ borderTop: '1px solid var(--espresso-12)', marginTop: 16, paddingTop: 16, display: 'flex', justifyContent: 'space-between' }}>
-            <div className="display-md" style={{ fontSize: 26, fontWeight: 400 }}>Total</div>
+          <div style={{ borderTop: '1px solid var(--espresso-12)', marginTop: 16, paddingTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div>
+              <div className="display-md" style={{ fontSize: 26, fontWeight: 400 }}>Charged on ship</div>
+              <div style={{ fontSize: 11, color: 'var(--espresso-60)', marginTop: 4 }}>Est. {fmtShipLong(ctx.shipDate)}</div>
+            </div>
             <div className="display-md" style={{ fontSize: 26, fontVariantNumeric: 'tabular-nums', fontWeight: 400 }}>${total.toFixed(2)}</div>
           </div>
 
@@ -1903,13 +1979,13 @@ function ConfirmationPage({ ctx, order }) {
     <div className="page-enter" data-screen-label="Order confirmation" style={{ padding: '80px 32px 120px' }}>
       <div style={{ maxWidth: 760, margin: '0 auto' }}>
         <div style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--mint)' }}>
-          ● Order received
+          ● Batch reserved · no charge yet
         </div>
         <h1 className="serif" style={{ fontSize: 'clamp(56px, 7vw, 96px)', lineHeight: 0.95, marginTop: 20, letterSpacing: '-0.02em', textWrap: 'balance' }}>
-          Thank you, {order.firstName}.
+          You're in the batch, {order.firstName}.
         </h1>
         <p style={{ marginTop: 24, fontSize: 18, lineHeight: 1.55, opacity: 0.8, maxWidth: 580 }}>
-          We've saved your place in the {fmtShipLong(shipDate)} batch. A confirmation is on its way to <strong style={{ fontWeight: 400 }}>{order.email}</strong>.
+          We've saved your place in the {fmtShipLong(shipDate)} batch. Your card is on file but won't be charged until the batch ships. A confirmation is on its way to <strong style={{ fontWeight: 400 }}>{order.email}</strong>.
         </p>
 
         <div style={{
@@ -1959,7 +2035,7 @@ function ConfirmationPage({ ctx, order }) {
                   <div className="serif" style={{ fontSize: 26 }}>{p.name}</div>
                   <div style={{ fontSize: 13, color: 'var(--espresso-60)' }}>{p.subtitle} · {p.count} · qty {line.qty}</div>
                 </div>
-                <div style={{ fontVariantNumeric: 'tabular-nums' }}>${p.price * line.qty}</div>
+                <div style={{ fontVariantNumeric: 'tabular-nums' }}>${(lineUnitPrice(p, line) * line.qty).toFixed(2)}</div>
               </div>);
 
           })}
@@ -1972,11 +2048,18 @@ function ConfirmationPage({ ctx, order }) {
         <div style={{ marginTop: 64, padding: '32px', border: '1px solid var(--espresso-12)' }}>
           <h3 className="serif" style={{ fontSize: 28, lineHeight: 1.1 }}>What happens next.</h3>
           <ol style={{ marginTop: 20, paddingLeft: 0, listStyle: 'none', counterReset: 'step' }}>
-            {[
-            'We produce your batch during the first half of the month.',
-            `On ${fmtShipLong(shipDate)}, every order in the batch leaves our facility in Oregon.`,
-            'A tracking number arrives in your inbox. Most U.S. orders arrive within 3–5 business days.'].
-            map((t, i) =>
+            {(() => {
+              const checkinDate = new Date(shipDate); checkinDate.setDate(checkinDate.getDate() + 28);
+              const items = [
+                'We produce your batch in the USA, in a small, limited run.',
+                `On ${fmtShipLong(shipDate)}, the batch ships — and that's the only moment your card is charged.`,
+                'A tracking number arrives by email. Most U.S. orders arrive within 3–5 business days.',
+              ];
+              if (order.healthCheckin) {
+                items.push(`Around ${fmtShipLong(checkinDate)}, our clinical team sends your first health check-in text.`);
+              }
+              return items;
+            })().map((t, i) =>
             <li key={i} style={{
               display: 'grid',
               gridTemplateColumns: '40px 1fr',
@@ -2006,7 +2089,7 @@ function ConfirmationPage({ ctx, order }) {
    QUIZ MODAL — "Should I take creatine?"
    Four questions. Three verdicts. No data capture.
    ========================================================================= */
-function QuizModal({ open, onClose, onOrder }) {
+function QuizModal({ open, onClose, onOrder, onVerdict }) {
   const [mounted, setMounted] = useState(false);
   const [closing, setClosing] = useState(false);
   const [step, setStep] = useState(0); // 0 = intro, 1..4 = questions, 5 = result
@@ -2067,6 +2150,7 @@ function QuizModal({ open, onClose, onOrder }) {
   const v = verdict();
   const panelBg = v === 'yes' ? 'var(--tangerine)' : v === 'physician' ? 'var(--mint)' : 'var(--blush)';
   const panelFg = v === 'yes' ? 'var(--blush)' : 'var(--espresso)';
+  useEffect(() => { if (step === 5 && onVerdict) onVerdict(v); }, [step]);
 
   return (
     <div
