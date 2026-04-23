@@ -1,0 +1,38 @@
+<header class="site-header" role="banner">
+  <div class="container site-header__inner">
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
+      {{ settings.brand_name | default: shop.name }}
+    </a>
+
+    <nav class="site-header__nav" aria-label="Primary">
+      {%- if section.settings.menu != blank -%}
+        {%- for link in section.settings.menu.links -%}
+          <a href="{{ link.url }}">{{ link.title }}</a>
+        {%- endfor -%}
+      {%- else -%}
+        <a href="{{ routes.collections_url }}/all">Shop</a>
+        <a href="{{ routes.root_url }}pages/about">About</a>
+        <a href="{{ routes.root_url }}pages/science">Science</a>
+      {%- endif -%}
+    </nav>
+
+    <button class="site-header__cart" data-cart-open aria-label="{{ 'general.accessibility.open_cart' | t }}">
+      Cart
+      <span class="site-header__cart-count"{% if cart.item_count == 0 %} style="display:none"{% endif %}>{{ cart.item_count }}</span>
+    </button>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}

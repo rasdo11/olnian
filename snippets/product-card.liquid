@@ -1,0 +1,25 @@
+{%- comment -%}
+  Product card. Expects: product (Product object)
+{%- endcomment -%}
+<a href="{{ product.url }}" class="sku-card" aria-label="{{ product.title }}">
+  <div class="sku-card__image">
+    {%- if product.featured_image -%}
+      {{ product.featured_image | image_url: width: 800 | image_tag: loading: 'lazy', alt: product.title }}
+    {%- endif -%}
+  </div>
+  <div>
+    <div class="sku-card__name">{{ product.title }}</div>
+    {%- if product.metafields.custom.subtitle != blank -%}
+      <div class="sku-card__sub">{{ product.metafields.custom.subtitle }}</div>
+    {%- elsif product.description != blank -%}
+      <div class="sku-card__sub">{{ product.description | strip_html | truncatewords: 12 }}</div>
+    {%- endif -%}
+  </div>
+  <div class="sku-card__footer">
+    <div class="sku-card__price">
+      {%- if product.price_varies -%}From {%- endif -%}
+      {{ product.price_min | money }}
+    </div>
+    <span class="btn btn--ghost" aria-hidden="true">Shop →</span>
+  </div>
+</a>

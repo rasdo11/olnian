@@ -1,0 +1,42 @@
+<section class="testing-strip">
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <div style="font-family: var(--display-font); font-size: 22px;">{{ section.settings.heading }}</div>
+    {%- endif -%}
+    <div class="testing-strip__row">
+      {%- for block in section.blocks -%}
+        <div class="testing-strip__item" {{ block.shopify_attributes }}>{{ block.settings.label }}</div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Testing strip",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Third-party tested every batch" }
+  ],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Heavy metals" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testing strip",
+      "blocks": [
+        { "type": "item", "settings": { "label": "Heavy metals" } },
+        { "type": "item", "settings": { "label": "Microbials" } },
+        { "type": "item", "settings": { "label": "Identity" } },
+        { "type": "item", "settings": { "label": "Potency" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

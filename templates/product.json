@@ -1,0 +1,30 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "settings": {
+        "show_gift_banner": true,
+        "gift_banner_text": "First subscription includes a free gold measuring spoon."
+      }
+    },
+    "batch-story": {
+      "type": "batch-story",
+      "settings": {
+        "kicker": "The batch",
+        "headline": "Made the week you order.",
+        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you."
+      }
+    },
+    "testing-strip": {
+      "type": "testing-strip",
+      "blocks": {
+        "a": { "type": "item", "settings": { "label": "Heavy metals" } },
+        "b": { "type": "item", "settings": { "label": "Microbials" } },
+        "c": { "type": "item", "settings": { "label": "Identity" } },
+        "d": { "type": "item", "settings": { "label": "Potency" } }
+      },
+      "block_order": ["a", "b", "c", "d"]
+    }
+  },
+  "order": ["main", "batch-story", "testing-strip"]
+}

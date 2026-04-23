@@ -1,0 +1,52 @@
+<section class="sku-row">
+  <div class="container">
+    <div class="sku-row__header">
+      {%- if section.settings.kicker != blank -%}
+        <div class="sku-row__kicker">{{ section.settings.kicker }}</div>
+      {%- endif -%}
+      {%- if section.settings.headline != blank -%}
+        <h2 class="sku-row__headline">{{ section.settings.headline }}</h2>
+      {%- endif -%}
+    </div>
+
+    <div class="sku-row__grid">
+      {%- assign coll = collections[section.settings.collection] -%}
+      {%- if coll != blank -%}
+        {%- for product in coll.products limit: section.settings.product_limit -%}
+          {% render 'product-card', product: product %}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          {%- assign p = all_products[block.settings.product] -%}
+          {%- if p != blank -%}
+            {% render 'product-card', product: p %}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SKU row",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "The line" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Two formulas. One protocol." },
+    { "type": "collection", "id": "collection", "label": "Collection (preferred)" },
+    { "type": "range", "id": "product_limit", "label": "Max products", "min": 1, "max": 12, "step": 1, "default": 6 }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product (manual)",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "SKU row", "category": "Products" }
+  ]
+}
+{% endschema %}

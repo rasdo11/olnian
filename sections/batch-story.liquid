@@ -1,0 +1,38 @@
+<section class="batch-story">
+  <div class="container">
+    <div class="batch-story__grid">
+      <div class="batch-story__image">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: section.settings.headline }}
+        {%- endif -%}
+      </div>
+      <div>
+        {%- if section.settings.kicker != blank -%}
+          <div class="sku-row__kicker" style="text-align: left;">{{ section.settings.kicker }}</div>
+        {%- endif -%}
+        <h2 class="batch-story__headline">{{ section.settings.headline }}</h2>
+        <p class="batch-story__body">{{ section.settings.body }}</p>
+        {%- if section.settings.cta_label != blank -%}
+          <a href="{{ section.settings.cta_link }}" class="btn btn--outline" style="margin-top: 32px;">{{ section.settings.cta_label }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Batch story",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "The batch" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Made the week you order." },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you." },
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Read our testing" },
+    { "type": "url", "id": "cta_link", "label": "CTA link" }
+  ],
+  "presets": [
+    { "name": "Batch story", "category": "Text" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,51 @@
+<section class="hero page-enter" style="{% if section.settings.background != blank %}background: {{ section.settings.background }};{% endif %}">
+  <div class="container hero__grid">
+    <div>
+      {%- if section.settings.kicker != blank -%}
+        <div class="hero__kicker">{{ section.settings.kicker }}</div>
+      {%- endif -%}
+      <h1 class="hero__headline">{{ section.settings.headline }}</h1>
+      {%- if section.settings.subheadline != blank -%}
+        <p class="hero__sub">{{ section.settings.subheadline }}</p>
+      {%- endif -%}
+      <div class="hero__ctas">
+        {%- if section.settings.primary_cta_label != blank -%}
+          <a href="{{ section.settings.primary_cta_link | default: routes.collections_url | append: '/all' }}" class="btn btn--primary">
+            {{ section.settings.primary_cta_label }}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.secondary_cta_label != blank -%}
+          <a href="{{ section.settings.secondary_cta_link }}" class="btn btn--outline">
+            {{ section.settings.secondary_cta_label }}
+          </a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="hero__image">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'eager', alt: section.settings.image.alt | default: section.settings.headline }}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero — editorial",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "Pure Supplements for Her" },
+    { "type": "textarea", "id": "headline", "label": "Headline", "default": "Clean Creatine.\nClear Thinking." },
+    { "type": "textarea", "id": "subheadline", "label": "Sub-headline", "default": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40." },
+    { "type": "image_picker", "id": "image", "label": "Hero image" },
+    { "type": "text", "id": "primary_cta_label", "label": "Primary CTA label", "default": "Shop" },
+    { "type": "url", "id": "primary_cta_link", "label": "Primary CTA link" },
+    { "type": "text", "id": "secondary_cta_label", "label": "Secondary CTA label", "default": "How it works" },
+    { "type": "url", "id": "secondary_cta_link", "label": "Secondary CTA link" },
+    { "type": "color", "id": "background", "label": "Section background" }
+  ],
+  "presets": [
+    { "name": "Hero — editorial", "category": "Image" }
+  ]
+}
+{% endschema %}

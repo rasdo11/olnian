@@ -1,0 +1,69 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero-editorial",
+      "settings": {
+        "kicker": "Pure Supplements for Her",
+        "headline": "Clean Creatine.\nClear Thinking.",
+        "subheadline": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40.",
+        "primary_cta_label": "Shop",
+        "secondary_cta_label": "How it works"
+      }
+    },
+    "stats": {
+      "type": "stat-strip",
+      "blocks": {
+        "a": { "type": "stat", "settings": { "number": "3–5 g", "label": "Creatine per serving" } },
+        "b": { "type": "stat", "settings": { "number": "0", "label": "Fillers or sweeteners" } },
+        "c": { "type": "stat", "settings": { "number": "Monthly", "label": "Small batches" } },
+        "d": { "type": "stat", "settings": { "number": "100%", "label": "Tested in every batch" } }
+      },
+      "block_order": ["a", "b", "c", "d"]
+    },
+    "sku-row": {
+      "type": "sku-row",
+      "settings": {
+        "kicker": "The line",
+        "headline": "Two formulas. One protocol.",
+        "product_limit": 6
+      }
+    },
+    "how-it-works": {
+      "type": "how-it-works",
+      "blocks": {
+        "s1": { "type": "step", "settings": { "heading": "You order", "body": "Pick your protocol. Subscribe for refills and save 15%." } },
+        "s2": { "type": "step", "settings": { "heading": "We make it", "body": "Your batch is milled, tested, and weighed out the week of shipping." } },
+        "s3": { "type": "step", "settings": { "heading": "It ships", "body": "Ships in 2–4 weeks. Refills arrive on schedule — no new bottle each time." } }
+      },
+      "block_order": ["s1", "s2", "s3"]
+    },
+    "batch-story": {
+      "type": "batch-story",
+      "settings": {
+        "kicker": "The batch",
+        "headline": "Made the week you order.",
+        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you."
+      }
+    },
+    "proof": {
+      "type": "proof",
+      "blocks": {
+        "t1": { "type": "testimonial", "settings": { "quote": "I can tell within a week.", "attribution": "— M., 47, Austin" } },
+        "t2": { "type": "testimonial", "settings": { "quote": "The only supplement I've stayed on.", "attribution": "— R., 52, Portland" } },
+        "t3": { "type": "testimonial", "settings": { "quote": "Sleep and strength, same bottle.", "attribution": "— L., 44, Brooklyn" } }
+      },
+      "block_order": ["t1", "t2", "t3"]
+    },
+    "testing-strip": {
+      "type": "testing-strip",
+      "blocks": {
+        "a": { "type": "item", "settings": { "label": "Heavy metals" } },
+        "b": { "type": "item", "settings": { "label": "Microbials" } },
+        "c": { "type": "item", "settings": { "label": "Identity" } },
+        "d": { "type": "item", "settings": { "label": "Potency" } }
+      },
+      "block_order": ["a", "b", "c", "d"]
+    }
+  },
+  "order": ["hero", "stats", "sku-row", "how-it-works", "batch-story", "proof", "testing-strip"]
+}

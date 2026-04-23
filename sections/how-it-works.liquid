@@ -1,0 +1,52 @@
+<section class="how-it-works">
+  <div class="container">
+    <div class="sku-row__header">
+      {%- if section.settings.kicker != blank -%}
+        <div class="sku-row__kicker">{{ section.settings.kicker }}</div>
+      {%- endif -%}
+      {%- if section.settings.headline != blank -%}
+        <h2 class="sku-row__headline">{{ section.settings.headline }}</h2>
+      {%- endif -%}
+    </div>
+    <div class="how-it-works__grid">
+      {%- for block in section.blocks -%}
+        <div class="how-it-works__step" {{ block.shopify_attributes }}>
+          <div class="how-it-works__num">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</div>
+          <h3 class="how-it-works__heading">{{ block.settings.heading }}</h3>
+          <p class="how-it-works__body">{{ block.settings.body }}</p>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "How it works",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "How it works" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Small batches. Tested. Sent." }
+  ],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "You order" },
+        { "type": "textarea", "id": "body", "label": "Body", "default": "Pick your protocol. Subscribe for refills and save 15%." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "How it works",
+      "blocks": [
+        { "type": "step", "settings": { "heading": "You order", "body": "Pick your protocol. Subscribe for refills and save 15%." } },
+        { "type": "step", "settings": { "heading": "We make it", "body": "Your batch is milled, tested, and weighed out the week of shipping." } },
+        { "type": "step", "settings": { "heading": "It ships", "body": "Ships in 2–4 weeks. Refills arrive on schedule — no new bottle each time." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

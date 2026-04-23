@@ -1,0 +1,100 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Olnian",
+    "theme_version": "0.1.0",
+    "theme_author": "Olnian",
+    "theme_documentation_url": "https://olnian.com",
+    "theme_support_url": "mailto:hello@olnian.com"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Page background (Blush)",
+        "default": "#FFF8F0"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Body text (Espresso)",
+        "default": "#5C1A00"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_primary",
+        "label": "Primary accent (Tangerine)",
+        "default": "#FF7E5F"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_secondary",
+        "label": "Secondary accent (Flamingo)",
+        "default": "#FEB3A0"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_gold",
+        "label": "Gold",
+        "default": "#FFD166"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_mint",
+        "label": "Mint",
+        "default": "#3ECFB2"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Headings use GFS Didot (Google Fonts). Body uses Nunito Sans. To swap to licensed Didot LP or another font, load it in layout/theme.liquid and update the CSS variable --display-font in assets/theme.css."
+      }
+    ]
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      },
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "default": "Olnian"
+      },
+      {
+        "type": "textarea",
+        "id": "brand_tagline",
+        "label": "Brand tagline",
+        "default": "Pure supplements. Made the week you order."
+      }
+    ]
+  },
+  {
+    "name": "Shipping badge",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_ship_badge",
+        "label": "Show ship-time badge",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "ship_badge_text",
+        "label": "Ship-time text",
+        "default": "Ships in 2–4 weeks",
+        "info": "Shown on product pages and the cart."
+      }
+    ]
+  }
+]

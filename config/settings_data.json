@@ -1,0 +1,28 @@
+{
+  "current": {
+    "color_background": "#FFF8F0",
+    "color_text": "#5C1A00",
+    "color_accent_primary": "#FF7E5F",
+    "color_accent_secondary": "#FEB3A0",
+    "color_accent_gold": "#FFD166",
+    "color_accent_mint": "#3ECFB2",
+    "brand_name": "Olnian",
+    "brand_tagline": "Pure supplements. Made the week you order.",
+    "show_ship_badge": true,
+    "ship_badge_text": "Ships in 2–4 weeks"
+  },
+  "presets": {
+    "Default": {
+      "color_background": "#FFF8F0",
+      "color_text": "#5C1A00",
+      "color_accent_primary": "#FF7E5F",
+      "color_accent_secondary": "#FEB3A0",
+      "color_accent_gold": "#FFD166",
+      "color_accent_mint": "#3ECFB2",
+      "brand_name": "Olnian",
+      "brand_tagline": "Pure supplements. Made the week you order.",
+      "show_ship_badge": true,
+      "ship_badge_text": "Ships in 2–4 weeks"
+    }
+  }
+}

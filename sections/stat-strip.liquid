@@ -1,0 +1,40 @@
+<section class="stat-strip-section">
+  <div class="container">
+    <div class="stat-strip">
+      {%- for block in section.blocks -%}
+        <div class="stat-strip__item" {{ block.shopify_attributes }}>
+          <div class="stat-strip__num">{{ block.settings.number }}</div>
+          <div class="stat-strip__label">{{ block.settings.label }}</div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Stat strip",
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "number", "label": "Number", "default": "3–5 g" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Creatine per serving" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Stat strip",
+      "blocks": [
+        { "type": "stat", "settings": { "number": "3–5 g", "label": "Creatine per serving" } },
+        { "type": "stat", "settings": { "number": "0", "label": "Fillers or sweeteners" } },
+        { "type": "stat", "settings": { "number": "Monthly", "label": "Small batches" } },
+        { "type": "stat", "settings": { "number": "100%", "label": "Tested in every batch" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
