@@ -1,9 +1,9 @@
-<div class="cart-drawer__header">
-  <h2 class="cart-drawer__title" id="CartDrawerTitle">{{ 'general.cart.title' | t }}</h2>
-  <button class="cart-drawer__close" data-cart-close aria-label="{{ 'general.accessibility.close' | t }}">×</button>
-</div>
+<div id="CartDrawerContent" data-cart-drawer-content>
+  <div class="cart-drawer__header">
+    <h2 class="cart-drawer__title" id="CartDrawerTitle">{{ 'general.cart.title' | t }}</h2>
+    <button class="cart-drawer__close" data-cart-close aria-label="{{ 'general.accessibility.close' | t }}">×</button>
+  </div>
 
-<div data-cart-drawer-content style="display: contents;">
   {%- if cart.item_count == 0 -%}
     <div class="cart-drawer__items">
       <div class="cart-drawer__empty">{{ 'general.cart.empty' | t }}</div>
@@ -53,3 +53,10 @@
     </div>
   {%- endif -%}
 </div>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "settings": []
+}
+{% endschema %}

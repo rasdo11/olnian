@@ -35,15 +35,23 @@
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
           <input type="hidden" name="selling_plan" value="">
 
+          {%- comment -%}
+            Variant picker: one button per option value. Clicking switches the hidden
+            id input via theme.js. Works for single-option products (our launch case:
+            Starter / Refill). For multi-option products the id→variant mapping in
+            window.__productVariants still works, but the picker UI only exposes the
+            first option — revisit when adding a multi-option SKU.
+          {%- endcomment -%}
           {%- if product.variants.size > 1 -%}
             {%- for option in product.options_with_values -%}
+              {%- assign option_index = forloop.index0 -%}
               <div class="product__variant-group">
                 <div class="product__variant-label">{{ option.name }}</div>
                 <div class="product__variant-options">
                   {%- for value in option.values -%}
                     {%- assign variant_for_value = nil -%}
                     {%- for v in product.variants -%}
-                      {%- if v.options[forloop.index0] == value -%}
+                      {%- if v.options[option_index] == value -%}
                         {%- assign variant_for_value = v -%}
                         {%- break -%}
                       {%- endif -%}

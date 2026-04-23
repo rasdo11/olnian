@@ -52,9 +52,7 @@
   <div id="CartDrawer" class="cart-drawer" aria-hidden="true" role="dialog" aria-label="Shopping cart">
     <div class="cart-drawer__overlay" data-cart-close></div>
     <aside class="cart-drawer__panel" aria-labelledby="CartDrawerTitle">
-      <div id="CartDrawerContent">
-        {% render 'cart-drawer', cart: cart %}
-      </div>
+      {% section 'cart-drawer' %}
     </aside>
   </div>
 </body>
