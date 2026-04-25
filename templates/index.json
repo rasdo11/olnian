@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
@@ -6,64 +15,190 @@
         "kicker": "Pure Supplements for Her",
         "headline": "Clean Creatine.\nClear Thinking.",
         "subheadline": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40.",
+        "image": "shopify://shop_images/olnian_creatine_terracotta.png",
         "primary_cta_label": "Shop",
-        "secondary_cta_label": "How it works"
+        "primary_cta_link": "",
+        "secondary_cta_label": "How it works",
+        "secondary_cta_link": "",
+        "background": ""
       }
     },
     "stats": {
       "type": "stat-strip",
       "blocks": {
-        "a": { "type": "stat", "settings": { "number": "3–5 g", "label": "Creatine per serving" } },
-        "b": { "type": "stat", "settings": { "number": "0", "label": "Fillers or sweeteners" } },
-        "c": { "type": "stat", "settings": { "number": "Monthly", "label": "Small batches" } },
-        "d": { "type": "stat", "settings": { "number": "100%", "label": "Tested in every batch" } }
+        "a": {
+          "type": "stat",
+          "settings": {
+            "number": "3–5 g",
+            "label": "Creatine per serving"
+          }
+        },
+        "b": {
+          "type": "stat",
+          "settings": {
+            "number": "0",
+            "label": "Fillers or sweeteners"
+          }
+        },
+        "c": {
+          "type": "stat",
+          "settings": {
+            "number": "Monthly",
+            "label": "Small batches"
+          }
+        },
+        "d": {
+          "type": "stat",
+          "settings": {
+            "number": "100%",
+            "label": "Tested in every batch"
+          }
+        }
       },
-      "block_order": ["a", "b", "c", "d"]
+      "block_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "settings": {}
     },
     "sku-row": {
       "type": "sku-row",
       "settings": {
         "kicker": "The line",
         "headline": "Two formulas. One protocol.",
+        "collection": "",
         "product_limit": 6
       }
     },
     "how-it-works": {
       "type": "how-it-works",
       "blocks": {
-        "s1": { "type": "step", "settings": { "heading": "You order", "body": "Pick your protocol. Subscribe for refills and save 15%." } },
-        "s2": { "type": "step", "settings": { "heading": "We make it", "body": "Your batch is milled, tested, and weighed out the week of shipping." } },
-        "s3": { "type": "step", "settings": { "heading": "It ships", "body": "Ships in 2–4 weeks. Refills arrive on schedule — no new bottle each time." } }
+        "s1": {
+          "type": "step",
+          "settings": {
+            "heading": "You order",
+            "body": "Pick your protocol. Subscribe for refills and save 15%."
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "heading": "We make it",
+            "body": "Your batch is milled, tested, and weighed out the week of shipping."
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "heading": "It ships",
+            "body": "Ships in 2–4 weeks. Refills arrive on schedule — no new bottle each time."
+          }
+        }
       },
-      "block_order": ["s1", "s2", "s3"]
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ],
+      "settings": {
+        "kicker": "How it works",
+        "headline": "Small batches. Tested. Sent."
+      }
     },
     "batch-story": {
       "type": "batch-story",
       "settings": {
         "kicker": "The batch",
         "headline": "Made the week you order.",
-        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you."
+        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you.",
+        "image": "shopify://shop_images/powder_design.png",
+        "cta_label": "Read our testing",
+        "cta_link": ""
       }
     },
     "proof": {
       "type": "proof",
       "blocks": {
-        "t1": { "type": "testimonial", "settings": { "quote": "I can tell within a week.", "attribution": "— M., 47, Austin" } },
-        "t2": { "type": "testimonial", "settings": { "quote": "The only supplement I've stayed on.", "attribution": "— R., 52, Portland" } },
-        "t3": { "type": "testimonial", "settings": { "quote": "Sleep and strength, same bottle.", "attribution": "— L., 44, Brooklyn" } }
+        "t1": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "I can tell within a week.",
+            "attribution": "— M., 47, Austin"
+          }
+        },
+        "t2": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "The only supplement I've stayed on.",
+            "attribution": "— R., 52, Portland"
+          }
+        },
+        "t3": {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Sleep and strength, same bottle.",
+            "attribution": "— L., 44, Brooklyn"
+          }
+        }
       },
-      "block_order": ["t1", "t2", "t3"]
+      "block_order": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "settings": {
+        "kicker": "Testimonials",
+        "headline": "Women in their 40s and up"
+      }
     },
     "testing-strip": {
       "type": "testing-strip",
       "blocks": {
-        "a": { "type": "item", "settings": { "label": "Heavy metals" } },
-        "b": { "type": "item", "settings": { "label": "Microbials" } },
-        "c": { "type": "item", "settings": { "label": "Identity" } },
-        "d": { "type": "item", "settings": { "label": "Potency" } }
+        "a": {
+          "type": "item",
+          "settings": {
+            "label": "Heavy metals"
+          }
+        },
+        "b": {
+          "type": "item",
+          "settings": {
+            "label": "Microbials"
+          }
+        },
+        "c": {
+          "type": "item",
+          "settings": {
+            "label": "Identity"
+          }
+        },
+        "d": {
+          "type": "item",
+          "settings": {
+            "label": "Potency"
+          }
+        }
       },
-      "block_order": ["a", "b", "c", "d"]
+      "block_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "settings": {
+        "heading": "Third-party tested every batch"
+      }
     }
   },
-  "order": ["hero", "stats", "sku-row", "how-it-works", "batch-story", "proof", "testing-strip"]
+  "order": [
+    "hero",
+    "stats",
+    "sku-row",
+    "how-it-works",
+    "batch-story",
+    "proof",
+    "testing-strip"
+  ]
 }
