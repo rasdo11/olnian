@@ -121,8 +121,8 @@
         "subheadline_size": 16,
         "kicker_size": 11,
         "kicker_kerning": 22,
-        "padding_top": 64,
-        "padding_bottom": 64,
+        "padding_top": 32,
+        "padding_bottom": 40,
         "background": ""
       }
     },
@@ -142,8 +142,8 @@
         "kicker_size": 11,
         "kicker_kerning": 22,
         "body_size": 17,
-        "padding_top": 96,
-        "padding_bottom": 96,
+        "padding_top": 32,
+        "padding_bottom": 48,
         "cta_margin_top": 32,
         "background": ""
       }
@@ -181,14 +181,14 @@
       "settings": {
         "kicker": "How it works",
         "headline": "Small batches. Tested. Sent.",
-        "cta_label": "Take the Quiz",
+        "cta_label": "Join the Next Batch",
         "cta_opens_quiz": true,
-        "cta_link": "",
+        "cta_link": "shopify://products/creatine",
         "headline_size": 48,
         "headline_kerning": -2,
         "kicker_size": 11,
         "kicker_kerning": 22,
-        "padding_top": 96,
+        "padding_top": 48,
         "padding_bottom": 96,
         "background": ""
       }
