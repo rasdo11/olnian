@@ -12,13 +12,15 @@
     "hero": {
       "type": "hero-editorial",
       "settings": {
-        "kicker": "Pure Supplements for Her",
+        "kicker": "Purity, by design.",
+        "badge": "",
         "headline": "Clean Creatine.\nClear Thinking.",
         "subheadline": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40.",
         "image": "shopify://shop_images/olnian_creatine_terracotta.png",
         "primary_cta_label": "Start the Journey",
         "primary_cta_link": "shopify://products/creatine",
-        "secondary_cta_label": "How it works",
+        "secondary_cta_label": "Take the Quiz",
+        "secondary_opens_quiz": true,
         "secondary_cta_link": "",
         "background": ""
       }
@@ -26,22 +28,70 @@
     "stats": {
       "type": "stat-strip",
       "blocks": {
-        "a": { "type": "stat", "settings": { "number": "5 g",   "label": "Creatine per serving" } },
-        "b": { "type": "stat", "settings": { "number": "0",     "label": "Calories" } },
-        "c": { "type": "stat", "settings": { "number": "USA",   "label": "MADE domestically" } },
-        "d": { "type": "stat", "settings": { "number": "100%",  "label": "Tested in every batch" } }
+        "a": {
+          "type": "stat",
+          "settings": {
+            "number": "5 g",
+            "label": "Creatine per serving"
+          }
+        },
+        "b": {
+          "type": "stat",
+          "settings": {
+            "number": "0",
+            "label": "Calories"
+          }
+        },
+        "c": {
+          "type": "stat",
+          "settings": {
+            "number": "USA",
+            "label": "MADE domestically"
+          }
+        },
+        "d": {
+          "type": "stat",
+          "settings": {
+            "number": "100%",
+            "label": "Tested in every batch"
+          }
+        }
       },
-      "block_order": ["a","b","c","d"],
+      "block_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
       "settings": {}
     },
     "sku-row": {
       "type": "sku-row",
       "blocks": {
-        "product_CWGpAm": { "type": "product", "settings": { "product": "creatine" } },
-        "product_TUCTqj": { "type": "product", "settings": { "product": "magnesium-glycincate" } },
-        "product_zHPNUd": { "type": "product", "settings": { "product": "brain-bundle" } }
+        "product_CWGpAm": {
+          "type": "product",
+          "settings": {
+            "product": "creatine"
+          }
+        },
+        "product_TUCTqj": {
+          "type": "product",
+          "settings": {
+            "product": "magnesium-glycincate"
+          }
+        },
+        "product_zHPNUd": {
+          "type": "product",
+          "settings": {
+            "product": "brain-bundle"
+          }
+        }
       },
-      "block_order": ["product_CWGpAm","product_TUCTqj","product_zHPNUd"],
+      "block_order": [
+        "product_CWGpAm",
+        "product_TUCTqj",
+        "product_zHPNUd"
+      ],
       "settings": {
         "kicker": "The line",
         "headline": "Two formulas. One protocol.",
@@ -63,11 +113,33 @@
     "how-it-works": {
       "type": "how-it-works",
       "blocks": {
-        "s1": { "type": "step", "settings": { "heading": "You order",   "body": "Pick your protocol. Subscribe for refills and save 15%." } },
-        "s2": { "type": "step", "settings": { "heading": "We make it",  "body": "Your batch is milled, tested, and weighed out the week of shipping." } },
-        "s3": { "type": "step", "settings": { "heading": "It ships",    "body": "Ships in 2\u20134 weeks. Refills arrive on schedule \u2014 no new bottle each time." } }
+        "s1": {
+          "type": "step",
+          "settings": {
+            "heading": "You order",
+            "body": "Pick your protocol. Subscribe for refills and save 15%."
+          }
+        },
+        "s2": {
+          "type": "step",
+          "settings": {
+            "heading": "We make it",
+            "body": "Your batch is milled, tested, and weighed out the week of shipping."
+          }
+        },
+        "s3": {
+          "type": "step",
+          "settings": {
+            "heading": "It ships",
+            "body": "Ships in 2–4 weeks. Refills arrive on schedule. No new bottle each time."
+          }
+        }
       },
-      "block_order": ["s1","s2","s3"],
+      "block_order": [
+        "s1",
+        "s2",
+        "s3"
+      ],
       "settings": {
         "kicker": "How it works",
         "headline": "Small batches. Tested. Sent."
@@ -79,10 +151,8 @@
         "show_trigger_strip": true,
         "eyebrow": "Find your protocol",
         "headline": "Should I take creatine?",
-        "subtext": "Four questions. No email required. No pitch if the answer\u2019s no.",
-        "trigger_label": "Is creatine for me, right now?",
-        "creatine_variant_id": "",
-        "bundle_variant_id": ""
+        "subtext": "Four questions. No email required. No pitch if the answer’s no.",
+        "trigger_label": "Is creatine for me, right now?"
       }
     }
   },
