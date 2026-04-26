@@ -10,6 +10,7 @@
   --espresso-12: rgba(92, 26, 0, 0.12);
   --espresso-06: rgba(92, 26, 0, 0.06);
   --display-font: 'GFS Didot', 'Didot', 'Didot LT Pro', 'Bodoni 72', Georgia, serif;
+  --brand-font: 'Belleza', var(--display-font);
   --body-font: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -100,13 +101,15 @@ img { display: block; max-width: 100%; }
 .site-header__inner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 40px;
   padding: 18px 0;
 }
+.site-header__cart { margin-left: auto; }
 .site-header__logo {
-  font-family: var(--display-font);
-  font-size: 28px;
-  letter-spacing: -0.02em;
+  font-family: var(--brand-font);
+  font-size: 26px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 .site-header__nav { display: flex; gap: 28px; align-items: center; font-size: 14px; }
 .site-header__nav a { opacity: 0.72; transition: opacity 0.15s; }
@@ -138,7 +141,7 @@ img { display: block; max-width: 100%; }
   gap: 32px;
   align-items: start;
 }
-.site-footer__brand { font-family: var(--display-font); font-size: 32px; }
+.site-footer__brand { font-family: var(--brand-font); font-size: 30px; letter-spacing: 0.12em; text-transform: uppercase; }
 .site-footer__tagline { opacity: 0.72; margin-top: 8px; max-width: 320px; }
 .site-footer__heading { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; opacity: 0.6; margin-bottom: 12px; }
 .site-footer__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }

@@ -56,12 +56,5 @@
     "label": "Email",
     "button": "Subscribe",
     "success": "Thanks — you're on the list."
-  },
-  "shopify": {
-    "checkout": {
-      "marketing": {
-        "accept_sms_checkbox_label": "Keep me accountable!"
-      }
-    }
   }
 }
