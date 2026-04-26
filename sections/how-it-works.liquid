@@ -8,13 +8,13 @@
       {%- if section.settings.kicker != blank -%}
         <div class="sku-row__kicker" style="
           font-size: {{ section.settings.kicker_size }}px;
-          letter-spacing: {{ section.settings.kicker_kerning }}em;
+          letter-spacing: {{ section.settings.kicker_kerning | divided_by: 100.0 }}em;
         ">{{ section.settings.kicker }}</div>
       {%- endif -%}
       {%- if section.settings.headline != blank -%}
         <h2 class="sku-row__headline" style="
           font-size: {{ section.settings.headline_size }}px;
-          letter-spacing: {{ section.settings.headline_kerning }}em;
+          letter-spacing: {{ section.settings.headline_kerning | divided_by: 100.0 }}em;
         ">{{ section.settings.headline }}</h2>
       {%- endif -%}
     </div>

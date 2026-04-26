@@ -8,7 +8,7 @@
       <div style="
         font-family: var(--display-font);
         font-size: {{ section.settings.heading_size }}px;
-        letter-spacing: {{ section.settings.heading_kerning }}em;
+        letter-spacing: {{ section.settings.heading_kerning | divided_by: 100.0 }}em;
         margin-bottom: {{ section.settings.heading_margin_bottom }}px;
       ">{{ section.settings.heading }}</div>
     {%- endif -%}

@@ -15,12 +15,12 @@
           <div class="sku-row__kicker" style="
             text-align: left;
             font-size: {{ section.settings.kicker_size }}px;
-            letter-spacing: {{ section.settings.kicker_kerning }}em;
+            letter-spacing: {{ section.settings.kicker_kerning | divided_by: 100.0 }}em;
           ">{{ section.settings.kicker }}</div>
         {%- endif -%}
         <h2 class="batch-story__headline" style="
           font-size: {{ section.settings.headline_size }}px;
-          letter-spacing: {{ section.settings.headline_kerning }}em;
+          letter-spacing: {{ section.settings.headline_kerning | divided_by: 100.0 }}em;
         ">{{ section.settings.headline }}</h2>
         <p class="batch-story__body" style="font-size: {{ section.settings.body_size }}px;">{{ section.settings.body }}</p>
         {%- if section.settings.body_2 != blank -%}
