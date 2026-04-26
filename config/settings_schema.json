@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Olnian",
+    "theme_version": "1.0.0",
+    "theme_author": "Olnian",
+    "theme_documentation_url": "https://olnian.com",
+    "theme_support_url": "https://olnian.com"
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      { "type": "color", "id": "color_background",      "label": "Background",          "default": "#FFF8F0" },
+      { "type": "color", "id": "color_text",             "label": "Body text",           "default": "#5C1A00" },
+      { "type": "color", "id": "color_accent_primary",   "label": "Tangerine (primary)", "default": "#FF7E5F" },
+      { "type": "color", "id": "color_accent_secondary", "label": "Flamingo",            "default": "#FEB3A0" },
+      { "type": "color", "id": "color_accent_gold",      "label": "Gold",                "default": "#FFD166" },
+      { "type": "color", "id": "color_accent_mint",      "label": "Mint",                "default": "#3ECFB2" }
+    ]
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      { "type": "text",     "id": "brand_name",        "label": "Brand name",    "default": "ØLNIAN" },
+      { "type": "textarea", "id": "brand_tagline",     "label": "Tagline",       "default": "Pure supplements. Made the week you order." },
+      { "type": "image_picker", "id": "favicon",       "label": "Favicon" },
+      {
+        "type": "range",
+        "id": "brand_logo_padding_left",
+        "label": "Brand name — left padding (px)",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "default": 15
+      }
+    ]
+  },
+  {
+    "name": "Shipping badge",
+    "settings": [
+      { "type": "checkbox", "id": "show_ship_badge",  "label": "Show shipping badge",  "default": true },
+      { "type": "text",     "id": "ship_badge_text",  "label": "Badge text",           "default": "Ships in 2\u20134 weeks" }
+    ]
+  }
+]
