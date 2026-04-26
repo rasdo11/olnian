@@ -199,10 +199,10 @@
         "show_trigger_strip": true,
         "eyebrow": "Find your protocol",
         "headline": "Should I take creatine?",
-        "subtext": "Four questions. No email required. No pitch if the answer’s no.",
-        "trigger_label": "Is creatine for me, right now?",
-        "creatine_url": "",
-        "bundle_url": ""
+        "subtext": "It's not about muscle growth. It's not about bulking up. But there are still some basic questions to see if it's okay to start creatine right now.",
+        "trigger_label": "Is creatine for me right now?",
+        "creatine_url": "shopify://products/creatine",
+        "bundle_url": "shopify://collections/brain-bundle"
       }
     }
   },
