@@ -37,8 +37,8 @@
   aria-modal="true"
   aria-label="{{ section.settings.headline | escape }}"
   aria-hidden="true"
-  data-creatine-variant="{{ section.settings.creatine_variant_id }}"
-  data-bundle-variant="{{ section.settings.bundle_variant_id }}"
+  data-creatine-url="{{ section.settings.creatine_url }}"
+  data-bundle-url="{{ section.settings.bundle_url }}"
 >
   <div class="quiz-backdrop" data-quiz-close></div>
   <div class="quiz-panel" role="document">
@@ -246,8 +246,8 @@
 
   if (!overlay || !contentEl) return;
 
-  const CREATINE_VARIANT = overlay.dataset.creatineVariant;
-  const BUNDLE_VARIANT   = overlay.dataset.bundleVariant;
+  const CREATINE_URL = overlay.dataset.creatineUrl;
+  const BUNDLE_URL   = overlay.dataset.bundleUrl;
 
   /* ── State ──────────────────────────────────────────────── */
   const state = { step: 0, answers: { q1: null, q2: [], q3: null, q4: null }, loading: false, added: false };
@@ -274,8 +274,8 @@
     return { headline: 'Creatine was made for this.', body: "Your answers suggest creatine + magnesium glycinate is a strong fit. The research on women in your demographic is some of the most compelling in the category \u2014 and \u00d8lnian is the cleanest version of it we know how to make. Every batch tested. Ships within days of production." };
   }
 
-  function recommendedVariant() {
-    return state.answers.q2.includes('sleep') ? BUNDLE_VARIANT : CREATINE_VARIANT;
+  function recommendedUrl() {
+    return (state.answers.q2.includes('sleep') && BUNDLE_URL) ? BUNDLE_URL : CREATINE_URL;
   }
 
   /* ── Helpers ─────────────────────────────────────────────── */
@@ -359,12 +359,10 @@
       let inner = '';
       if (v === 'yes') {
         const copy = yesCopy();
-        const variantId = recommendedVariant();
-        const ctaHTML = state.added
-          ? `<div class="quiz-success"><div class="quiz-success__dot"></div>Added to cart \u2014 we\u2019ll take it from here.</div>`
-          : `<div class="quiz-actions" style="margin-top:36px"><button type="button" class="quiz-btn-primary" data-quiz-add-to-cart data-variant="${esc(variantId)}"${state.loading?' disabled':''}>
-              ${state.loading ? 'Adding\u2026' : `Start the Journey ${ARROW_SVG}`}
-            </button></div>`;
+        const destUrl = recommendedUrl();
+        const ctaHTML = destUrl
+          ? `<div class="quiz-actions" style="margin-top:36px"><a href="${esc(destUrl)}" class="quiz-btn-primary">Start the Journey ${ARROW_SVG}</a></div>`
+          : `<div class="quiz-actions" style="margin-top:36px"><button type="button" class="quiz-btn-primary" disabled style="opacity:0.4">Set product URL in theme settings</button></div>`;
         inner = `<h2 class="quiz-headline quiz-headline--lg">${esc(copy.headline)}</h2><p class="quiz-body">${esc(copy.body)}</p>${ctaHTML}`;
       } else if (v === 'no') {
         inner = `<h2 class="quiz-headline quiz-headline--lg">Creatine probably isn\u2019t your next move.</h2>
@@ -396,55 +394,6 @@
     document.body.style.overflow = '';
   }
 
-  /* ── Cart ────────────────────────────────────────────────── */
-  async function addToCart(variantId) {
-    if (!variantId) { console.warn('[quiz] No variant ID set in section settings.'); return; }
-    state.loading = true; render();
-    try {
-      const res = await fetch('/cart/add.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ items: [{ id: Number(variantId), quantity: 1 }] }),
-      });
-      if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.description || 'Could not add to cart.'); }
-
-      state.added = true;
-
-      // Refresh drawer
-      const drawerContent = document.getElementById('CartDrawerContent');
-      if (drawerContent) {
-        fetch('/?section_id=cart-drawer', { headers: { Accept: 'text/html' } })
-          .then(r => r.ok ? r.text() : null)
-          .then(html => {
-            if (!html) return;
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const inc = doc.querySelector('[data-cart-drawer-content]');
-            if (inc) drawerContent.innerHTML = inc.innerHTML;
-          }).catch(() => {});
-      }
-
-      // Update header count
-      fetch('/cart.js', { headers: { Accept: 'application/json' } })
-        .then(r => r.json())
-        .then(cart => {
-          const el = document.querySelector('.site-header__cart-count');
-          if (el) { el.textContent = cart.item_count; el.style.display = cart.item_count > 0 ? '' : 'none'; }
-        }).catch(() => {});
-
-      // Close quiz → open cart
-      setTimeout(() => {
-        closeQuiz();
-        const drawer = document.getElementById('CartDrawer');
-        if (drawer) { drawer.setAttribute('data-open', 'true'); drawer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; }
-      }, 600);
-
-    } catch (err) {
-      state.loading = false; render();
-      const btn = contentEl.querySelector('[data-quiz-add-to-cart]');
-      if (btn) { btn.textContent = err.message || 'Something went wrong.'; btn.disabled = false; setTimeout(() => render(), 3000); }
-    }
-  }
-
   /* ── Events ──────────────────────────────────────────────── */
   document.addEventListener('click', function (e) {
     if (e.target.closest('[data-quiz-open]'))  { e.preventDefault(); openQuiz();  return; }
@@ -456,12 +405,9 @@
   });
 
   contentEl.addEventListener('click', function (e) {
-    if (e.target.closest('[data-quiz-start]'))   { state.step = 1; render(); return; }
-    if (e.target.closest('[data-quiz-continue]')){ state.step = 3; render(); return; }
-    if (e.target.closest('[data-quiz-retake]'))  { reset(); render(); return; }
-
-    const addBtn = e.target.closest('[data-quiz-add-to-cart]');
-    if (addBtn && !state.loading) { addToCart(addBtn.dataset.variant); return; }
+    if (e.target.closest('[data-quiz-start]'))    { state.step = 1; render(); return; }
+    if (e.target.closest('[data-quiz-continue]')) { state.step = 3; render(); return; }
+    if (e.target.closest('[data-quiz-retake]'))   { reset(); render(); return; }
 
     const opt = e.target.closest('[data-option]');
     if (!opt) return;
@@ -496,9 +442,9 @@
     { "type": "text", "id": "headline", "label": "Headline", "default": "Should I take creatine?" },
     { "type": "textarea", "id": "subtext", "label": "Sub-text", "default": "Four questions. No email required. No pitch if the answer\u2019s no." },
     { "type": "text", "id": "trigger_label", "label": "Button label", "default": "Is creatine for me, right now?" },
-    { "type": "header", "content": "Product recommendations" },
-    { "type": "text", "id": "creatine_variant_id", "label": "Creatine variant ID", "info": "Shopify variant ID for the creatine starter. Find it in Admin \u2192 Products \u2192 [product] \u2192 Variants." },
-    { "type": "text", "id": "bundle_variant_id", "label": "Bundle variant ID", "info": "Shown when the user selects 'Poor or disrupted sleep'." }
+    { "type": "header", "content": "Result destinations" },
+    { "type": "url", "id": "creatine_url", "label": "Creatine product URL", "info": "Where 'Start the Journey' goes for most quiz results." },
+    { "type": "url", "id": "bundle_url", "label": "Bundle URL (sleep result)", "info": "Where 'Start the Journey' goes when user selects Poor or disrupted sleep." }
   ],
   "presets": [
     { "name": "Quiz \u2014 recommendation", "category": "Promotions" }

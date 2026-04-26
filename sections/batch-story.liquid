@@ -1,6 +1,10 @@
-<section class="batch-story">
+<section class="batch-story" style="
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  {% if section.settings.background != blank %}background: {{ section.settings.background }};{% endif %}
+">
   <div class="container">
-    <div class="batch-story__grid">
+    <div class="batch-story__grid{% if section.settings.image_position == 'right' %} batch-story__grid--image-right{% endif %}">
       <div class="batch-story__image">
         {%- if section.settings.image != blank -%}
           {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', alt: section.settings.headline }}
@@ -8,12 +12,22 @@
       </div>
       <div>
         {%- if section.settings.kicker != blank -%}
-          <div class="sku-row__kicker" style="text-align: left;">{{ section.settings.kicker }}</div>
+          <div class="sku-row__kicker" style="
+            text-align: left;
+            font-size: {{ section.settings.kicker_size }}px;
+            letter-spacing: {{ section.settings.kicker_kerning }}em;
+          ">{{ section.settings.kicker }}</div>
         {%- endif -%}
-        <h2 class="batch-story__headline">{{ section.settings.headline }}</h2>
-        <p class="batch-story__body">{{ section.settings.body }}</p>
+        <h2 class="batch-story__headline" style="
+          font-size: {{ section.settings.headline_size }}px;
+          letter-spacing: {{ section.settings.headline_kerning }}em;
+        ">{{ section.settings.headline }}</h2>
+        <p class="batch-story__body" style="font-size: {{ section.settings.body_size }}px;">{{ section.settings.body }}</p>
+        {%- if section.settings.body_2 != blank -%}
+          <p class="batch-story__body" style="margin-top: 16px; font-size: {{ section.settings.body_size }}px;">{{ section.settings.body_2 }}</p>
+        {%- endif -%}
         {%- if section.settings.cta_label != blank -%}
-          <a href="{{ section.settings.cta_link }}" class="btn btn--outline" style="margin-top: 32px;">{{ section.settings.cta_label }}</a>
+          <a href="{{ section.settings.cta_link }}" class="btn btn--outline" style="margin-top: {{ section.settings.cta_margin_top }}px;">{{ section.settings.cta_label }}</a>
         {%- endif -%}
       </div>
     </div>
@@ -24,12 +38,35 @@
 {
   "name": "Batch story",
   "settings": [
+    { "type": "header", "content": "Content" },
     { "type": "text", "id": "kicker", "label": "Kicker", "default": "The batch" },
     { "type": "text", "id": "headline", "label": "Headline", "default": "Made the week you order." },
     { "type": "textarea", "id": "body", "label": "Body", "default": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you." },
+    { "type": "textarea", "id": "body_2", "label": "Body paragraph 2 (optional)" },
     { "type": "image_picker", "id": "image", "label": "Image" },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
     { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Read our testing" },
-    { "type": "url", "id": "cta_link", "label": "CTA link" }
+    { "type": "url", "id": "cta_link", "label": "CTA link" },
+    { "type": "header", "content": "Typography" },
+    { "type": "range", "id": "headline_size", "label": "Headline size (px)", "min": 24, "max": 80, "step": 2, "default": 48 },
+    { "type": "range", "id": "headline_kerning", "label": "Headline letter-spacing (em \u00d7 100)", "min": -5, "max": 10, "step": 1, "default": -2, "info": "Divide by 100 for em value. -2 = -0.02em" },
+    { "type": "range", "id": "kicker_size", "label": "Kicker size (px)", "min": 9, "max": 16, "step": 1, "default": 11 },
+    { "type": "range", "id": "kicker_kerning", "label": "Kicker letter-spacing (em \u00d7 100)", "min": 0, "max": 40, "step": 1, "default": 22 },
+    { "type": "range", "id": "body_size", "label": "Body size (px)", "min": 13, "max": 22, "step": 1, "default": 17 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "label": "Padding top (px)", "min": 0, "max": 160, "step": 8, "default": 96 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom (px)", "min": 0, "max": 160, "step": 8, "default": 96 },
+    { "type": "range", "id": "cta_margin_top", "label": "CTA button top spacing (px)", "min": 8, "max": 64, "step": 4, "default": 32 },
+    { "type": "color", "id": "background", "label": "Background color" }
   ],
   "presets": [
     { "name": "Batch story", "category": "Text" }

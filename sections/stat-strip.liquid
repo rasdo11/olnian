@@ -1,10 +1,14 @@
-<section class="stat-strip-section">
+<section class="stat-strip-section" style="
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  {% if section.settings.background != blank %}background: {{ section.settings.background }};{% endif %}
+">
   <div class="container">
     <div class="stat-strip">
       {%- for block in section.blocks -%}
         <div class="stat-strip__item" {{ block.shopify_attributes }}>
-          <div class="stat-strip__num">{{ block.settings.number }}</div>
-          <div class="stat-strip__label">{{ block.settings.label }}</div>
+          <div class="stat-strip__num" style="font-size: {{ section.settings.number_size }}px;">{{ block.settings.number }}</div>
+          <div class="stat-strip__label" style="font-size: {{ section.settings.label_size }}px;">{{ block.settings.label }}</div>
         </div>
       {%- endfor -%}
     </div>
@@ -14,6 +18,15 @@
 {% schema %}
 {
   "name": "Stat strip",
+  "settings": [
+    { "type": "header", "content": "Typography" },
+    { "type": "range", "id": "number_size", "label": "Number size (px)", "min": 24, "max": 72, "step": 2, "default": 40 },
+    { "type": "range", "id": "label_size", "label": "Label size (px)", "min": 10, "max": 18, "step": 1, "default": 13 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "label": "Padding top (px)", "min": 0, "max": 120, "step": 8, "default": 48 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom (px)", "min": 0, "max": 120, "step": 8, "default": 48 },
+    { "type": "color", "id": "background", "label": "Background color" }
+  ],
   "max_blocks": 6,
   "blocks": [
     {

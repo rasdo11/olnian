@@ -153,6 +153,19 @@
             </div>
           </div>
         {%- endif -%}
+
+        {%- if section.settings.show_bundle_upsell and section.settings.bundle_upsell_link != blank -%}
+          <a href="{{ section.settings.bundle_upsell_link }}" class="product__bundle-upsell">
+            <div class="product__bundle-upsell__inner">
+              <div>
+                <div class="product__bundle-upsell__label">{{ section.settings.bundle_upsell_label }}</div>
+                <div class="product__bundle-upsell__headline">{{ section.settings.bundle_upsell_headline }}</div>
+                <div class="product__bundle-upsell__body">{{ section.settings.bundle_upsell_body }}</div>
+              </div>
+              <div class="product__bundle-upsell__arrow">→</div>
+            </div>
+          </a>
+        {%- endif -%}
       </div>
     </div>
   </div>
@@ -174,8 +187,15 @@
 {
   "name": "Product — main",
   "settings": [
+    { "type": "header", "content": "Gift banner" },
     { "type": "checkbox", "id": "show_gift_banner", "label": "Show gift banner on subscription", "default": true },
-    { "type": "text", "id": "gift_banner_text", "label": "Gift banner text", "default": "First subscription includes a free gold measuring spoon." }
+    { "type": "text", "id": "gift_banner_text", "label": "Gift banner text", "default": "First subscription includes a free gold measuring spoon." },
+    { "type": "header", "content": "Bundle upsell" },
+    { "type": "checkbox", "id": "show_bundle_upsell", "label": "Show bundle upsell", "default": true },
+    { "type": "text", "id": "bundle_upsell_label", "label": "Eyebrow label", "default": "Level up" },
+    { "type": "text", "id": "bundle_upsell_headline", "label": "Headline", "default": "Add Magnesium Glycinate" },
+    { "type": "textarea", "id": "bundle_upsell_body", "label": "Body", "default": "Creatine + Magnesium together. Better sleep, better recovery. See the Brain Bundle." },
+    { "type": "url", "id": "bundle_upsell_link", "label": "Bundle link" }
   ]
 }
 {% endschema %}

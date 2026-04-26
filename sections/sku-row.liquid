@@ -1,11 +1,24 @@
-<section class="sku-row">
+<section class="sku-row" style="
+  padding-top: {{ section.settings.padding_top }}px;
+  padding-bottom: {{ section.settings.padding_bottom }}px;
+  {% if section.settings.background != blank %}background: {{ section.settings.background }};{% endif %}
+">
   <div class="container">
     <div class="sku-row__header">
       {%- if section.settings.kicker != blank -%}
-        <div class="sku-row__kicker">{{ section.settings.kicker }}</div>
+        <div class="sku-row__kicker" style="
+          font-size: {{ section.settings.kicker_size }}px;
+          letter-spacing: {{ section.settings.kicker_kerning }}em;
+        ">{{ section.settings.kicker }}</div>
       {%- endif -%}
       {%- if section.settings.headline != blank -%}
-        <h2 class="sku-row__headline">{{ section.settings.headline }}</h2>
+        <h2 class="sku-row__headline" style="
+          font-size: {{ section.settings.headline_size }}px;
+          letter-spacing: {{ section.settings.headline_kerning }}em;
+        ">{{ section.settings.headline }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheadline != blank -%}
+        <p class="sku-row__sub" style="font-size: {{ section.settings.subheadline_size }}px;">{{ section.settings.subheadline }}</p>
       {%- endif -%}
     </div>
 
@@ -31,10 +44,22 @@
 {
   "name": "SKU row",
   "settings": [
+    { "type": "header", "content": "Content" },
     { "type": "text", "id": "kicker", "label": "Kicker", "default": "The line" },
     { "type": "text", "id": "headline", "label": "Headline", "default": "Two formulas. One protocol." },
+    { "type": "textarea", "id": "subheadline", "label": "Sub-headline (optional)" },
     { "type": "collection", "id": "collection", "label": "Collection (preferred)" },
-    { "type": "range", "id": "product_limit", "label": "Max products", "min": 1, "max": 12, "step": 1, "default": 6 }
+    { "type": "range", "id": "product_limit", "label": "Max products", "min": 1, "max": 12, "step": 1, "default": 6 },
+    { "type": "header", "content": "Typography" },
+    { "type": "range", "id": "headline_size", "label": "Headline size (px)", "min": 24, "max": 72, "step": 2, "default": 40 },
+    { "type": "range", "id": "headline_kerning", "label": "Headline letter-spacing (em × 100)", "min": -5, "max": 10, "step": 1, "default": -2, "info": "Divide by 100 for em value. -2 = -0.02em" },
+    { "type": "range", "id": "subheadline_size", "label": "Sub-headline size (px)", "min": 13, "max": 22, "step": 1, "default": 16 },
+    { "type": "range", "id": "kicker_size", "label": "Kicker size (px)", "min": 9, "max": 16, "step": 1, "default": 11 },
+    { "type": "range", "id": "kicker_kerning", "label": "Kicker letter-spacing (em × 100)", "min": 0, "max": 40, "step": 1, "default": 22 },
+    { "type": "header", "content": "Spacing" },
+    { "type": "range", "id": "padding_top", "label": "Padding top (px)", "min": 0, "max": 160, "step": 8, "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Padding bottom (px)", "min": 0, "max": 160, "step": 8, "default": 64 },
+    { "type": "color", "id": "background", "label": "Section background" }
   ],
   "blocks": [
     {

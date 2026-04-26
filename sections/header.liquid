@@ -1,10 +1,11 @@
 <header class="site-header" role="banner">
   <div class="container site-header__inner">
-    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}"
+       style="padding-left: {{ settings.brand_logo_padding_left | default: 15 }}px;">
       {{ settings.brand_name | default: shop.name }}
     </a>
 
-    <nav class="site-header__nav" aria-label="Primary">
+    <nav class="site-header__nav" id="SiteNav" aria-label="Primary">
       {%- if section.settings.menu != blank -%}
         {%- for link in section.settings.menu.links -%}
           <a href="{{ link.url }}">{{ link.title }}</a>
@@ -14,10 +15,18 @@
       {%- endif -%}
     </nav>
 
-    <button class="site-header__cart" data-cart-open aria-label="{{ 'general.accessibility.open_cart' | t }}">
-      Cart
-      <span class="site-header__cart-count"{% if cart.item_count == 0 %} style="display:none"{% endif %}>{{ cart.item_count }}</span>
-    </button>
+    <div class="site-header__actions">
+      <a href="{{ routes.collections_url }}/all" class="btn btn--primary site-header__shop-cta">
+        {{ section.settings.mobile_cta_label | default: 'Shop' }}
+      </a>
+      <button class="site-header__cart" data-cart-open aria-label="{{ 'general.accessibility.open_cart' | t }}">
+        Cart
+        <span class="site-header__cart-count"{% if cart.item_count == 0 %} style="display:none"{% endif %}>{{ cart.item_count }}</span>
+      </button>
+      <button class="site-header__hamburger" id="SiteNavToggle" aria-expanded="false" aria-controls="SiteNav" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -30,6 +39,12 @@
       "id": "menu",
       "label": "Menu",
       "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "mobile_cta_label",
+      "label": "Mobile CTA button label",
+      "default": "Shop"
     }
   ]
 }
