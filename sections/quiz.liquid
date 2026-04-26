@@ -267,11 +267,11 @@
   }
 
   function yesCopy() {
-    if (state.answers.q4 === 'meh')  return { headline: 'Creatine \u2014 this time, done right.', body: "Your answers suggest creatine is a strong fit. If you\u2019ve tried it before without noticeable effect, it was likely the dose or the form. Pure micronized monohydrate at 3\u20135\u202fg daily is the studied amount \u2014 and the majority of off-the-shelf powders miss that mark. \u00d8lnian doesn\u2019t." };
-    if (state.answers.q4 === 'good') return { headline: 'You already know.', body: "You\u2019ve felt the effect. \u00d8LNIAN is the cleanest version of it we know how to make \u2014 pharmaceutical-grade monohydrate, nothing else, tested for heavy metals every batch." };
+    if (state.answers.q4 === 'meh')  return { headline: 'Creatine: this time, done right.', body: "Your answers suggest creatine is a strong fit. If you\u2019ve tried it before without noticeable effect, it was likely the dose or the form. Pure micronized monohydrate at 3\u20135\u202fg daily is the studied amount, and the majority of off-the-shelf powders miss that mark. \u00d8lnian doesn\u2019t." };
+    if (state.answers.q4 === 'good') return { headline: 'You already know.', body: "You\u2019ve felt the effect. \u00d8LNIAN is the cleanest version of it we know how to make: pharmaceutical-grade monohydrate, nothing else, tested for heavy metals every batch." };
     const hasSymptoms = state.answers.q2.length > 0 && !state.answers.q2.includes('none');
-    if (!hasSymptoms) return { headline: 'A quiet yes.', body: "Even without specific symptoms, the research on women 30+ is some of the most compelling in the category \u2014 strength, cognition, bone density, mood. Creatine isn\u2019t a fix for a problem. It\u2019s a floor you set, daily." };
-    return { headline: 'Creatine was made for this.', body: "Your answers suggest creatine + magnesium glycinate is a strong fit. The research on women in your demographic is some of the most compelling in the category \u2014 and \u00d8lnian is the cleanest version of it we know how to make. Every batch tested. Ships within days of production." };
+    if (!hasSymptoms) return { headline: 'A quiet yes.', body: "Even without specific symptoms, the research on women 30+ is some of the most compelling in the category: strength, cognition, bone density, mood. Creatine isn\u2019t a fix for a problem. It\u2019s a floor you set, daily." };
+    return { headline: 'Creatine was made for this.', body: "Your answers suggest creatine + magnesium glycinate is a strong fit. The research on women in your demographic is some of the most compelling in the category, and \u00d8lnian is the cleanest version of it we know how to make. Every batch tested. Ships within days of production." };
   }
 
   function recommendedUrl() {
@@ -360,9 +360,7 @@
       if (v === 'yes') {
         const copy = yesCopy();
         const destUrl = recommendedUrl();
-        const ctaHTML = destUrl
-          ? `<div class="quiz-actions" style="margin-top:36px"><a href="${esc(destUrl)}" class="quiz-btn-primary">Start the Journey ${ARROW_SVG}</a></div>`
-          : `<div class="quiz-actions" style="margin-top:36px"><button type="button" class="quiz-btn-primary" disabled style="opacity:0.4">Set product URL in theme settings</button></div>`;
+        const ctaHTML = `<div class="quiz-actions" style="margin-top:36px"><a href="${esc(destUrl || '/collections/all')}" class="quiz-btn-primary">Start the Journey ${ARROW_SVG}</a></div>`;
         inner = `<h2 class="quiz-headline quiz-headline--lg">${esc(copy.headline)}</h2><p class="quiz-body">${esc(copy.body)}</p>${ctaHTML}`;
       } else if (v === 'no') {
         inner = `<h2 class="quiz-headline quiz-headline--lg">Creatine probably isn\u2019t your next move.</h2>
@@ -370,7 +368,7 @@
           <div class="quiz-actions" style="margin-top:32px"><button type="button" class="quiz-btn-ghost" data-quiz-close>Learn what we make and why \u2192</button></div>`;
       } else {
         inner = `<h2 class="quiz-headline quiz-headline--lg">Talk to your doctor first.</h2>
-          <p class="quiz-body">One of your answers flags a situation where a physician should weigh in before you start any new supplement. That\u2019s not a no \u2014 it\u2019s just the right order of operations. We\u2019d rather you ask first.</p>`;
+          <p class="quiz-body">One of your answers flags a situation where a physician should weigh in before you start any new supplement. That\u2019s not a no; it\u2019s just the right order of operations. We\u2019d rather you ask first.</p>`;
       }
 
       contentEl.innerHTML = `${inner}
