@@ -65,11 +65,47 @@
     },
     "sku-row": {
       "type": "sku-row",
+      "blocks": {
+        "product_CWGpAm": {
+          "type": "product",
+          "settings": {
+            "product": "creatine"
+          }
+        },
+        "product_TUCTqj": {
+          "type": "product",
+          "settings": {
+            "product": "magnesium-glycincate"
+          }
+        },
+        "product_zHPNUd": {
+          "type": "product",
+          "settings": {
+            "product": "brain-bundle"
+          }
+        }
+      },
+      "block_order": [
+        "product_CWGpAm",
+        "product_TUCTqj",
+        "product_zHPNUd"
+      ],
       "settings": {
         "kicker": "The line",
         "headline": "Two formulas. One protocol.",
         "collection": "",
         "product_limit": 6
+      }
+    },
+    "batch-story": {
+      "type": "batch-story",
+      "settings": {
+        "kicker": "The batch",
+        "headline": "Made the week you order.",
+        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you.",
+        "image": "shopify://shop_images/powder_design.png",
+        "cta_label": "Read our testing",
+        "cta_link": ""
       }
     },
     "how-it-works": {
@@ -107,17 +143,6 @@
         "headline": "Small batches. Tested. Sent."
       }
     },
-    "batch-story": {
-      "type": "batch-story",
-      "settings": {
-        "kicker": "The batch",
-        "headline": "Made the week you order.",
-        "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you.",
-        "image": "shopify://shop_images/powder_design.png",
-        "cta_label": "Read our testing",
-        "cta_link": ""
-      }
-    },
     "proof": {
       "type": "proof",
       "blocks": {
@@ -152,53 +177,14 @@
         "kicker": "Testimonials",
         "headline": "Women in their 40s and up"
       }
-    },
-    "testing-strip": {
-      "type": "testing-strip",
-      "blocks": {
-        "a": {
-          "type": "item",
-          "settings": {
-            "label": "Heavy metals"
-          }
-        },
-        "b": {
-          "type": "item",
-          "settings": {
-            "label": "Microbials"
-          }
-        },
-        "c": {
-          "type": "item",
-          "settings": {
-            "label": "Identity"
-          }
-        },
-        "d": {
-          "type": "item",
-          "settings": {
-            "label": "Potency"
-          }
-        }
-      },
-      "block_order": [
-        "a",
-        "b",
-        "c",
-        "d"
-      ],
-      "settings": {
-        "heading": "Third-party tested every batch"
-      }
     }
   },
   "order": [
     "hero",
     "stats",
     "sku-row",
-    "how-it-works",
     "batch-story",
-    "proof",
-    "testing-strip"
+    "how-it-works",
+    "proof"
   ]
 }
