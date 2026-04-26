@@ -16,8 +16,8 @@
         "headline": "Clean Creatine.\nClear Thinking.",
         "subheadline": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40.",
         "image": "shopify://shop_images/olnian_creatine_terracotta.png",
-        "primary_cta_label": "Shop",
-        "primary_cta_link": "",
+        "primary_cta_label": "Start the Journey",
+        "primary_cta_link": "shopify://products/creatine",
         "secondary_cta_label": "How it works",
         "secondary_cta_link": "",
         "background": ""
@@ -29,7 +29,7 @@
         "a": {
           "type": "stat",
           "settings": {
-            "number": "3–5 g",
+            "number": "5 g",
             "label": "Creatine per serving"
           }
         },
@@ -37,14 +37,14 @@
           "type": "stat",
           "settings": {
             "number": "0",
-            "label": "Fillers or sweeteners"
+            "label": "Calories"
           }
         },
         "c": {
           "type": "stat",
           "settings": {
-            "number": "Monthly",
-            "label": "Small batches"
+            "number": "USA",
+            "label": "MADE domestically"
           }
         },
         "d": {
