@@ -15,10 +15,18 @@
     "color_accent_secondary": "#FEB3A0",
     "color_accent_gold": "#FFD166",
     "color_accent_mint": "#3ECFB2",
-    "brand_name": "Olnian",
-    "brand_tagline": "Pure supplements. Made the week you order.",
+    "brand_name": "ØLNIAN",
+    "brand_tagline": "Clarity is Luxury.",
+    "favicon": "shopify://shop_images/Olnian_Favicon.png",
     "show_ship_badge": true,
-    "ship_badge_text": "Ships in 2–4 weeks"
+    "ship_badge_text": "Ships in 2–4 weeks",
+    "sections": {
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {}
+      }
+    },
+    "content_for_index": []
   },
   "presets": {
     "Default": {

@@ -14,14 +14,26 @@
       "settings": {
         "kicker": "Purity, by design.",
         "badge": "",
-        "headline": "Clean Creatine.\nClear Thinking.",
+        "headline": "Clarity is the new Luxury.",
         "subheadline": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40.",
         "image": "shopify://shop_images/olnian_creatine_terracotta.png",
+        "show_trust_row": true,
+        "trust_1": "Third-party tested",
+        "trust_2": "No fillers",
+        "trust_3": "Made fresh to order",
         "primary_cta_label": "Start the Journey",
         "primary_cta_link": "shopify://products/creatine",
         "secondary_cta_label": "Take the Quiz",
         "secondary_opens_quiz": true,
         "secondary_cta_link": "",
+        "headline_size": 64,
+        "headline_kerning": 0,
+        "subheadline_size": 17,
+        "kicker_size": 11,
+        "kicker_kerning": 22,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "cta_margin_top": 32,
         "background": ""
       }
     },
@@ -63,7 +75,13 @@
         "c",
         "d"
       ],
-      "settings": {}
+      "settings": {
+        "number_size": 40,
+        "label_size": 13,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "background": ""
+      }
     },
     "sku-row": {
       "type": "sku-row",
@@ -95,8 +113,17 @@
       "settings": {
         "kicker": "The line",
         "headline": "Two formulas. One protocol.",
+        "subheadline": "",
         "collection": "",
-        "product_limit": 6
+        "product_limit": 6,
+        "headline_size": 40,
+        "headline_kerning": -2,
+        "subheadline_size": 16,
+        "kicker_size": 11,
+        "kicker_kerning": 22,
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "background": ""
       }
     },
     "batch-story": {
@@ -105,9 +132,20 @@
         "kicker": "The batch",
         "headline": "Made the week you order.",
         "body": "No warehouses full of bottles losing potency. Each batch is milled, tested, and filled in the weeks before it ships to you.",
+        "body_2": "",
         "image": "shopify://shop_images/powder_design.png",
+        "image_position": "left",
         "cta_label": "Read our testing",
-        "cta_link": ""
+        "cta_link": "",
+        "headline_size": 48,
+        "headline_kerning": -2,
+        "kicker_size": 11,
+        "kicker_kerning": 22,
+        "body_size": 17,
+        "padding_top": 96,
+        "padding_bottom": 96,
+        "cta_margin_top": 32,
+        "background": ""
       }
     },
     "how-it-works": {
@@ -142,7 +180,17 @@
       ],
       "settings": {
         "kicker": "How it works",
-        "headline": "Small batches. Tested. Sent."
+        "headline": "Small batches. Tested. Sent.",
+        "cta_label": "Take the Quiz",
+        "cta_opens_quiz": true,
+        "cta_link": "",
+        "headline_size": 48,
+        "headline_kerning": -2,
+        "kicker_size": 11,
+        "kicker_kerning": 22,
+        "padding_top": 96,
+        "padding_bottom": 96,
+        "background": ""
       }
     },
     "quiz": {
@@ -152,7 +200,9 @@
         "eyebrow": "Find your protocol",
         "headline": "Should I take creatine?",
         "subtext": "Four questions. No email required. No pitch if the answer’s no.",
-        "trigger_label": "Is creatine for me, right now?"
+        "trigger_label": "Is creatine for me, right now?",
+        "creatine_url": "",
+        "bundle_url": ""
       }
     }
   },
