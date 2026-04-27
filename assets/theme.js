@@ -202,43 +202,95 @@
     return '$' + (cents / 100).toFixed(2);
   }
 
-  /* ---------- PDP Gallery ---------- */
+  /* ---------- PDP Gallery + Lightbox ---------- */
   function initGallery() {
     const gallery = document.querySelector('.pdp-gallery');
     if (!gallery) return;
-    const slides = $$('.pdp-gallery__slide', gallery);
-    const thumbs = $$('.pdp-gallery__thumb', gallery);
-    const dots   = $$('.pdp-gallery__dot', gallery);
-    if (slides.length < 2) return;
+    const slides  = $$('.pdp-gallery__slide', gallery);
+    const thumbs  = $$('.pdp-gallery__thumb', gallery);
+    const dots    = $$('.pdp-gallery__dot', gallery);
 
+    // Go to slide index — syncs hero, thumbs, dots
     function goTo(index) {
       slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
       thumbs.forEach((t, i) => t.classList.toggle('is-active', i === index));
       dots.forEach((d, i)   => d.classList.toggle('is-active', i === index));
     }
 
-    thumbs.forEach((t) => {
-      t.addEventListener('click', () => goTo(Number(t.dataset.thumb)));
-    });
-    dots.forEach((d) => {
-      d.addEventListener('click', () => goTo(Number(d.dataset.dot)));
+    if (slides.length > 1) {
+      thumbs.forEach((t) => t.addEventListener('click', () => goTo(Number(t.dataset.thumb))));
+      dots.forEach((d)   => d.addEventListener('click', () => goTo(Number(d.dataset.dot))));
+
+      // Touch swipe on hero image
+      const main = gallery.querySelector('.pdp-gallery__main');
+      if (main) {
+        let startX = 0;
+        main.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+        main.addEventListener('touchend', (e) => {
+          const dx = e.changedTouches[0].clientX - startX;
+          if (Math.abs(dx) < 40) return;
+          const current = slides.findIndex((s) => s.classList.contains('is-active'));
+          goTo(dx < 0 ? Math.min(current + 1, slides.length - 1) : Math.max(current - 1, 0));
+        }, { passive: true });
+      }
+    }
+
+    // ── Lightbox ──────────────────────────────────────────────
+    const lightbox = document.getElementById('PdpLightbox');
+    if (!lightbox) return;
+
+    const lbSlides = $$('.pdp-lightbox__slide', lightbox);
+
+    function lbGoTo(index) {
+      lbSlides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+    }
+
+    function lbOpen(index) {
+      lbGoTo(index);
+      lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function lbClose() {
+      lightbox.classList.remove('is-open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function lbCurrentIndex() {
+      return lbSlides.findIndex((s) => s.classList.contains('is-active'));
+    }
+
+    // Attach click to every open-trigger button directly (more reliable than event delegation)
+    $$('[data-lightbox-open]', gallery).forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        lbOpen(Number(btn.dataset.lightboxOpen));
+      });
     });
 
-    // Touch swipe on main image
-    const main = gallery.querySelector('.pdp-gallery__main');
-    if (main) {
-      let startX = 0;
-      main.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
-      main.addEventListener('touchend', (e) => {
-        const dx = e.changedTouches[0].clientX - startX;
-        if (Math.abs(dx) < 40) return;
-        const current = slides.findIndex((s) => s.classList.contains('is-active'));
-        const next = dx < 0
-          ? Math.min(current + 1, slides.length - 1)
-          : Math.max(current - 1, 0);
-        goTo(next);
-      }, { passive: true });
-    }
+    // Prev / Next
+    lightbox.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => {
+      lbGoTo(Math.max(lbCurrentIndex() - 1, 0));
+    });
+    lightbox.querySelector('[data-lightbox-next]')?.addEventListener('click', () => {
+      lbGoTo(Math.min(lbCurrentIndex() + 1, lbSlides.length - 1));
+    });
+
+    // Close button + backdrop click
+    lightbox.querySelector('[data-lightbox-close]')?.addEventListener('click', lbClose);
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) lbClose();
+    });
+
+    // Keyboard: Escape closes, arrows navigate
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.key === 'Escape') lbClose();
+      if (e.key === 'ArrowLeft')  lbGoTo(Math.max(lbCurrentIndex() - 1, 0));
+      if (e.key === 'ArrowRight') lbGoTo(Math.min(lbCurrentIndex() + 1, lbSlides.length - 1));
+    });
   }
 
   /* ---------- Mobile nav ---------- */
