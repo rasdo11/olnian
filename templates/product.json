@@ -13,7 +13,7 @@
       "type": "main-product",
       "blocks": {
         "g1": { "type": "gallery_image", "settings": { "filename": "pdp-4-facts.png", "alt": "Nutrition facts panel" } },
-        "g2": { "type": "gallery_image", "settings": { "filename": "pdp-6-spoon.jpg", "alt": "Gold measuring spoon" } },
+        "g2": { "type": "gallery_image", "settings": { "filename": "pdp-6-spoon.png", "alt": "Gold measuring spoon" } },
         "b1": { "type": "benefit", "settings": { "icon": "○", "text": "100% monohydrate" } },
         "b2": { "type": "benefit", "settings": { "icon": "○", "text": "5 g per serving" } },
         "b3": { "type": "benefit", "settings": { "icon": "○", "text": "No fillers" } },
@@ -54,17 +54,6 @@
         "disclaimer": "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease."
       }
     },
-    "batch-story": {
-      "type": "batch-story",
-      "settings": {
-        "kicker": "The batch",
-        "headline": "Made the week you order.",
-        "body": "Other supplements sit on shelves in warehouses for months.",
-        "image": "shopify://shop_images/powder_design.png",
-        "cta_label": "Join the next batch.",
-        "cta_link": "shopify://products/creatine"
-      }
-    },
     "faq": {
       "type": "product-faq",
       "blocks": {
@@ -96,7 +85,6 @@
   "order": [
     "main",
     "science",
-    "batch-story",
     "faq",
     "testing-strip"
   ]
