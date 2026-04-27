@@ -6,36 +6,53 @@
       <div class="product__media">
 
         {%- comment -%}
-          Gallery order: uses product.images if available (upload via Shopify admin).
-          Falls back to section-setting asset images so the page works out of the box.
+          Gallery sources:
+          1. product.images — uploaded via Shopify admin product media
+          2. gallery_image blocks — theme asset filenames added via section blocks
+          Both are rendered in order with continuous slide indices.
         {%- endcomment -%}
         {%- assign gallery_images = product.images -%}
+        {%- comment -%} Count valid gallery_image blocks without using where filter {%- endcomment -%}
+        {%- assign gallery_asset_count = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+            {%- assign gallery_asset_count = gallery_asset_count | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- assign total_slides = gallery_images.size | plus: gallery_asset_count -%}
         {%- assign has_gallery = false -%}
-        {%- if gallery_images.size > 0 -%}
-          {%- assign has_gallery = true -%}
-        {%- endif -%}
+        {%- if total_slides > 0 -%}{%- assign has_gallery = true -%}{%- endif -%}
 
         <div class="pdp-gallery">
 
           {%- comment -%} Hero image — large, full column width, clickable to open lightbox {%- endcomment -%}
           <div class="pdp-gallery__main" id="PdpMainImage">
             {%- if has_gallery -%}
+              {%- assign _slide_i = 0 -%}
               {%- for img in gallery_images -%}
-                <div class="pdp-gallery__slide{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}">
-                  <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ forloop.index0 }}" aria-label="View full image">
+                <div class="pdp-gallery__slide{% if _slide_i == 0 %} is-active{% endif %}" data-slide="{{ _slide_i }}">
+                  <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ _slide_i }}" aria-label="View full image">
                     <img src="{{ img | image_url: width: 1400 }}"
                       alt="{{ img.alt | default: product.title }}"
                       class="pdp-gallery__img"
-                      loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                      loading="{% if _slide_i == 0 %}eager{% else %}lazy{% endif %}">
                   </button>
                 </div>
+                {%- assign _slide_i = _slide_i | plus: 1 -%}
               {%- endfor -%}
-            {%- elsif product.featured_image -%}
-              <div class="pdp-gallery__slide is-active">
-                <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
-                  <img src="{{ product.featured_image | image_url: width: 1400 }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
-                </button>
-              </div>
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                  <div class="pdp-gallery__slide{% if _slide_i == 0 %} is-active{% endif %}" data-slide="{{ _slide_i }}" {{ block.shopify_attributes }}>
+                    <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ _slide_i }}" aria-label="View full image">
+                      <img src="{{ block.settings.filename | asset_url }}"
+                        alt="{{ block.settings.alt | default: product.title }}"
+                        class="pdp-gallery__img"
+                        loading="lazy">
+                    </button>
+                  </div>
+                  {%- assign _slide_i = _slide_i | plus: 1 -%}
+                {%- endif -%}
+              {%- endfor -%}
             {%- else -%}
               <div class="pdp-gallery__slide is-active">
                 <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
@@ -46,23 +63,36 @@
           </div>
 
           {%- comment -%} Thumbnail row — desktop only, below hero {%- endcomment -%}
-          {%- if has_gallery and gallery_images.size > 1 -%}
+          {%- if has_gallery and total_slides > 1 -%}
             <div class="pdp-gallery__thumbs" id="PdpThumbs">
+              {%- assign _thumb_i = 0 -%}
               {%- for img in gallery_images -%}
                 <button type="button"
-                  class="pdp-gallery__thumb{% if forloop.first %} is-active{% endif %}"
-                  data-thumb="{{ forloop.index0 }}"
-                  aria-label="View image {{ forloop.index }}">
+                  class="pdp-gallery__thumb{% if _thumb_i == 0 %} is-active{% endif %}"
+                  data-thumb="{{ _thumb_i }}"
+                  aria-label="View image {{ _thumb_i | plus: 1 }}">
                   <img src="{{ img | image_url: width: 300 }}" alt="{{ img.alt }}" loading="lazy">
                 </button>
+                {%- assign _thumb_i = _thumb_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                  <button type="button"
+                    class="pdp-gallery__thumb{% if _thumb_i == 0 %} is-active{% endif %}"
+                    data-thumb="{{ _thumb_i }}"
+                    aria-label="View image {{ _thumb_i | plus: 1 }}">
+                    <img src="{{ block.settings.filename | asset_url }}" alt="{{ block.settings.alt | default: product.title }}" loading="lazy">
+                  </button>
+                  {%- assign _thumb_i = _thumb_i | plus: 1 -%}
+                {%- endif -%}
               {%- endfor -%}
             </div>
           {%- endif -%}
 
           {%- comment -%} Dot navigation — mobile only {%- endcomment -%}
-          {%- if has_gallery and gallery_images.size > 1 -%}
+          {%- if has_gallery and total_slides > 1 -%}
             <div class="pdp-gallery__dots" id="PdpDots" aria-hidden="true">
-              {%- for img in gallery_images -%}
+              {%- for i in (1..total_slides) -%}
                 <button type="button" class="pdp-gallery__dot{% if forloop.first %} is-active{% endif %}" data-dot="{{ forloop.index0 }}"></button>
               {%- endfor -%}
             </div>
@@ -70,19 +100,29 @@
 
         </div>
 
-        {%- comment -%} Lightbox overlay — populated from product images {%- endcomment -%}
+        {%- comment -%} Lightbox overlay {%- endcomment -%}
         {%- if has_gallery -%}
           <div id="PdpLightbox" class="pdp-lightbox" aria-hidden="true" aria-modal="true" role="dialog">
             <button type="button" class="pdp-lightbox__close" data-lightbox-close aria-label="Close gallery">✕</button>
-            {%- if gallery_images.size > 1 -%}
+            {%- if total_slides > 1 -%}
               <button type="button" class="pdp-lightbox__prev" data-lightbox-prev aria-label="Previous image">‹</button>
               <button type="button" class="pdp-lightbox__next" data-lightbox-next aria-label="Next image">›</button>
             {%- endif -%}
             <div class="pdp-lightbox__images">
+              {%- assign _lb_i = 0 -%}
               {%- for img in gallery_images -%}
-                <div class="pdp-lightbox__slide{% if forloop.first %} is-active{% endif %}" data-lightbox-slide="{{ forloop.index0 }}">
+                <div class="pdp-lightbox__slide{% if _lb_i == 0 %} is-active{% endif %}" data-lightbox-slide="{{ _lb_i }}">
                   <img src="{{ img | image_url: width: 2000 }}" alt="{{ img.alt | default: product.title }}" loading="lazy">
                 </div>
+                {%- assign _lb_i = _lb_i | plus: 1 -%}
+              {%- endfor -%}
+              {%- for block in section.blocks -%}
+                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                  <div class="pdp-lightbox__slide{% if _lb_i == 0 %} is-active{% endif %}" data-lightbox-slide="{{ _lb_i }}">
+                    <img src="{{ block.settings.filename | asset_url }}" alt="{{ block.settings.alt | default: product.title }}" loading="lazy">
+                  </div>
+                  {%- assign _lb_i = _lb_i | plus: 1 -%}
+                {%- endif -%}
               {%- endfor -%}
             </div>
           </div>
@@ -320,6 +360,14 @@
 {
   "name": "Product — main",
   "blocks": [
+    {
+      "type": "gallery_image",
+      "name": "Gallery image (asset)",
+      "settings": [
+        { "type": "text", "id": "filename", "label": "Asset filename (e.g. pdp-4-facts.png)" },
+        { "type": "text", "id": "alt", "label": "Alt text" }
+      ]
+    },
     {
       "type": "benefit",
       "name": "Benefit pill",
