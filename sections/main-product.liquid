@@ -2,28 +2,119 @@
   <div class="container">
     <div class="product__grid">
 
+      {%- comment -%} ── Left: image gallery ── {%- endcomment -%}
       <div class="product__media">
-        <div class="product__image">
-          {%- if product.featured_image -%}
-            {{ product.featured_image | image_url: width: 1400 | image_tag: loading: 'eager', alt: product.title }}
+
+        {%- comment -%}
+          Gallery order: uses product.images if available (upload via Shopify admin).
+          Falls back to section-setting asset images so the page works out of the box.
+        {%- endcomment -%}
+        {%- assign gallery_images = product.images -%}
+        {%- assign has_gallery = false -%}
+        {%- if gallery_images.size > 0 -%}
+          {%- assign has_gallery = true -%}
+        {%- endif -%}
+
+        <div class="pdp-gallery">
+          {%- comment -%} Thumbnail strip — desktop left, mobile hidden {%- endcomment -%}
+          {%- if has_gallery and gallery_images.size > 1 -%}
+            <div class="pdp-gallery__thumbs" id="PdpThumbs">
+              {%- for img in gallery_images -%}
+                <button type="button"
+                  class="pdp-gallery__thumb{% if forloop.first %} is-active{% endif %}"
+                  data-thumb="{{ forloop.index0 }}"
+                  aria-label="View image {{ forloop.index }}">
+                  {{ img | image_url: width: 160 | image_tag: loading: 'lazy', alt: img.alt }}
+                </button>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          {%- comment -%} Main image frame {%- endcomment -%}
+          <div class="pdp-gallery__main" id="PdpMainImage">
+            {%- if has_gallery -%}
+              {%- for img in gallery_images -%}
+                <div class="pdp-gallery__slide{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}">
+                  {{ img | image_url: width: 1400 | image_tag:
+                    loading: forloop.first | ternary: 'eager', 'lazy',
+                    alt: img.alt | default: product.title,
+                    class: 'pdp-gallery__img' }}
+                </div>
+              {%- endfor -%}
+            {%- elsif product.featured_image -%}
+              <div class="pdp-gallery__slide is-active">
+                {{ product.featured_image | image_url: width: 1400 | image_tag: loading: 'eager', alt: product.title, class: 'pdp-gallery__img' }}
+              </div>
+            {%- else -%}
+              {%- comment -%} Asset fallback for dev / before product images uploaded {%- endcomment -%}
+              <div class="pdp-gallery__slide is-active">
+                <img src="{{ 'pdp-1-hero.png' | asset_url }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
+              </div>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Dot navigation — mobile only {%- endcomment -%}
+          {%- if has_gallery and gallery_images.size > 1 -%}
+            <div class="pdp-gallery__dots" id="PdpDots" aria-hidden="true">
+              {%- for img in gallery_images -%}
+                <button type="button" class="pdp-gallery__dot{% if forloop.first %} is-active{% endif %}" data-dot="{{ forloop.index0 }}"></button>
+              {%- endfor -%}
+            </div>
           {%- endif -%}
         </div>
+
       </div>
 
-      <div>
+      {%- comment -%} ── Right: product info (sticky on desktop) ── {%- endcomment -%}
+      <div class="product__info">
+
         {%- if product.metafields.custom.eyebrow != blank -%}
           <div class="hero__kicker" style="margin-bottom: 8px;">{{ product.metafields.custom.eyebrow }}</div>
         {%- endif -%}
 
         <h1 class="product__title">{{ product.title }}</h1>
 
+        {%- comment -%} Star rating {%- endcomment -%}
+        {%- if section.settings.show_rating -%}
+          <div class="product__rating">
+            <span class="product__stars" aria-label="{{ section.settings.rating_value }} out of 5 stars">
+              {%- assign full_stars = section.settings.rating_value | floor -%}
+              {%- for i in (1..5) -%}
+                {%- if i <= full_stars -%}<span class="star star--full">★</span>
+                {%- else -%}<span class="star star--empty">★</span>
+                {%- endif -%}
+              {%- endfor -%}
+            </span>
+            <span class="product__rating-value">{{ section.settings.rating_value }}</span>
+            {%- if section.settings.rating_count != blank -%}
+              <span class="product__rating-count">({{ section.settings.rating_count }})</span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
         {%- if product.metafields.custom.subtitle != blank -%}
           <p class="product__subtitle">{{ product.metafields.custom.subtitle }}</p>
         {%- endif -%}
 
-        {%- if settings.show_ship_badge -%}
+        {%- if section.settings.show_ship_badge or settings.show_ship_badge -%}
           <div class="product__ship-badge">
             <span aria-hidden="true">●</span> {{ settings.ship_badge_text }}
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Benefit pills {%- endcomment -%}
+        {%- if section.settings.show_benefits -%}
+          <div class="product__benefits">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'benefit' -%}
+                <div class="product__benefit" {{ block.shopify_attributes }}>
+                  {%- if block.settings.icon != blank -%}
+                    <span class="product__benefit-icon">{{ block.settings.icon }}</span>
+                  {%- endif -%}
+                  <span>{{ block.settings.text }}</span>
+                </div>
+              {%- endif -%}
+            {%- endfor -%}
           </div>
         {%- endif -%}
 
@@ -31,17 +122,25 @@
           <div class="product__description">{{ product.description }}</div>
         {%- endif -%}
 
+        {%- comment -%} What it supports list {%- endcomment -%}
+        {%- assign support_blocks = section.blocks | where: 'type', 'support_item' -%}
+        {%- if support_blocks.size > 0 -%}
+          <div class="product__supports">
+            {%- if section.settings.supports_heading != blank -%}
+              <div class="product__supports-label">{{ section.settings.supports_heading }}</div>
+            {%- endif -%}
+            <ul class="product__supports-list">
+              {%- for block in support_blocks -%}
+                <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
         <form data-product-form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
           <input type="hidden" name="selling_plan" value="">
 
-          {%- comment -%}
-            Variant picker: one button per option value. Clicking switches the hidden
-            id input via theme.js. Works for single-option products (our launch case:
-            Starter / Refill). For multi-option products the id→variant mapping in
-            window.__productVariants still works, but the picker UI only exposes the
-            first option — revisit when adding a multi-option SKU.
-          {%- endcomment -%}
           {%- if product.variants.size > 1 -%}
             {%- for option in product.options_with_values -%}
               {%- assign option_index = forloop.index0 -%}
@@ -98,7 +197,7 @@
                       <div class="purchase-option__main">
                         <div class="purchase-option__title">{{ plan.name | default: 'Subscribe and save' }}</div>
                         <div class="purchase-option__note">
-                          {{ 'general.product.subscription_savings' | t }} · {{ 'general.product.refill_note' | t }}
+                          {{ 'general.product.subscription_savings' | t }} &middot; {{ 'general.product.refill_note' | t }}
                           <br><span style="opacity: 0.72;">{{ 'general.product.cancel_policy' | t }}</span>
                         </div>
                       </div>
@@ -137,6 +236,13 @@
                 {{ 'general.product.sold_out' | t }}
               {% endif %}
             </button>
+
+            {%- comment -%} Trust micro-row under ATC {%- endcomment -%}
+            <div class="product__atc-trust">
+              <span>Third-party tested</span>
+              <span>Free shipping over $50</span>
+              <span>Cancel anytime</span>
+            </div>
           </div>
         </form>
 
@@ -166,6 +272,7 @@
             </div>
           </a>
         {%- endif -%}
+
       </div>
     </div>
   </div>
@@ -186,9 +293,34 @@
 {% schema %}
 {
   "name": "Product — main",
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefit pill",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Icon (emoji or symbol)", "default": "○" },
+        { "type": "text", "id": "text", "label": "Benefit text", "default": "One ingredient" }
+      ]
+    },
+    {
+      "type": "support_item",
+      "name": "What it supports",
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Support text", "default": "Cognitive clarity and reaction time" }
+      ]
+    }
+  ],
   "settings": [
+    { "type": "header", "content": "Rating" },
+    { "type": "checkbox", "id": "show_rating", "label": "Show star rating", "default": true },
+    { "type": "range", "id": "rating_value", "label": "Rating (×10, so 48 = 4.8)", "min": 10, "max": 50, "step": 1, "default": 48, "info": "Divide by 10 for display value" },
+    { "type": "text", "id": "rating_count", "label": "Review count label", "default": "142 reviews" },
+    { "type": "header", "content": "Benefits row" },
+    { "type": "checkbox", "id": "show_benefits", "label": "Show benefit pills", "default": true },
+    { "type": "header", "content": "What it supports" },
+    { "type": "text", "id": "supports_heading", "label": "Section label", "default": "What it supports" },
     { "type": "header", "content": "Gift banner" },
-    { "type": "checkbox", "id": "show_gift_banner", "label": "Show gift banner on subscription", "default": true },
+    { "type": "checkbox", "id": "show_gift_banner", "label": "Show gift banner", "default": true },
     { "type": "text", "id": "gift_banner_text", "label": "Gift banner text", "default": "First subscription includes a free gold measuring spoon." },
     { "type": "header", "content": "Bundle upsell" },
     { "type": "checkbox", "id": "show_bundle_upsell", "label": "Show bundle upsell", "default": true },

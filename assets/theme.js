@@ -202,10 +202,79 @@
     return '$' + (cents / 100).toFixed(2);
   }
 
+  /* ---------- PDP Gallery ---------- */
+  function initGallery() {
+    const gallery = document.querySelector('.pdp-gallery');
+    if (!gallery) return;
+    const slides = $$('.pdp-gallery__slide', gallery);
+    const thumbs = $$('.pdp-gallery__thumb', gallery);
+    const dots   = $$('.pdp-gallery__dot', gallery);
+    if (slides.length < 2) return;
+
+    function goTo(index) {
+      slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
+      thumbs.forEach((t, i) => t.classList.toggle('is-active', i === index));
+      dots.forEach((d, i)   => d.classList.toggle('is-active', i === index));
+    }
+
+    thumbs.forEach((t) => {
+      t.addEventListener('click', () => goTo(Number(t.dataset.thumb)));
+    });
+    dots.forEach((d) => {
+      d.addEventListener('click', () => goTo(Number(d.dataset.dot)));
+    });
+
+    // Touch swipe on main image
+    const main = gallery.querySelector('.pdp-gallery__main');
+    if (main) {
+      let startX = 0;
+      main.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+      main.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) < 40) return;
+        const current = slides.findIndex((s) => s.classList.contains('is-active'));
+        const next = dx < 0
+          ? Math.min(current + 1, slides.length - 1)
+          : Math.max(current - 1, 0);
+        goTo(next);
+      }, { passive: true });
+    }
+  }
+
+  /* ---------- Mobile nav ---------- */
+  function initMobileNav() {
+    const toggle = $('#SiteNavToggle');
+    const nav = $('#SiteNav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('is-open');
+      toggle.classList.toggle('is-open', isOpen);
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.site-header') && nav.classList.contains('is-open')) {
+        nav.classList.remove('is-open');
+        toggle.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+        nav.classList.remove('is-open');
+        toggle.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   /* ---------- Init ---------- */
   document.addEventListener('DOMContentLoaded', () => {
     Drawer.init();
     initProductForm();
     initCartDrawerEvents();
+    initGallery();
+    initMobileNav();
   });
 })();
