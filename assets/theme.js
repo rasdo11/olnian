@@ -238,6 +238,8 @@
     // ── Lightbox ──────────────────────────────────────────────
     const lightbox = document.getElementById('PdpLightbox');
     if (!lightbox) return;
+    // Move to <body> so position:fixed is never clipped by a sticky/transform ancestor
+    document.body.appendChild(lightbox);
 
     const lbSlides = $$('.pdp-lightbox__slide', lightbox);
 
