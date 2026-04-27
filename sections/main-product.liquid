@@ -139,7 +139,6 @@
 
         <h1 class="product__title">{{ product.title }}</h1>
 
-        {%- comment -%} Star rating {%- endcomment -%}
         {%- if section.settings.show_rating -%}
           <div class="product__rating">
             {%- assign rating_display = section.settings.rating_value | divided_by: 10.0 -%}
@@ -158,8 +157,11 @@
           </div>
         {%- endif -%}
 
-        {%- if product.metafields.custom.subtitle != blank -%}
-          <p class="product__subtitle">{{ product.metafields.custom.subtitle }}</p>
+        {%- comment -%} Short tagline — above price, benefit-first {%- endcomment -%}
+        {%- if section.settings.tagline != blank -%}
+          <p class="product__tagline">{{ section.settings.tagline }}</p>
+        {%- elsif product.description != blank -%}
+          <div class="product__tagline">{{ product.description }}</div>
         {%- endif -%}
 
         {%- if section.settings.show_ship_badge or settings.show_ship_badge -%}
@@ -168,44 +170,8 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%} Benefit pills {%- endcomment -%}
-        {%- if section.settings.show_benefits -%}
-          <div class="product__benefits">
-            {%- for block in section.blocks -%}
-              {%- if block.type == 'benefit' -%}
-                <div class="product__benefit" {{ block.shopify_attributes }}>
-                  {%- if block.settings.icon != blank -%}
-                    <span class="product__benefit-icon">{{ block.settings.icon }}</span>
-                  {%- endif -%}
-                  <span>{{ block.settings.text }}</span>
-                </div>
-              {%- endif -%}
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
-
-        {%- if product.description != blank -%}
-          <div class="product__description">{{ product.description }}</div>
-        {%- endif -%}
-
-        {%- comment -%} What it supports list {%- endcomment -%}
-        {%- assign support_blocks = section.blocks | where: 'type', 'support_item' -%}
-        {%- if support_blocks.size > 0 -%}
-          <div class="product__supports">
-            {%- if section.settings.supports_heading != blank -%}
-              <div class="product__supports-label">{{ section.settings.supports_heading }}</div>
-            {%- endif -%}
-            <ul class="product__supports-list">
-              {%- for block in support_blocks -%}
-                <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
-              {%- endfor -%}
-            </ul>
-          </div>
-        {%- endif -%}
-
         <form data-product-form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
-          <input type="hidden" name="selling_plan" value="">
 
           {%- if product.variants.size > 1 -%}
             {%- for option in product.options_with_values -%}
@@ -235,108 +201,125 @@
             {%- endfor -%}
           {%- endif -%}
 
-          <div class="product__purchase-card">
-            <div class="product__price" data-product-price>
-              {{ product.selected_or_first_available_variant.price | money }}
+          <div class="product__price" data-product-price>
+            {{ product.selected_or_first_available_variant.price | money }}
+          </div>
+
+          {%- if section.settings.show_gift_banner -%}
+            <div class="gift-banner">
+              <span class="gift-banner__icon">✦</span>
+              <span>{{ section.settings.gift_banner_text }}</span>
             </div>
+          {%- endif -%}
 
-            {%- assign has_selling_plans = false -%}
-            {%- if product.selling_plan_groups.size > 0 -%}
-              {%- assign has_selling_plans = true -%}
-            {%- endif -%}
-
-            <div style="margin-top: 16px;">
-              <div class="purchase-option" data-purchase-option="one-time" data-selling-plan="" data-selected="true">
-                <span class="purchase-option__radio" aria-hidden="true"></span>
-                <div class="purchase-option__main">
-                  <div class="purchase-option__title">{{ 'general.product.one_time' | t }}</div>
-                  <div class="purchase-option__note">Ships once. No commitment.</div>
-                </div>
-                <div class="purchase-option__price" data-full-price>{{ product.selected_or_first_available_variant.price | money }}</div>
-              </div>
-
-              {%- if has_selling_plans -%}
-                {%- for group in product.selling_plan_groups -%}
-                  {%- for plan in group.selling_plans -%}
-                    <div class="purchase-option" data-purchase-option="sub-{{ plan.id }}" data-selling-plan="{{ plan.id }}">
-                      <span class="purchase-option__radio" aria-hidden="true"></span>
-                      <div class="purchase-option__main">
-                        <div class="purchase-option__title">{{ plan.name | default: 'Subscribe and save' }}</div>
-                        <div class="purchase-option__note">
-                          {{ 'general.product.subscription_savings' | t }} &middot; {{ 'general.product.refill_note' | t }}
-                          <br><span style="opacity: 0.72;">{{ 'general.product.cancel_policy' | t }}</span>
-                        </div>
-                      </div>
-                      <div class="purchase-option__price">
-                        {%- assign sub_variant_price = product.selected_or_first_available_variant.price | times: 0.85 | round -%}
-                        <del style="opacity: 0.4; font-size: 14px;">{{ product.selected_or_first_available_variant.price | money }}</del>
-                        {{ sub_variant_price | money }}
-                      </div>
-                    </div>
-                  {%- endfor -%}
-                {%- endfor -%}
-              {%- endif -%}
-            </div>
-
-            {%- if section.settings.show_gift_banner -%}
-              <div class="gift-banner">
-                <span class="gift-banner__icon">✦</span>
-                <span>{{ section.settings.gift_banner_text }}</span>
-              </div>
-            {%- endif -%}
-
-            <div class="product__variant-group" style="margin-top: 20px;">
-              <div class="product__variant-label">{{ 'general.product.quantity' | t }}</div>
-              <div class="stepper" data-quantity-stepper>
-                <button type="button" data-qty-down aria-label="Decrease">−</button>
-                <input class="stepper__value" type="number" name="quantity" value="1" min="1" max="99" readonly>
-                <button type="button" data-qty-up aria-label="Increase">+</button>
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn--primary product__atc" data-product-submit
-              {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
-              {% if product.selected_or_first_available_variant.available %}
-                {{ 'general.product.add_to_cart' | t }}
-              {% else %}
-                {{ 'general.product.sold_out' | t }}
-              {% endif %}
-            </button>
-
-            {%- comment -%} Trust micro-row under ATC {%- endcomment -%}
-            <div class="product__atc-trust">
-              <span>Third-party tested</span>
-              <span>Free shipping over $50</span>
-              <span>Cancel anytime</span>
+          <div class="product__qty-row">
+            <div class="stepper" data-quantity-stepper>
+              <button type="button" data-qty-down aria-label="Decrease">−</button>
+              <input class="stepper__value" type="number" name="quantity" value="1" min="1" max="99" readonly>
+              <button type="button" data-qty-up aria-label="Increase">+</button>
             </div>
           </div>
+
+          <button type="submit" class="btn btn--primary product__atc" data-product-submit
+            {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+            {% if product.selected_or_first_available_variant.available %}
+              {{ 'general.product.add_to_cart' | t }}
+            {% else %}
+              {{ 'general.product.sold_out' | t }}
+            {% endif %}
+          </button>
+
+          <p class="product__trust-line">Third-party tested &middot; Free shipping over $50 &middot; Cancel anytime</p>
         </form>
 
-        {%- if product.metafields.custom.ingredients.value -%}
-          <div class="product__ingredients">
-            <h3>Per serving</h3>
-            <div class="product__ingredients-list">
-              {%- for ing in product.metafields.custom.ingredients.value -%}
-                <div class="product__ingredient">
-                  <span>{{ ing.name }}</span>
-                  <span>{{ ing.amount }}</span>
-                </div>
-              {%- endfor -%}
+        {%- comment -%} Benefits accordion (open by default) {%- endcomment -%}
+        {%- assign _has_benefits = false -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'benefit' -%}{%- assign _has_benefits = true -%}{%- endif -%}
+        {%- endfor -%}
+        {%- if _has_benefits -%}
+          <div class="product__accordion" data-accordion>
+            <button type="button" class="product__accordion__btn" aria-expanded="true" aria-controls="acc-benefits">
+              <span>{{ section.settings.benefits_heading | default: 'Benefits' }}</span>
+              <span class="product__accordion__icon" aria-hidden="true">−</span>
+            </button>
+            <div class="product__accordion__body" id="acc-benefits">
+              <ul class="product__acc-list">
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'benefit' -%}
+                    <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
             </div>
           </div>
         {%- endif -%}
 
-        {%- if section.settings.show_bundle_upsell and section.settings.bundle_upsell_link != blank -%}
-          <a href="{{ section.settings.bundle_upsell_link }}" class="product__bundle-upsell">
-            <div class="product__bundle-upsell__inner">
-              <div>
-                <div class="product__bundle-upsell__label">{{ section.settings.bundle_upsell_label }}</div>
-                <div class="product__bundle-upsell__headline">{{ section.settings.bundle_upsell_headline }}</div>
-                <div class="product__bundle-upsell__body">{{ section.settings.bundle_upsell_body }}</div>
-              </div>
-              <div class="product__bundle-upsell__arrow">→</div>
+        {%- comment -%} What it supports accordion {%- endcomment -%}
+        {%- assign _has_support = false -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'support_item' -%}{%- assign _has_support = true -%}{%- endif -%}
+        {%- endfor -%}
+        {%- if _has_support -%}
+          <div class="product__accordion" data-accordion>
+            <button type="button" class="product__accordion__btn" aria-expanded="false" aria-controls="acc-supports">
+              <span>{{ section.settings.supports_heading | default: 'What it supports' }}</span>
+              <span class="product__accordion__icon" aria-hidden="true">+</span>
+            </button>
+            <div class="product__accordion__body" id="acc-supports" hidden>
+              <ul class="product__acc-list">
+                {%- for block in section.blocks -%}
+                  {%- if block.type == 'support_item' -%}
+                    <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
             </div>
-          </a>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Ingredients accordion {%- endcomment -%}
+        {%- if product.metafields.custom.ingredients.value -%}
+          <div class="product__accordion" data-accordion>
+            <button type="button" class="product__accordion__btn" aria-expanded="false" aria-controls="acc-ingredients">
+              <span>Ingredients</span>
+              <span class="product__accordion__icon" aria-hidden="true">+</span>
+            </button>
+            <div class="product__accordion__body" id="acc-ingredients" hidden>
+              <div class="product__ingredients-list">
+                {%- for ing in product.metafields.custom.ingredients.value -%}
+                  <div class="product__ingredient">
+                    <span>{{ ing.name }}</span>
+                    <span>{{ ing.amount }}</span>
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+
+        {%- comment -%} Bundle + Save card (Seed-style) {%- endcomment -%}
+        {%- if section.settings.show_bundle_upsell and section.settings.bundle_upsell_link != blank -%}
+          <div class="bundle-card">
+            {%- if section.settings.bundle_image_filename != blank -%}
+              <img src="{{ section.settings.bundle_image_filename | asset_url }}"
+                alt="{{ section.settings.bundle_upsell_headline }}"
+                class="bundle-card__img" loading="lazy">
+            {%- endif -%}
+            <div class="bundle-card__body">
+              <div class="bundle-card__headline">{{ section.settings.bundle_upsell_headline }}</div>
+              <div class="bundle-card__desc">{{ section.settings.bundle_upsell_body }}</div>
+              <div class="bundle-card__prices">
+                {%- if section.settings.bundle_sale_price != blank -%}
+                  <span class="bundle-card__price">{{ section.settings.bundle_sale_price }}</span>
+                {%- endif -%}
+                {%- if section.settings.bundle_compare_price != blank -%}
+                  <del class="bundle-card__compare">{{ section.settings.bundle_compare_price }}</del>
+                {%- endif -%}
+              </div>
+            </div>
+            <a href="{{ section.settings.bundle_upsell_link }}" class="bundle-card__add">Add</a>
+          </div>
         {%- endif -%}
 
       </div>
@@ -389,18 +372,22 @@
     { "type": "checkbox", "id": "show_rating", "label": "Show star rating", "default": true },
     { "type": "range", "id": "rating_value", "label": "Rating (×10, so 48 = 4.8)", "min": 10, "max": 50, "step": 1, "default": 48, "info": "Divide by 10 for display value" },
     { "type": "text", "id": "rating_count", "label": "Review count label", "default": "142 reviews" },
-    { "type": "header", "content": "Benefits row" },
-    { "type": "checkbox", "id": "show_benefits", "label": "Show benefit pills", "default": true },
-    { "type": "header", "content": "What it supports" },
-    { "type": "text", "id": "supports_heading", "label": "Section label", "default": "What it supports" },
+    { "type": "header", "content": "Tagline (above price)" },
+    { "type": "textarea", "id": "tagline", "label": "Short tagline", "default": "One ingredient. Clinically studied in women for cognitive clarity, muscle recovery, and mood stability. Made the week you order." },
+    { "type": "header", "content": "Benefits accordion" },
+    { "type": "text", "id": "benefits_heading", "label": "Benefits heading", "default": "Benefits" },
+    { "type": "header", "content": "What it supports accordion" },
+    { "type": "text", "id": "supports_heading", "label": "Supports heading", "default": "What it supports" },
     { "type": "header", "content": "Gift banner" },
     { "type": "checkbox", "id": "show_gift_banner", "label": "Show gift banner", "default": true },
     { "type": "text", "id": "gift_banner_text", "label": "Gift banner text", "default": "First subscription includes a free gold measuring spoon." },
-    { "type": "header", "content": "Bundle upsell" },
-    { "type": "checkbox", "id": "show_bundle_upsell", "label": "Show bundle upsell", "default": true },
-    { "type": "text", "id": "bundle_upsell_label", "label": "Eyebrow label", "default": "Level up" },
-    { "type": "text", "id": "bundle_upsell_headline", "label": "Headline", "default": "Add Magnesium Glycinate" },
-    { "type": "textarea", "id": "bundle_upsell_body", "label": "Body", "default": "Creatine + Magnesium together. Better sleep, better recovery. See the Brain Bundle." },
+    { "type": "header", "content": "Bundle + Save card" },
+    { "type": "checkbox", "id": "show_bundle_upsell", "label": "Show bundle card", "default": true },
+    { "type": "text", "id": "bundle_upsell_headline", "label": "Headline (e.g. Bundle + Save 25%)", "default": "Bundle + Save 25%" },
+    { "type": "textarea", "id": "bundle_upsell_body", "label": "Description", "default": "Add Magnesium Glycinate to your routine and save on your first order." },
+    { "type": "text", "id": "bundle_sale_price", "label": "Sale price (text, e.g. $67.48)" },
+    { "type": "text", "id": "bundle_compare_price", "label": "Compare-at price (text, e.g. $89.98)" },
+    { "type": "text", "id": "bundle_image_filename", "label": "Bundle product image (asset filename)" },
     { "type": "url", "id": "bundle_upsell_link", "label": "Bundle link" }
   ]
 }
