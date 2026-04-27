@@ -223,14 +223,33 @@
           <button type="submit" class="btn btn--primary product__atc" data-product-submit
             {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
             {% if product.selected_or_first_available_variant.available %}
-              {{ 'general.product.add_to_cart' | t }}
+              Start Now
             {% else %}
               {{ 'general.product.sold_out' | t }}
             {% endif %}
           </button>
 
           <p class="product__trust-line">Third-party tested &middot; Free shipping over $50 &middot; Cancel anytime</p>
+
+          {%- comment -%} Subscribe & Save card {%- endcomment -%}
+          {%- assign sub_price = product.selected_or_first_available_variant.price | times: 0.85 | round -%}
+          <div class="subscribe-card">
+            <div class="subscribe-card__badge">Save 15%</div>
+            <div class="subscribe-card__content">
+              <div class="subscribe-card__headline">Subscribe &amp; Save</div>
+              <div class="subscribe-card__body">Your next batch ships every quarter. Cancel anytime.</div>
+              <div class="subscribe-card__prices">
+                <span class="subscribe-card__price">{{ sub_price | money }}</span>
+                <del class="subscribe-card__compare">{{ product.selected_or_first_available_variant.price | money }}</del>
+                <span class="subscribe-card__per">/ quarter</span>
+              </div>
+            </div>
+            <button type="submit" class="subscribe-card__cta">Add</button>
+          </div>
+
         </form>
+
+        <hr class="product__divider">
 
         {%- comment -%} Benefits accordion (open by default) {%- endcomment -%}
         {%- assign _has_benefits = false -%}
@@ -298,29 +317,6 @@
           </div>
         {%- endif -%}
 
-        {%- comment -%} Bundle + Save card (Seed-style) {%- endcomment -%}
-        {%- if section.settings.show_bundle_upsell and section.settings.bundle_upsell_link != blank -%}
-          <div class="bundle-card">
-            {%- if section.settings.bundle_image_filename != blank -%}
-              <img src="{{ section.settings.bundle_image_filename | asset_url }}"
-                alt="{{ section.settings.bundle_upsell_headline }}"
-                class="bundle-card__img" loading="lazy">
-            {%- endif -%}
-            <div class="bundle-card__body">
-              <div class="bundle-card__headline">{{ section.settings.bundle_upsell_headline }}</div>
-              <div class="bundle-card__desc">{{ section.settings.bundle_upsell_body }}</div>
-              <div class="bundle-card__prices">
-                {%- if section.settings.bundle_sale_price != blank -%}
-                  <span class="bundle-card__price">{{ section.settings.bundle_sale_price }}</span>
-                {%- endif -%}
-                {%- if section.settings.bundle_compare_price != blank -%}
-                  <del class="bundle-card__compare">{{ section.settings.bundle_compare_price }}</del>
-                {%- endif -%}
-              </div>
-            </div>
-            <a href="{{ section.settings.bundle_upsell_link }}" class="bundle-card__add">Add</a>
-          </div>
-        {%- endif -%}
 
       </div>
     </div>
