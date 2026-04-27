@@ -16,7 +16,36 @@
         {%- endif -%}
 
         <div class="pdp-gallery">
-          {%- comment -%} Thumbnail strip — desktop left, mobile hidden {%- endcomment -%}
+
+          {%- comment -%} Hero image — large, full column width, clickable to open lightbox {%- endcomment -%}
+          <div class="pdp-gallery__main" id="PdpMainImage">
+            {%- if has_gallery -%}
+              {%- for img in gallery_images -%}
+                <div class="pdp-gallery__slide{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}">
+                  <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ forloop.index0 }}" aria-label="View full image">
+                    <img src="{{ img | image_url: width: 1400 }}"
+                      alt="{{ img.alt | default: product.title }}"
+                      class="pdp-gallery__img"
+                      loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                  </button>
+                </div>
+              {%- endfor -%}
+            {%- elsif product.featured_image -%}
+              <div class="pdp-gallery__slide is-active">
+                <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
+                  <img src="{{ product.featured_image | image_url: width: 1400 }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
+                </button>
+              </div>
+            {%- else -%}
+              <div class="pdp-gallery__slide is-active">
+                <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
+                  <img src="{{ 'pdp-1-hero.png' | asset_url }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
+                </button>
+              </div>
+            {%- endif -%}
+          </div>
+
+          {%- comment -%} Thumbnail row — desktop only, below hero {%- endcomment -%}
           {%- if has_gallery and gallery_images.size > 1 -%}
             <div class="pdp-gallery__thumbs" id="PdpThumbs">
               {%- for img in gallery_images -%}
@@ -24,34 +53,11 @@
                   class="pdp-gallery__thumb{% if forloop.first %} is-active{% endif %}"
                   data-thumb="{{ forloop.index0 }}"
                   aria-label="View image {{ forloop.index }}">
-                  {{ img | image_url: width: 160 | image_tag: loading: 'lazy', alt: img.alt }}
+                  <img src="{{ img | image_url: width: 300 }}" alt="{{ img.alt }}" loading="lazy">
                 </button>
               {%- endfor -%}
             </div>
           {%- endif -%}
-
-          {%- comment -%} Main image frame {%- endcomment -%}
-          <div class="pdp-gallery__main" id="PdpMainImage">
-            {%- if has_gallery -%}
-              {%- for img in gallery_images -%}
-                <div class="pdp-gallery__slide{% if forloop.first %} is-active{% endif %}" data-slide="{{ forloop.index0 }}">
-                  {{ img | image_url: width: 1400 | image_tag:
-                    loading: forloop.first | ternary: 'eager', 'lazy',
-                    alt: img.alt | default: product.title,
-                    class: 'pdp-gallery__img' }}
-                </div>
-              {%- endfor -%}
-            {%- elsif product.featured_image -%}
-              <div class="pdp-gallery__slide is-active">
-                {{ product.featured_image | image_url: width: 1400 | image_tag: loading: 'eager', alt: product.title, class: 'pdp-gallery__img' }}
-              </div>
-            {%- else -%}
-              {%- comment -%} Asset fallback for dev / before product images uploaded {%- endcomment -%}
-              <div class="pdp-gallery__slide is-active">
-                <img src="{{ 'pdp-1-hero.png' | asset_url }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
-              </div>
-            {%- endif -%}
-          </div>
 
           {%- comment -%} Dot navigation — mobile only {%- endcomment -%}
           {%- if has_gallery and gallery_images.size > 1 -%}
@@ -61,7 +67,26 @@
               {%- endfor -%}
             </div>
           {%- endif -%}
+
         </div>
+
+        {%- comment -%} Lightbox overlay — populated from product images {%- endcomment -%}
+        {%- if has_gallery -%}
+          <div id="PdpLightbox" class="pdp-lightbox" aria-hidden="true" aria-modal="true" role="dialog">
+            <button type="button" class="pdp-lightbox__close" data-lightbox-close aria-label="Close gallery">✕</button>
+            {%- if gallery_images.size > 1 -%}
+              <button type="button" class="pdp-lightbox__prev" data-lightbox-prev aria-label="Previous image">‹</button>
+              <button type="button" class="pdp-lightbox__next" data-lightbox-next aria-label="Next image">›</button>
+            {%- endif -%}
+            <div class="pdp-lightbox__images">
+              {%- for img in gallery_images -%}
+                <div class="pdp-lightbox__slide{% if forloop.first %} is-active{% endif %}" data-lightbox-slide="{{ forloop.index0 }}">
+                  <img src="{{ img | image_url: width: 2000 }}" alt="{{ img.alt | default: product.title }}" loading="lazy">
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
 
       </div>
 
@@ -77,15 +102,16 @@
         {%- comment -%} Star rating {%- endcomment -%}
         {%- if section.settings.show_rating -%}
           <div class="product__rating">
-            <span class="product__stars" aria-label="{{ section.settings.rating_value }} out of 5 stars">
-              {%- assign full_stars = section.settings.rating_value | floor -%}
+            {%- assign rating_display = section.settings.rating_value | divided_by: 10.0 -%}
+            {%- assign full_stars = rating_display | floor -%}
+            <span class="product__stars" aria-label="{{ rating_display }} out of 5 stars">
               {%- for i in (1..5) -%}
                 {%- if i <= full_stars -%}<span class="star star--full">★</span>
                 {%- else -%}<span class="star star--empty">★</span>
                 {%- endif -%}
               {%- endfor -%}
             </span>
-            <span class="product__rating-value">{{ section.settings.rating_value }}</span>
+            <span class="product__rating-value">{{ rating_display }}</span>
             {%- if section.settings.rating_count != blank -%}
               <span class="product__rating-count">({{ section.settings.rating_count }})</span>
             {%- endif -%}
