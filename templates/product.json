@@ -12,6 +12,8 @@
     "main": {
       "type": "main-product",
       "blocks": {
+        "g1": { "type": "gallery_image", "settings": { "filename": "pdp-4-facts.png", "alt": "Nutrition facts panel" } },
+        "g2": { "type": "gallery_image", "settings": { "filename": "pdp-6-spoon.jpg", "alt": "Gold measuring spoon" } },
         "b1": { "type": "benefit", "settings": { "icon": "○", "text": "100% monohydrate" } },
         "b2": { "type": "benefit", "settings": { "icon": "○", "text": "5 g per serving" } },
         "b3": { "type": "benefit", "settings": { "icon": "○", "text": "No fillers" } },
@@ -21,7 +23,7 @@
         "s4": { "type": "support_item", "settings": { "text": "Mood stability during hormonal transitions" } },
         "s5": { "type": "support_item", "settings": { "text": "Studied in randomized, placebo-controlled clinical trials in perimenopausal women" } }
       },
-      "block_order": ["b1", "b2", "b3", "s1", "s2", "s3", "s4", "s5"],
+      "block_order": ["g1", "g2", "b1", "b2", "b3", "s1", "s2", "s3", "s4", "s5"],
       "settings": {
         "show_rating": true,
         "rating_value": 48,
