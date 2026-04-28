@@ -139,10 +139,30 @@
       });
     });
 
+    // Subscribe card: when its "Add" button is clicked, pre-fill the selling plan input
+    form.addEventListener('click', (e) => {
+      const subBtn = e.target.closest('[data-selling-plan-id]');
+      if (subBtn && sellingPlanInput) {
+        sellingPlanInput.value = subBtn.dataset.sellingPlanId;
+      }
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const submitBtn = $('[data-product-submit]', form);
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Adding…'; }
+      const clickedSubBtn = e.submitter && e.submitter.dataset.sellingPlanId ? e.submitter : null;
+      // If submitter is the subscribe button, ensure selling plan is set
+      if (clickedSubBtn && sellingPlanInput) {
+        sellingPlanInput.value = clickedSubBtn.dataset.sellingPlanId;
+      }
+      const activeSubBtn = clickedSubBtn || $('[data-selling-plan-id]', form);
+      if (clickedSubBtn) {
+        clickedSubBtn.disabled = true;
+        clickedSubBtn.textContent = 'Adding…';
+      } else if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding…';
+      }
       try {
         const payload = {
           id: Number(variantInput.value),
@@ -157,6 +177,9 @@
       } catch (err) {
         alert(err.message || 'Could not add to cart.');
       } finally {
+        // Reset selling plan so next "Start Now" click doesn't carry it over
+        if (sellingPlanInput) sellingPlanInput.value = '';
+        if (clickedSubBtn) { clickedSubBtn.disabled = false; clickedSubBtn.textContent = 'Add'; }
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Start Now'; }
       }
     });

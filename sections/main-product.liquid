@@ -170,8 +170,18 @@
           </div>
         {%- endif -%}
 
+        {%- assign _first_selling_plan = nil -%}
+        {%- for group in product.selling_plan_groups -%}
+          {%- for plan in group.selling_plans -%}
+            {%- if _first_selling_plan == nil -%}
+              {%- assign _first_selling_plan = plan -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+
         <form data-product-form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="selling_plan" id="SellingPlanInput" value="">
 
           {%- if product.variants.size > 1 -%}
             {%- for option in product.options_with_values -%}
@@ -237,14 +247,18 @@
             <div class="subscribe-card__badge">Save 15%</div>
             <div class="subscribe-card__content">
               <div class="subscribe-card__headline">Subscribe &amp; Save</div>
-              <div class="subscribe-card__body">Your next batch ships every quarter. Cancel anytime.</div>
+              <div class="subscribe-card__body">Your next batch ships every month. Cancel anytime.</div>
               <div class="subscribe-card__prices">
                 <span class="subscribe-card__price">{{ sub_price | money }}</span>
                 <del class="subscribe-card__compare">{{ product.selected_or_first_available_variant.price | money }}</del>
-                <span class="subscribe-card__per">/ quarter</span>
+                <span class="subscribe-card__per">/ month</span>
               </div>
             </div>
-            <button type="submit" class="subscribe-card__cta">Add</button>
+            {%- if _first_selling_plan != nil -%}
+              <button type="submit" class="subscribe-card__cta" data-selling-plan-id="{{ _first_selling_plan.id }}">Add</button>
+            {%- else -%}
+              <button type="submit" class="subscribe-card__cta subscribe-card__cta--unavailable" disabled>Unavailable</button>
+            {%- endif -%}
           </div>
 
         </form>
