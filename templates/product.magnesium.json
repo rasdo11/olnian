@@ -12,6 +12,12 @@
     "main": {
       "type": "main-product",
       "blocks": {
+        "gallery_image_iA8bT9": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/mg_sleep.png"
+          }
+        },
         "gallery_image_hVhnEe": {
           "type": "gallery_image",
           "settings": {}
@@ -100,6 +106,7 @@
         }
       },
       "block_order": [
+        "gallery_image_iA8bT9",
         "gallery_image_hVhnEe",
         "gallery_image_pGnYdQ",
         "b1",
