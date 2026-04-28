@@ -122,8 +122,9 @@
         "s6"
       ],
       "settings": {
+        "hero_image_filename": "pdp-1-hero.png",
         "show_rating": true,
-        "rating_value": 45,
+        "rating_value": 46,
         "rating_count": "142 reviews",
         "tagline": "Pure creatine monohydrate for women that's clinically studied to support brain clarity, cognitive performance, and cellular energy. The only ingredient is the ingredient.",
         "benefits_heading": "Benefits",
