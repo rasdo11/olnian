@@ -134,7 +134,7 @@
         "s6"
       ],
       "settings": {
-        "hero_image_filename": "pdp-1-hero.png",
+        "hero_image": "shopify://shop_images/pdp-1-hero.png",
         "show_rating": true,
         "rating_value": 46,
         "rating_count": "142 reviews",

@@ -116,7 +116,7 @@
         "s6"
       ],
       "settings": {
-        "hero_image_filename": "mg-pdp-1.png",
+        "hero_image": "shopify://shop_images/mg-pdp-1.png",
         "show_rating": true,
         "rating_value": 47,
         "rating_count": "89 reviews",

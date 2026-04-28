@@ -10,7 +10,7 @@
           1. hero_image_filename setting — first slide, editable in Theme Editor
           2. gallery_image blocks — add/remove in Theme Editor via "Add block"
         {%- endcomment -%}
-        {%- assign _hero_file = section.settings.hero_image_filename -%}
+        {%- assign _hero_file = section.settings.hero_image -%}
         {%- assign gallery_asset_count = 0 -%}
         {%- for block in section.blocks -%}
           {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
@@ -31,7 +31,7 @@
               {%- if _hero_file != blank -%}
                 <div class="pdp-gallery__slide is-active" data-slide="0">
                   <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
-                    <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
+                    <img src="{{ _hero_file | image_url: width: 1400 }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
                   </button>
                 </div>
                 {%- assign _slide_i = 1 -%}
@@ -64,7 +64,7 @@
               {%- assign _thumb_i = 0 -%}
               {%- if _hero_file != blank -%}
                 <button type="button" class="pdp-gallery__thumb is-active" data-thumb="0" aria-label="View image 1">
-                  <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" loading="lazy">
+                  <img src="{{ _hero_file | image_url: width: 300 }}" alt="{{ product.title }}" loading="lazy">
                 </button>
                 {%- assign _thumb_i = 1 -%}
               {%- endif -%}
@@ -105,7 +105,7 @@
               {%- assign _lb_i = 0 -%}
               {%- if _hero_file != blank -%}
                 <div class="pdp-lightbox__slide is-active" data-lightbox-slide="0">
-                  <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" loading="lazy">
+                  <img src="{{ _hero_file | image_url: width: 2000 }}" alt="{{ product.title }}" loading="lazy">
                 </div>
                 {%- assign _lb_i = 1 -%}
               {%- endif -%}
@@ -376,7 +376,7 @@
   ],
   "settings": [
     { "type": "header", "content": "Gallery" },
-    { "type": "text", "id": "hero_image_filename", "label": "Hero image (asset filename, e.g. pdp-1-hero.png)", "default": "pdp-1-hero.png", "info": "Shown as the first image. Must be uploaded to Files in Shopify admin." },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show star rating", "default": true },
     { "type": "range", "id": "rating_value", "label": "Rating (×10, so 48 = 4.8)", "min": 10, "max": 50, "step": 1, "default": 48, "info": "Divide by 10 for display value" },
