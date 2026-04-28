@@ -19,6 +19,7 @@
       <h1 class="hero__headline" style="
         font-size: {{ section.settings.headline_size }}px;
         letter-spacing: {{ section.settings.headline_kerning | divided_by: 100.0 }}em;
+        font-family: var(--brand-font);
       ">{{ section.settings.headline }}</h1>
 
       {%- if section.settings.subheadline != blank -%}
@@ -54,7 +55,9 @@
     </div>
 
     <div class="hero__image">
-      {%- if section.settings.image != blank -%}
+      {%- if section.settings.asset_image != blank -%}
+        <img src="{{ section.settings.asset_image | asset_url }}" alt="{{ section.settings.headline }}" loading="eager">
+      {%- elsif section.settings.image != blank -%}
         {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'eager', alt: section.settings.image.alt | default: section.settings.headline }}
       {%- endif -%}
     </div>
@@ -70,7 +73,8 @@
     { "type": "text", "id": "badge", "label": "Badge pill (optional)", "default": "New batch: ships in 2\u20134 weeks" },
     { "type": "textarea", "id": "headline", "label": "Headline", "default": "Clean Creatine.\nClear Thinking." },
     { "type": "textarea", "id": "subheadline", "label": "Sub-headline", "default": "Three to five grams of pure, micronized creatine monohydrate per serving. Studied specifically in women after 40." },
-    { "type": "image_picker", "id": "image", "label": "Hero image" },
+    { "type": "image_picker", "id": "image", "label": "Hero image (Shopify Files)" },
+    { "type": "text", "id": "asset_image", "label": "Hero image (theme asset filename)", "info": "Overrides the picker above. Type exact filename e.g. brain bundle crop.png" },
     { "type": "header", "content": "Trust row" },
     { "type": "checkbox", "id": "show_trust_row", "label": "Show trust row", "default": true },
     { "type": "text", "id": "trust_1", "label": "Trust item 1", "default": "Third-party tested" },
