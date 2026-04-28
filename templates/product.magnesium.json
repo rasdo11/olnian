@@ -12,6 +12,12 @@
     "main": {
       "type": "main-product",
       "blocks": {
+        "gallery_image_hVhnEe": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pomelli_creative_image_1_1_0428_1.png"
+          }
+        },
         "gallery_image_pGnYdQ": {
           "type": "gallery_image",
           "settings": {
@@ -98,6 +104,7 @@
         }
       },
       "block_order": [
+        "gallery_image_hVhnEe",
         "gallery_image_pGnYdQ",
         "b1",
         "b2",
