@@ -232,28 +232,56 @@
     const slides  = $$('.pdp-gallery__slide', gallery);
     const thumbs  = $$('.pdp-gallery__thumb', gallery);
     const dots    = $$('.pdp-gallery__dot', gallery);
+    const main    = gallery.querySelector('.pdp-gallery__main');
 
-    // Go to slide index — syncs hero, thumbs, dots
-    function goTo(index) {
+    const mobileQuery = window.matchMedia('(max-width: 600px)');
+
+    // Desktop: opacity/active fade
+    function goToDesktop(index) {
       slides.forEach((s, i) => s.classList.toggle('is-active', i === index));
       thumbs.forEach((t, i) => t.classList.toggle('is-active', i === index));
       dots.forEach((d, i)   => d.classList.toggle('is-active', i === index));
+    }
+
+    // Mobile: scroll to slide position, dots sync via scroll event
+    function goToMobile(index) {
+      if (!main) return;
+      main.scrollTo({ left: index * main.offsetWidth, behavior: 'smooth' });
+    }
+
+    function goTo(index) {
+      if (mobileQuery.matches) goToMobile(index);
+      else goToDesktop(index);
     }
 
     if (slides.length > 1) {
       thumbs.forEach((t) => t.addEventListener('click', () => goTo(Number(t.dataset.thumb))));
       dots.forEach((d)   => d.addEventListener('click', () => goTo(Number(d.dataset.dot))));
 
-      // Touch swipe on hero image
-      const main = gallery.querySelector('.pdp-gallery__main');
+      // Mobile: sync dots on scroll (debounced)
       if (main) {
+        let scrollTimer;
+        main.addEventListener('scroll', () => {
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(() => {
+            if (!mobileQuery.matches) return;
+            const idx = Math.round(main.scrollLeft / main.offsetWidth);
+            dots.forEach((d, i) => d.classList.toggle('is-active', i === idx));
+          }, 60);
+        }, { passive: true });
+
+        // Desktop only: touch swipe (mobile uses native scroll-snap)
         let startX = 0;
-        main.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+        main.addEventListener('touchstart', (e) => {
+          if (mobileQuery.matches) return;
+          startX = e.touches[0].clientX;
+        }, { passive: true });
         main.addEventListener('touchend', (e) => {
+          if (mobileQuery.matches) return;
           const dx = e.changedTouches[0].clientX - startX;
           if (Math.abs(dx) < 40) return;
           const current = slides.findIndex((s) => s.classList.contains('is-active'));
-          goTo(dx < 0 ? Math.min(current + 1, slides.length - 1) : Math.max(current - 1, 0));
+          goToDesktop(dx < 0 ? Math.min(current + 1, slides.length - 1) : Math.max(current - 1, 0));
         }, { passive: true });
       }
     }

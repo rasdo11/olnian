@@ -209,9 +209,20 @@
             {%- endfor -%}
           {%- endif -%}
 
+          {%- comment -%} Trust line — before price so it's seen before cost {%- endcomment -%}
+          <p class="product__trust-line product__trust-line--top">Third-party tested &middot; Free shipping over $50 &middot; Cancel anytime</p>
+
+          {%- assign sub_price = product.selected_or_first_available_variant.price | times: 0.85 | round -%}
           <div class="product__price" data-product-price>
             {{ product.selected_or_first_available_variant.price | money }}
           </div>
+          {%- if _first_selling_plan != nil -%}
+            <div class="product__sub-price">
+              <strong>Subscribe: {{ sub_price | money }}/mo</strong>
+              <del>{{ product.selected_or_first_available_variant.price | money }}</del>
+              <span>— save 15%</span>
+            </div>
+          {%- endif -%}
 
           {%- if section.settings.show_gift_banner -%}
             <div class="gift-banner">
@@ -237,10 +248,10 @@
             {% endif %}
           </button>
 
-          <p class="product__trust-line">Third-party tested &middot; Free shipping over $50 &middot; Cancel anytime</p>
+          <div class="product__or-divider">or</div>
+          {{ form | payment_button }}
 
           {%- comment -%} Subscribe & Save card {%- endcomment -%}
-          {%- assign sub_price = product.selected_or_first_available_variant.price | times: 0.85 | round -%}
           <div class="subscribe-card">
             <div class="subscribe-card__badge">Save 15%</div>
             <div class="subscribe-card__content">

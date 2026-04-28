@@ -544,10 +544,41 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
   margin-top: 2px;
 }
 
-/* ── Trust line under ATC ─────────────────────────────────────── */
+/* ── Trust line (above price + below ATC) ─────────────────────── */
 .product__trust-line {
   text-align: center; margin-top: 12px;
   font-size: 12px; letter-spacing: 0.04em; opacity: 0.55;
+}
+.product__trust-line--top {
+  margin-top: 16px; margin-bottom: 0;
+}
+
+/* ── Sub-price line ───────────────────────────────────────────── */
+.product__sub-price {
+  font-size: 13px; margin-top: 4px; opacity: 0.72;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.product__sub-price strong { color: var(--tangerine); font-weight: 600; }
+.product__sub-price del { opacity: 0.45; }
+
+/* ── Dynamic checkout ("Buy it now") ─────────────────────────── */
+.product__or-divider {
+  text-align: center; font-size: 11px; opacity: 0.4;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin: 10px 0;
+}
+.shopify-payment-button { margin-top: 0; }
+.shopify-payment-button__button--unbranded {
+  background: var(--espresso) !important;
+  border-radius: 999px !important;
+  font-family: var(--body-font) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+}
+.shopify-payment-button__button--branded {
+  border-radius: 999px !important;
+  overflow: hidden;
 }
 
 /* ── Product science section ──────────────────────────────────── */
@@ -862,8 +893,29 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
   .hero__ctas { flex-direction: column; }
   .hero__ctas .btn { width: 100%; justify-content: center; }
 
-  /* Gallery: hide thumbnail row on mobile, show dots */
+  /* Gallery: native scroll-snap on mobile */
   .pdp-gallery__thumbs { display: none; }
+  /* Scroll-snap container */
+  .pdp-gallery__main {
+    display: flex;
+    overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+  }
+  .pdp-gallery__main::-webkit-scrollbar { display: none; }
+  /* Each slide: full-width, snaps, always visible (override desktop absolute/opacity) */
+  .pdp-gallery__slide {
+    position: relative !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    flex: 0 0 100%;
+    width: 100%;
+    scroll-snap-align: start;
+  }
+  /* Cap: hide slides 4+ on mobile */
+  .pdp-gallery__slide:nth-child(n+4) { display: none; }
+  /* Dots */
   .pdp-gallery__dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
   .pdp-gallery__dot {
     width: 7px; height: 7px; border-radius: 50%;
