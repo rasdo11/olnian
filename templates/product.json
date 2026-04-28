@@ -19,6 +19,13 @@
             "alt": "Nutrition facts panel"
           }
         },
+        "benefit_7Ewtmp": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "One ingredient"
+          }
+        },
         "g2": {
           "type": "gallery_image",
           "settings": {
@@ -80,6 +87,7 @@
       },
       "block_order": [
         "g1",
+        "benefit_7Ewtmp",
         "g2",
         "b1",
         "b2",
@@ -94,7 +102,7 @@
         "show_rating": true,
         "rating_value": 46,
         "rating_count": "142 reviews",
-        "tagline": "One ingredient. Clinically studied in women for cognitive clarity, muscle recovery, and mood stability. Made the week you order.",
+        "tagline": "Pure creatine monohydrate for women that's clinically studied to support brain clarity, cognitive performance, and cellular energy. The only ingredient is the ingredient.",
         "benefits_heading": "Benefits",
         "supports_heading": "What It Supports",
         "show_gift_banner": true,
