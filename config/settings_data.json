@@ -15,9 +15,11 @@
     "color_accent_secondary": "#FEB3A0",
     "color_accent_gold": "#FFD166",
     "color_accent_mint": "#3ECFB2",
+    "display_font": "Playfair Display",
+    "display_font_weight": "400",
     "brand_name": "ØLNIAN",
     "brand_tagline": "Clarity is Luxury.",
-    "favicon": "shopify://shop_images/Olnian_Favicon.png",
+    "favicon": "shopify://shop_images/Olnian_Favicon_1.png",
     "show_ship_badge": false,
     "ship_badge_text": "Ships in 2–4 weeks",
     "sections": {
