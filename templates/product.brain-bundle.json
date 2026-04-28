@@ -12,21 +12,108 @@
     "main": {
       "type": "main-product",
       "blocks": {
-        "b1": { "type": "benefit", "settings": { "icon": "○", "text": "Clearer thinking in the afternoon, even on the hard days" } },
-        "b2": { "type": "benefit", "settings": { "icon": "○", "text": "Deeper sleep that actually delivers recovery, not just hours" } },
-        "b3": { "type": "benefit", "settings": { "icon": "○", "text": "Less cortisol drag pulling at your mornings" } },
-        "b4": { "type": "benefit", "settings": { "icon": "○", "text": "Workouts that don't hollow you out for the next 48 hours" } },
-        "b5": { "type": "benefit", "settings": { "icon": "○", "text": "Mental sharpness that comes from a brain with both fuel and rest" } },
-        "b6": { "type": "benefit", "settings": { "icon": "○", "text": "The only two-supplement stack studied specifically in women going through hormonal change" } },
-        "s1": { "type": "support_item", "settings": { "text": "Brain ATP synthesis — cellular energy for sustained thought" } },
-        "s2": { "type": "support_item", "settings": { "text": "Sleep architecture — time in slow-wave and REM sleep" } },
-        "s3": { "type": "support_item", "settings": { "text": "Cognitive performance: memory, processing speed, reaction time" } },
-        "s4": { "type": "support_item", "settings": { "text": "Cortisol regulation and stress hormone response" } },
-        "s5": { "type": "support_item", "settings": { "text": "Muscle recovery and reduced delayed-onset soreness" } },
-        "s6": { "type": "support_item", "settings": { "text": "Hormonal resilience through perimenopause and beyond" } }
+        "gallery_image_AXTDCa": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/brain_bundle_crop.png"
+          }
+        },
+        "b1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Clearer thinking in the afternoon, even on the hard days"
+          }
+        },
+        "b2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Deeper sleep that actually delivers recovery, not just hours"
+          }
+        },
+        "b3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Less cortisol drag pulling at your mornings"
+          }
+        },
+        "b4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Workouts that don't hollow you out for the next 48 hours"
+          }
+        },
+        "b5": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Mental sharpness that comes from a brain with both fuel and rest"
+          }
+        },
+        "b6": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "The only two-supplement stack studied specifically in women going through hormonal change"
+          }
+        },
+        "s1": {
+          "type": "support_item",
+          "settings": {
+            "text": "Brain ATP synthesis — cellular energy for sustained thought"
+          }
+        },
+        "s2": {
+          "type": "support_item",
+          "settings": {
+            "text": "Sleep architecture — time in slow-wave and REM sleep"
+          }
+        },
+        "s3": {
+          "type": "support_item",
+          "settings": {
+            "text": "Cognitive performance: memory, processing speed, reaction time"
+          }
+        },
+        "s4": {
+          "type": "support_item",
+          "settings": {
+            "text": "Cortisol regulation and stress hormone response"
+          }
+        },
+        "s5": {
+          "type": "support_item",
+          "settings": {
+            "text": "Muscle recovery and reduced delayed-onset soreness"
+          }
+        },
+        "s6": {
+          "type": "support_item",
+          "settings": {
+            "text": "Hormonal resilience through perimenopause and beyond"
+          }
+        }
       },
-      "block_order": ["b1", "b2", "b3", "b4", "b5", "b6", "s1", "s2", "s3", "s4", "s5", "s6"],
+      "block_order": [
+        "gallery_image_AXTDCa",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6"
+      ],
       "settings": {
+        "hero_image_filename": "pdp-1-hero.png",
         "show_rating": true,
         "rating_value": 49,
         "rating_count": "61 reviews",
@@ -47,16 +134,45 @@
     "science": {
       "type": "product-science",
       "blocks": {
-        "st1": { "type": "stat", "settings": { "number": "4 weeks", "label": "To measurable cognitive improvement with creatine in women", "citation": "Smith et al., 2003" } },
-        "st2": { "type": "stat", "settings": { "number": "7 days", "label": "Typical onset of sleep improvement with magnesium glycinate", "citation": "Abbasi et al., 2012" } },
-        "st3": { "type": "stat", "settings": { "number": "2", "label": "Supplements. Because more isn't better. Right is better.", "citation": "" } }
+        "st1": {
+          "type": "stat",
+          "settings": {
+            "number": "4 weeks",
+            "label": "To measurable cognitive improvement with creatine in women",
+            "citation": "Smith et al., 2003"
+          }
+        },
+        "st2": {
+          "type": "stat",
+          "settings": {
+            "number": "7 days",
+            "label": "Typical onset of sleep improvement with magnesium glycinate",
+            "citation": "Abbasi et al., 2012"
+          }
+        },
+        "st3": {
+          "type": "stat",
+          "settings": {
+            "number": "2",
+            "label": "Supplements. Because more isn't better. Right is better.",
+            "citation": ""
+          }
+        }
       },
-      "block_order": ["st1", "st2", "st3"],
+      "block_order": [
+        "st1",
+        "st2",
+        "st3"
+      ],
       "settings": {
         "kicker": "The protocol",
         "headline": "Input and recovery. Not one or the other.",
         "body": "Cognitive performance has two levers: the fuel your neurons run on, and the recovery that resets them. Creatine raises brain phosphocreatine — the substrate that powers ATP synthesis under demand. Magnesium glycinate repairs the sleep architecture that determines how much of that fuel is actually available by morning. Neither is redundant. Neither is optional if you want the full effect.",
-        "disclaimer": "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease."
+        "disclaimer": "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+        "headline_size": 48,
+        "padding_top": 96,
+        "padding_bottom": 96,
+        "background": ""
       }
     },
     "faq": {
@@ -105,23 +221,73 @@
           }
         }
       },
-      "block_order": ["q1", "q2", "q3", "q4", "q5", "q6"],
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ],
       "settings": {
         "kicker": "Questions",
-        "headline": "Straight answers."
+        "headline": "Straight answers.",
+        "headline_size": 40,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "background": ""
       }
     },
     "testing-strip": {
       "type": "testing-strip",
       "blocks": {
-        "a": { "type": "item", "settings": { "label": "Heavy metals" } },
-        "b": { "type": "item", "settings": { "label": "Microbials" } },
-        "c": { "type": "item", "settings": { "label": "Identity" } },
-        "d": { "type": "item", "settings": { "label": "Potency" } }
+        "a": {
+          "type": "item",
+          "settings": {
+            "label": "Heavy metals"
+          }
+        },
+        "b": {
+          "type": "item",
+          "settings": {
+            "label": "Microbials"
+          }
+        },
+        "c": {
+          "type": "item",
+          "settings": {
+            "label": "Identity"
+          }
+        },
+        "d": {
+          "type": "item",
+          "settings": {
+            "label": "Potency"
+          }
+        }
       },
-      "block_order": ["a", "b", "c", "d"],
-      "settings": {}
+      "block_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "settings": {
+        "heading": "Third-party tested every batch",
+        "heading_size": 22,
+        "heading_kerning": 0,
+        "item_size": 13,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "heading_margin_bottom": 16,
+        "background": ""
+      }
     }
   },
-  "order": ["main", "science", "faq", "testing-strip"]
+  "order": [
+    "main",
+    "science",
+    "faq",
+    "testing-strip"
+  ]
 }
