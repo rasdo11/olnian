@@ -12,11 +12,11 @@
     "hero": {
       "type": "hero-editorial",
       "settings": {
-        "kicker": "Purity, by design.",
+        "kicker": "Clean Creatine. Clear Thinking.",
         "badge": "",
         "headline": "A clear mind can change your life.",
         "subheadline": "Pure, crystalized creatine monohydrate studied specifically in women after 35.",
-        "image": "shopify://shop_images/olnian_creatine_terracotta.png",
+        "image": "shopify://shop_images/woman_getting_ready_w_product.png",
         "asset_image": "brain bundle crop.png",
         "show_trust_row": false,
         "trust_1": "Third-party tested",
@@ -35,7 +35,7 @@
         "padding_top": 16,
         "padding_bottom": 48,
         "cta_margin_top": 20,
-        "background": ""
+        "background": "#fff8f0"
       }
     },
     "stats": {

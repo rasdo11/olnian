@@ -18,7 +18,7 @@
     "brand_name": "ØLNIAN",
     "brand_tagline": "Clarity is Luxury.",
     "favicon": "shopify://shop_images/Olnian_Favicon.png",
-    "show_ship_badge": true,
+    "show_ship_badge": false,
     "ship_badge_text": "Ships in 2–4 weeks",
     "sections": {
       "cart-drawer": {
