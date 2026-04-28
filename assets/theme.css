@@ -732,7 +732,7 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
 .subscribe-card__content { flex: 1; min-width: 0; }
 .subscribe-card__headline { font-weight: 600; font-size: 14px; }
 .subscribe-card__body { font-size: 12px; opacity: 0.65; margin-top: 2px; }
-.subscribe-card__prices { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+.subscribe-card__prices { display: flex; align-items: baseline; gap: 4px; margin-top: 5px; flex-wrap: nowrap; white-space: nowrap; }
 .subscribe-card__price { font-weight: 600; font-size: 14px; }
 .subscribe-card__compare { opacity: 0.4; font-size: 12px; text-decoration: line-through; }
 .subscribe-card__per { opacity: 0.55; font-size: 12px; }
