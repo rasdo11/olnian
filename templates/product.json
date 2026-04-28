@@ -14,11 +14,27 @@
       "blocks": {
         "g1": {
           "type": "gallery_image",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/pomelli_photoshoot_image_4_5_0425_3.png"
+          }
         },
         "g2": {
           "type": "gallery_image",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/pdp-4-facts.png"
+          }
+        },
+        "gallery_image_rPL6pC": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pdp-6-spoon.jpg"
+          }
+        },
+        "gallery_image_NqzpMX": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pdp-2-pour.png"
+          }
         },
         "b1": {
           "type": "benefit",
@@ -102,6 +118,8 @@
       "block_order": [
         "g1",
         "g2",
+        "gallery_image_rPL6pC",
+        "gallery_image_NqzpMX",
         "b1",
         "b2",
         "b3",
