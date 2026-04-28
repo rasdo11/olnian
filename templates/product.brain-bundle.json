@@ -12,10 +12,40 @@
     "main": {
       "type": "main-product",
       "blocks": {
+        "gallery_image_YmNPht": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/woman_getting_ready4.png"
+          }
+        },
+        "gallery_image_GFV7iz": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/mg_sleep.png"
+          }
+        },
+        "gallery_image_kVFePQ": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pdp-4-facts.png"
+          }
+        },
+        "gallery_image_DYwd7U": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pomelli_photoshoot_image_4_5_0425_3_5015f584-da73-4530-8435-36337a7689fa.png"
+          }
+        },
+        "gallery_image_mzGAtN": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/pdp-6-spoon.jpg"
+          }
+        },
         "gallery_image_AXTDCa": {
           "type": "gallery_image",
           "settings": {
-            "image": "shopify://shop_images/brain_bundle_crop.png"
+            "image": "shopify://shop_images/pdp-2-pour.png"
           }
         },
         "b1": {
@@ -98,6 +128,11 @@
         }
       },
       "block_order": [
+        "gallery_image_YmNPht",
+        "gallery_image_GFV7iz",
+        "gallery_image_kVFePQ",
+        "gallery_image_DYwd7U",
+        "gallery_image_mzGAtN",
         "gallery_image_AXTDCa",
         "b1",
         "b2",
