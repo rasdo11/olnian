@@ -382,8 +382,13 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
   display: block; width: 100%; height: 100%;
   padding: 0; background: none; cursor: zoom-in;
 }
-.pdp-gallery__slide { display: none; width: 100%; height: 100%; }
-.pdp-gallery__slide.is-active { display: block; }
+/* Slides stack absolutely inside the aspect-ratio container; fade on change */
+.pdp-gallery__slide {
+  position: absolute; inset: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.pdp-gallery__slide.is-active { opacity: 1; pointer-events: auto; }
 .pdp-gallery__img { width: 100%; height: 100%; object-fit: cover; }
 
 .pdp-gallery__thumbs {
@@ -445,6 +450,46 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
 .pdp-lightbox__prev { left: 20px; }
 .pdp-lightbox__next { right: 20px; }
 .pdp-lightbox__prev:hover, .pdp-lightbox__next:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Sticky buy bar ──────────────────────────────────────────── */
+.pdp-sticky-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 40;
+  background: var(--blush);
+  border-top: 1px solid var(--espresso-12);
+  box-shadow: 0 -4px 20px rgba(92, 26, 0, 0.08);
+  padding: 12px 0;
+  /* Push content above iOS home indicator */
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateY(110%);
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.pdp-sticky-bar.is-visible { transform: translateY(0); }
+.pdp-sticky-bar__inner {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+.pdp-sticky-bar__left { flex: 1; min-width: 0; }
+.pdp-sticky-bar__name {
+  font-size: 12px; font-weight: 500; opacity: 0.6;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pdp-sticky-bar__price {
+  font-family: var(--display-font); font-size: 20px; line-height: 1.2;
+}
+.pdp-sticky-bar__actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.pdp-sticky-bar__atc { padding: 12px 22px; font-size: 14px; white-space: nowrap; }
+.pdp-sticky-bar__sub {
+  padding: 10px 14px;
+  border: 1.5px solid var(--espresso-30);
+  border-radius: 999px;
+  font-size: 12px; font-weight: 500; white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.pdp-sticky-bar__sub:hover { border-color: var(--espresso); background: var(--espresso); color: var(--blush); }
+/* Desktop: info column is sticky so ATC always visible — hide bar */
+@media (min-width: 900px) { .pdp-sticky-bar { display: none; } }
 
 /* ── PDP rating ───────────────────────────────────────────────── */
 .product__rating {
@@ -832,6 +877,13 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
 
   /* Product grid stacks on mobile */
   .product-science__stats { grid-template-columns: 1fr; }
+
+  /* Reduce top padding on product page — image already acts as hero */
+  .product { padding-top: 16px; }
+
+  /* Subscribe card: wrap CTA below content on narrow screens */
+  .subscribe-card { flex-wrap: wrap; }
+  .subscribe-card__cta { flex: 1; padding: 12px; text-align: center; min-width: 80px; }
 
   /* Announcement bar text slightly smaller on very small screens */
   .announcement-bar__inner { font-size: 12px; padding: 9px 16px; }

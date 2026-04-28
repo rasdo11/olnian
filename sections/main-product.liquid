@@ -345,6 +345,26 @@
       };
     {%- endfor -%}
   </script>
+
+  {%- comment -%} ── Sticky buy bar — slides up once main ATC scrolls out of view ── {%- endcomment -%}
+  <div class="pdp-sticky-bar" id="PdpStickyBar">
+    <div class="pdp-sticky-bar__inner container">
+      <div class="pdp-sticky-bar__left">
+        <div class="pdp-sticky-bar__name">{{ product.title }}</div>
+        <div class="pdp-sticky-bar__price">{{ product.selected_or_first_available_variant.price | money }}</div>
+      </div>
+      <div class="pdp-sticky-bar__actions">
+        {%- if _first_selling_plan != nil -%}
+          <button type="button" class="pdp-sticky-bar__sub" data-sticky-sub>Save 15%</button>
+        {%- endif -%}
+        <button type="button" class="btn btn--primary pdp-sticky-bar__atc" data-sticky-atc
+          {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+          {%- if product.selected_or_first_available_variant.available -%}Start Now{%- else -%}Sold Out{%- endif -%}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </section>
 
 {% schema %}

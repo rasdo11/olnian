@@ -316,6 +316,21 @@
       if (e.key === 'ArrowLeft')  lbGoTo(Math.max(lbCurrentIndex() - 1, 0));
       if (e.key === 'ArrowRight') lbGoTo(Math.min(lbCurrentIndex() + 1, lbSlides.length - 1));
     });
+
+    // Touch swipe inside lightbox
+    if (lbSlides.length > 1) {
+      const lbImages = lightbox.querySelector('.pdp-lightbox__images');
+      if (lbImages) {
+        let lbStartX = 0;
+        lbImages.addEventListener('touchstart', (e) => { lbStartX = e.touches[0].clientX; }, { passive: true });
+        lbImages.addEventListener('touchend', (e) => {
+          const dx = e.changedTouches[0].clientX - lbStartX;
+          if (Math.abs(dx) < 40) return;
+          const cur = lbCurrentIndex();
+          lbGoTo(dx < 0 ? Math.min(cur + 1, lbSlides.length - 1) : Math.max(cur - 1, 0));
+        }, { passive: true });
+      }
+    }
   }
 
   /* ---------- Mobile nav ---------- */
@@ -362,6 +377,32 @@
     });
   }
 
+  /* ---------- Sticky buy bar ---------- */
+  function initStickyBar() {
+    const bar = document.getElementById('PdpStickyBar');
+    const mainAtc = $('[data-product-submit]');
+    if (!bar || !mainAtc) return;
+
+    // Show bar once the main ATC button leaves the viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => { bar.classList.toggle('is-visible', !entry.isIntersecting); },
+      { threshold: 0 }
+    );
+    observer.observe(mainAtc);
+
+    // Proxy "Start Now" — clears selling plan so it's a one-time purchase
+    bar.querySelector('[data-sticky-atc]')?.addEventListener('click', () => {
+      const sp = $('[name="selling_plan"]');
+      if (sp) sp.value = '';
+      mainAtc.click();
+    });
+
+    // Proxy "Save 15%" — clicks the subscribe card's Add button
+    bar.querySelector('[data-sticky-sub]')?.addEventListener('click', () => {
+      $('[data-selling-plan-id]')?.click();
+    });
+  }
+
   /* ---------- Init ---------- */
   document.addEventListener('DOMContentLoaded', () => {
     Drawer.init();
@@ -370,5 +411,6 @@
     initGallery();
     initMobileNav();
     initProductAccordions();
+    initStickyBar();
   });
 })();
