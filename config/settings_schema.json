@@ -19,6 +19,68 @@
     ]
   },
   {
+    "name": "Typography",
+    "settings": [
+      { "type": "header", "content": "Heading font" },
+      {
+        "type": "select",
+        "id": "display_font",
+        "label": "Heading font family",
+        "options": [
+          { "value": "Belleza",             "label": "Belleza" },
+          { "value": "Cormorant Garamond",  "label": "Cormorant Garamond" },
+          { "value": "Instrument Serif",    "label": "Instrument Serif" },
+          { "value": "Playfair Display",    "label": "Playfair Display" },
+          { "value": "Fraunces",            "label": "Fraunces" },
+          { "value": "Newsreader",          "label": "Newsreader" }
+        ],
+        "default": "Belleza"
+      },
+      {
+        "type": "select",
+        "id": "display_font_weight",
+        "label": "Heading weight",
+        "info": "Light and Bold not available for Belleza or Instrument Serif",
+        "options": [
+          { "value": "300", "label": "Light (300)" },
+          { "value": "400", "label": "Regular (400)" },
+          { "value": "500", "label": "Medium (500)" },
+          { "value": "600", "label": "Semi-bold (600)" },
+          { "value": "700", "label": "Bold (700)" }
+        ],
+        "default": "400"
+      },
+      { "type": "header", "content": "Body font" },
+      {
+        "type": "select",
+        "id": "body_font",
+        "label": "Body font family",
+        "options": [
+          { "value": "Nunito Sans",       "label": "Nunito Sans" },
+          { "value": "DM Sans",           "label": "DM Sans" },
+          { "value": "Space Grotesk",     "label": "Space Grotesk" },
+          { "value": "Plus Jakarta Sans", "label": "Plus Jakarta Sans" },
+          { "value": "Jost",              "label": "Jost" },
+          { "value": "Epilogue",          "label": "Epilogue" }
+        ],
+        "default": "Nunito Sans"
+      },
+      {
+        "type": "select",
+        "id": "body_font_weight",
+        "label": "Body weight",
+        "options": [
+          { "value": "300", "label": "Light (300)" },
+          { "value": "400", "label": "Regular (400)" },
+          { "value": "500", "label": "Medium (500)" },
+          { "value": "600", "label": "Semi-bold (600)" },
+          { "value": "700", "label": "Bold (700)" }
+        ],
+        "default": "300"
+      }
+    ]
+  },
+  {
     "name": "Brand",
     "settings": [
       { "type": "text",     "id": "brand_name",        "label": "Brand name",    "default": "ØLNIAN" },

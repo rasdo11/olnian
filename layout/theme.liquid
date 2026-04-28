@@ -17,9 +17,13 @@
     <meta name="description" content="{{ page_description | escape }}">
   {%- endif -%}
 
+  {%- assign _df = settings.display_font | default: 'Belleza' -%}
+  {%- assign _bf = settings.body_font | default: 'Nunito Sans' -%}
+  {%- assign _df_url = _df | replace: ' ', '+' -%}
+  {%- assign _bf_url = _bf | replace: ' ', '+' -%}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Belleza&family=Nunito+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family={{ _df_url }}:wght@300;400;500;600;700&family={{ _bf_url }}:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   {{ content_for_header }}
 
@@ -33,6 +37,10 @@
       --mint: {{ settings.color_accent_mint }};
       --blush: {{ settings.color_background }};
       --espresso: {{ settings.color_text }};
+      --display-font: '{{ _df }}', serif;
+      --body-font: '{{ _bf }}', system-ui, -apple-system, sans-serif;
+      --display-weight: {{ settings.display_font_weight | default: '400' }};
+      --body-weight: {{ settings.body_font_weight | default: '300' }};
     }
   </style>
 
