@@ -19,13 +19,6 @@
             "alt": "Nutrition facts panel"
           }
         },
-        "benefit_7Ewtmp": {
-          "type": "benefit",
-          "settings": {
-            "icon": "○",
-            "text": "One ingredient"
-          }
-        },
         "g2": {
           "type": "gallery_image",
           "settings": {
@@ -37,70 +30,100 @@
           "type": "benefit",
           "settings": {
             "icon": "○",
-            "text": "100% monohydrate"
+            "text": "Think more clearly through the afternoon without reaching for caffeine"
           }
         },
         "b2": {
           "type": "benefit",
           "settings": {
             "icon": "○",
-            "text": "5 g per serving"
+            "text": "Remember what you walked into the room for"
           }
         },
         "b3": {
           "type": "benefit",
           "settings": {
             "icon": "○",
-            "text": "No fillers"
+            "text": "Feel less derailed by the mood shifts that come with hormonal change"
+          }
+        },
+        "b4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Recover from workouts without the next-day drag"
+          }
+        },
+        "b5": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Feed your brain the fuel it was already designed to run on"
+          }
+        },
+        "b6": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Backed by the first clinical trial on creatine in perimenopausal women"
           }
         },
         "s1": {
           "type": "support_item",
           "settings": {
-            "text": "Cognitive clarity and reaction time, studied in women"
+            "text": "Sharper thinking and faster recall on demanding days"
           }
         },
         "s2": {
           "type": "support_item",
           "settings": {
-            "text": "Memory, attention, and processing speed"
+            "text": "Sustained mental energy without stimulants or crash"
           }
         },
         "s3": {
           "type": "support_item",
           "settings": {
-            "text": "Cellular energy and muscle recovery"
+            "text": "Mood stability through hormonal fluctuation"
           }
         },
         "s4": {
           "type": "support_item",
           "settings": {
-            "text": "Mood stability during hormonal transitions"
+            "text": "Muscle recovery and reduced fatigue after exercise"
           }
         },
         "s5": {
           "type": "support_item",
           "settings": {
-            "text": "Studied in randomized, placebo-controlled clinical trials in women"
+            "text": "Brain creatine levels measurably raised in perimenopausal women"
+          }
+        },
+        "s6": {
+          "type": "support_item",
+          "settings": {
+            "text": "Tested in randomized, placebo-controlled clinical trials"
           }
         }
       },
       "block_order": [
         "g1",
-        "benefit_7Ewtmp",
         "g2",
         "b1",
         "b2",
         "b3",
+        "b4",
+        "b5",
+        "b6",
         "s1",
         "s2",
         "s3",
         "s4",
-        "s5"
+        "s5",
+        "s6"
       ],
       "settings": {
         "show_rating": true,
-        "rating_value": 46,
+        "rating_value": 45,
         "rating_count": "142 reviews",
         "tagline": "Pure creatine monohydrate for women that's clinically studied to support brain clarity, cognitive performance, and cellular energy. The only ingredient is the ingredient.",
         "benefits_heading": "Benefits",

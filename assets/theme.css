@@ -9,7 +9,7 @@
   --espresso-30: rgba(92, 26, 0, 0.3);
   --espresso-12: rgba(92, 26, 0, 0.12);
   --espresso-06: rgba(92, 26, 0, 0.06);
-  --display-font: 'Belleza', 'Optima', Georgia, serif;
+  --display-font: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --brand-font: 'Belleza', 'Optima', Georgia, serif;
   --body-font: 'Nunito Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
@@ -454,6 +454,8 @@ a.announcement-bar__inner, button.announcement-bar__inner { text-decoration: non
 .star { font-size: 16px; line-height: 1; }
 .star--full { color: var(--tangerine); }
 .star--empty { color: var(--espresso-12); }
+.star--half { display: inline-block; position: relative; color: var(--espresso-12); }
+.star--half::after { content: '★'; position: absolute; left: 0; top: 0; color: var(--tangerine); clip-path: inset(0 50% 0 0); }
 .product__rating-value { font-size: 14px; font-weight: 600; }
 .product__rating-count { font-size: 13px; opacity: 0.6; }
 

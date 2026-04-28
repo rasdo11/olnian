@@ -11,6 +11,7 @@
           2. gallery_image blocks — theme asset filenames added via section blocks
           Both are rendered in order with continuous slide indices.
         {%- endcomment -%}
+        {%- assign _hero_file = section.settings.hero_image_filename -%}
         {%- assign gallery_images = product.images -%}
         {%- comment -%} Count valid gallery_image blocks without using where filter {%- endcomment -%}
         {%- assign gallery_asset_count = 0 -%}
@@ -20,6 +21,7 @@
           {%- endif -%}
         {%- endfor -%}
         {%- assign total_slides = gallery_images.size | plus: gallery_asset_count -%}
+        {%- if _hero_file != blank -%}{%- assign total_slides = total_slides | plus: 1 -%}{%- endif -%}
         {%- assign has_gallery = false -%}
         {%- if total_slides > 0 -%}{%- assign has_gallery = true -%}{%- endif -%}
 
@@ -29,13 +31,21 @@
           <div class="pdp-gallery__main" id="PdpMainImage">
             {%- if has_gallery -%}
               {%- assign _slide_i = 0 -%}
+              {%- if _hero_file != blank -%}
+                <div class="pdp-gallery__slide is-active" data-slide="0">
+                  <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="0" aria-label="View full image">
+                    <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" class="pdp-gallery__img" loading="eager">
+                  </button>
+                </div>
+                {%- assign _slide_i = 1 -%}
+              {%- endif -%}
               {%- for img in gallery_images -%}
                 <div class="pdp-gallery__slide{% if _slide_i == 0 %} is-active{% endif %}" data-slide="{{ _slide_i }}">
                   <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ _slide_i }}" aria-label="View full image">
                     <img src="{{ img | image_url: width: 1400 }}"
                       alt="{{ img.alt | default: product.title }}"
                       class="pdp-gallery__img"
-                      loading="{% if _slide_i == 0 %}eager{% else %}lazy{% endif %}">
+                      loading="lazy">
                   </button>
                 </div>
                 {%- assign _slide_i = _slide_i | plus: 1 -%}
@@ -66,6 +76,12 @@
           {%- if has_gallery and total_slides > 1 -%}
             <div class="pdp-gallery__thumbs" id="PdpThumbs">
               {%- assign _thumb_i = 0 -%}
+              {%- if _hero_file != blank -%}
+                <button type="button" class="pdp-gallery__thumb is-active" data-thumb="0" aria-label="View image 1">
+                  <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" loading="lazy">
+                </button>
+                {%- assign _thumb_i = 1 -%}
+              {%- endif -%}
               {%- for img in gallery_images -%}
                 <button type="button"
                   class="pdp-gallery__thumb{% if _thumb_i == 0 %} is-active{% endif %}"
@@ -110,6 +126,12 @@
             {%- endif -%}
             <div class="pdp-lightbox__images">
               {%- assign _lb_i = 0 -%}
+              {%- if _hero_file != blank -%}
+                <div class="pdp-lightbox__slide is-active" data-lightbox-slide="0">
+                  <img src="{{ _hero_file | asset_url }}" alt="{{ product.title }}" loading="lazy">
+                </div>
+                {%- assign _lb_i = 1 -%}
+              {%- endif -%}
               {%- for img in gallery_images -%}
                 <div class="pdp-lightbox__slide{% if _lb_i == 0 %} is-active{% endif %}" data-lightbox-slide="{{ _lb_i }}">
                   <img src="{{ img | image_url: width: 2000 }}" alt="{{ img.alt | default: product.title }}" loading="lazy">
@@ -143,9 +165,14 @@
           <div class="product__rating">
             {%- assign rating_display = section.settings.rating_value | divided_by: 10.0 -%}
             {%- assign full_stars = rating_display | floor -%}
+            {%- assign star_decimal = rating_display | minus: full_stars -%}
+            {%- assign has_half_star = false -%}
+            {%- if star_decimal >= 0.25 -%}{%- assign has_half_star = true -%}{%- endif -%}
+            {%- assign half_star_pos = full_stars | plus: 1 -%}
             <span class="product__stars" aria-label="{{ rating_display }} out of 5 stars">
               {%- for i in (1..5) -%}
                 {%- if i <= full_stars -%}<span class="star star--full">★</span>
+                {%- elsif i == half_star_pos and has_half_star -%}<span class="star star--half">★</span>
                 {%- else -%}<span class="star star--empty">★</span>
                 {%- endif -%}
               {%- endfor -%}
@@ -272,11 +299,11 @@
         {%- endfor -%}
         {%- if _has_benefits -%}
           <div class="product__accordion" data-accordion>
-            <button type="button" class="product__accordion__btn" aria-expanded="true" aria-controls="acc-benefits">
+            <button type="button" class="product__accordion__btn" aria-expanded="false" aria-controls="acc-benefits">
               <span>{{ section.settings.benefits_heading | default: 'Benefits' }}</span>
-              <span class="product__accordion__icon" aria-hidden="true">−</span>
+              <span class="product__accordion__icon" aria-hidden="true">+</span>
             </button>
-            <div class="product__accordion__body" id="acc-benefits">
+            <div class="product__accordion__body" id="acc-benefits" hidden>
               <ul class="product__acc-list">
                 {%- for block in section.blocks -%}
                   {%- if block.type == 'benefit' -%}
@@ -378,6 +405,8 @@
     }
   ],
   "settings": [
+    { "type": "header", "content": "Gallery" },
+    { "type": "text", "id": "hero_image_filename", "label": "Hero image (asset filename, e.g. pdp-1-hero.png)", "default": "pdp-1-hero.png", "info": "Shown as the first image. Must be uploaded to Files in Shopify admin." },
     { "type": "header", "content": "Rating" },
     { "type": "checkbox", "id": "show_rating", "label": "Show star rating", "default": true },
     { "type": "range", "id": "rating_value", "label": "Rating (×10, so 48 = 4.8)", "min": 10, "max": 50, "step": 1, "default": 48, "info": "Divide by 10 for display value" },
