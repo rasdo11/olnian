@@ -13,7 +13,7 @@
         {%- assign _hero_file = section.settings.hero_image_filename -%}
         {%- assign gallery_asset_count = 0 -%}
         {%- for block in section.blocks -%}
-          {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+          {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
             {%- assign gallery_asset_count = gallery_asset_count | plus: 1 -%}
           {%- endif -%}
         {%- endfor -%}
@@ -37,11 +37,11 @@
                 {%- assign _slide_i = 1 -%}
               {%- endif -%}
               {%- for block in section.blocks -%}
-                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
                   <div class="pdp-gallery__slide{% if _slide_i == 0 %} is-active{% endif %}" data-slide="{{ _slide_i }}" {{ block.shopify_attributes }}>
                     <button type="button" class="pdp-gallery__main-btn" data-lightbox-open="{{ _slide_i }}" aria-label="View full image">
-                      <img src="{{ block.settings.filename | asset_url }}"
-                        alt="{{ block.settings.alt | default: product.title }}"
+                      <img src="{{ block.settings.image | image_url: width: 1400 }}"
+                        alt="{{ block.settings.image.alt | default: product.title }}"
                         class="pdp-gallery__img"
                         loading="lazy">
                     </button>
@@ -69,12 +69,12 @@
                 {%- assign _thumb_i = 1 -%}
               {%- endif -%}
               {%- for block in section.blocks -%}
-                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
                   <button type="button"
                     class="pdp-gallery__thumb{% if _thumb_i == 0 %} is-active{% endif %}"
                     data-thumb="{{ _thumb_i }}"
                     aria-label="View image {{ _thumb_i | plus: 1 }}">
-                    <img src="{{ block.settings.filename | asset_url }}" alt="{{ block.settings.alt | default: product.title }}" loading="lazy">
+                    <img src="{{ block.settings.image | image_url: width: 300 }}" alt="{{ block.settings.image.alt | default: product.title }}" loading="lazy">
                   </button>
                   {%- assign _thumb_i = _thumb_i | plus: 1 -%}
                 {%- endif -%}
@@ -110,9 +110,9 @@
                 {%- assign _lb_i = 1 -%}
               {%- endif -%}
               {%- for block in section.blocks -%}
-                {%- if block.type == 'gallery_image' and block.settings.filename != blank -%}
+                {%- if block.type == 'gallery_image' and block.settings.image != blank -%}
                   <div class="pdp-lightbox__slide{% if _lb_i == 0 %} is-active{% endif %}" data-lightbox-slide="{{ _lb_i }}">
-                    <img src="{{ block.settings.filename | asset_url }}" alt="{{ block.settings.alt | default: product.title }}" loading="lazy">
+                    <img src="{{ block.settings.image | image_url: width: 2000 }}" alt="{{ block.settings.image.alt | default: product.title }}" loading="lazy">
                   </div>
                   {%- assign _lb_i = _lb_i | plus: 1 -%}
                 {%- endif -%}
@@ -353,10 +353,9 @@
   "blocks": [
     {
       "type": "gallery_image",
-      "name": "Gallery image (asset)",
+      "name": "Gallery image",
       "settings": [
-        { "type": "text", "id": "filename", "label": "Asset filename (e.g. pdp-4-facts.png)" },
-        { "type": "text", "id": "alt", "label": "Alt text" }
+        { "type": "image_picker", "id": "image", "label": "Image" }
       ]
     },
     {

@@ -14,17 +14,11 @@
       "blocks": {
         "g1": {
           "type": "gallery_image",
-          "settings": {
-            "filename": "pdp-4-facts.png",
-            "alt": "Nutrition facts panel"
-          }
+          "settings": {}
         },
         "g2": {
           "type": "gallery_image",
-          "settings": {
-            "filename": "pdp-6-spoon.png",
-            "alt": "Gold measuring spoon"
-          }
+          "settings": {}
         },
         "b1": {
           "type": "benefit",
