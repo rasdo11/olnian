@@ -12,21 +12,108 @@
     "main": {
       "type": "main-product",
       "blocks": {
-        "b1": { "type": "benefit", "settings": { "icon": "○", "text": "Fall asleep faster and stay in deeper sleep through the night" } },
-        "b2": { "type": "benefit", "settings": { "icon": "○", "text": "Wake up without the muscle tension that accumulates through the week" } },
-        "b3": { "type": "benefit", "settings": { "icon": "○", "text": "Less reactive to stress that used to spiral into your whole day" } },
-        "b4": { "type": "benefit", "settings": { "icon": "○", "text": "Fewer PMS and perimenopausal mood crashes" } },
-        "b5": { "type": "benefit", "settings": { "icon": "○", "text": "Calm that builds over weeks, not a sedative that hits in an hour" } },
-        "b6": { "type": "benefit", "settings": { "icon": "○", "text": "Backed by research on magnesium's role in female hormonal health" } },
-        "s1": { "type": "support_item", "settings": { "text": "Sleep architecture — time in deep and REM stages" } },
-        "s2": { "type": "support_item", "settings": { "text": "Cortisol regulation and stress response" } },
-        "s3": { "type": "support_item", "settings": { "text": "Muscle relaxation and recovery after training" } },
-        "s4": { "type": "support_item", "settings": { "text": "Hormonal balance through the cycle and perimenopause" } },
-        "s5": { "type": "support_item", "settings": { "text": "Bone density maintenance alongside calcium and vitamin D" } },
-        "s6": { "type": "support_item", "settings": { "text": "Migraine frequency in women with documented deficiency" } }
+        "gallery_image_pGnYdQ": {
+          "type": "gallery_image",
+          "settings": {
+            "image": "shopify://shop_images/olnian_mg_terracotta.png"
+          }
+        },
+        "b1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Fall asleep faster and stay in deeper sleep through the night"
+          }
+        },
+        "b2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Wake up without the muscle tension that accumulates through the week"
+          }
+        },
+        "b3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Less reactive to stress that used to spiral into your whole day"
+          }
+        },
+        "b4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Fewer PMS and perimenopausal mood crashes"
+          }
+        },
+        "b5": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Calm that builds over weeks, not a sedative that hits in an hour"
+          }
+        },
+        "b6": {
+          "type": "benefit",
+          "settings": {
+            "icon": "○",
+            "text": "Backed by research on magnesium's role in female hormonal health"
+          }
+        },
+        "s1": {
+          "type": "support_item",
+          "settings": {
+            "text": "Sleep architecture — time in deep and REM stages"
+          }
+        },
+        "s2": {
+          "type": "support_item",
+          "settings": {
+            "text": "Cortisol regulation and stress response"
+          }
+        },
+        "s3": {
+          "type": "support_item",
+          "settings": {
+            "text": "Muscle relaxation and recovery after training"
+          }
+        },
+        "s4": {
+          "type": "support_item",
+          "settings": {
+            "text": "Hormonal balance through the cycle and perimenopause"
+          }
+        },
+        "s5": {
+          "type": "support_item",
+          "settings": {
+            "text": "Bone density maintenance alongside calcium and vitamin D"
+          }
+        },
+        "s6": {
+          "type": "support_item",
+          "settings": {
+            "text": "Migraine frequency in women with documented deficiency"
+          }
+        }
       },
-      "block_order": ["b1", "b2", "b3", "b4", "b5", "b6", "s1", "s2", "s3", "s4", "s5", "s6"],
+      "block_order": [
+        "gallery_image_pGnYdQ",
+        "b1",
+        "b2",
+        "b3",
+        "b4",
+        "b5",
+        "b6",
+        "s1",
+        "s2",
+        "s3",
+        "s4",
+        "s5",
+        "s6"
+      ],
       "settings": {
+        "hero_image_filename": "olnian_mg_terracotta.png",
         "show_rating": true,
         "rating_value": 47,
         "rating_count": "89 reviews",
@@ -47,16 +134,45 @@
     "science": {
       "type": "product-science",
       "blocks": {
-        "st1": { "type": "stat", "settings": { "number": "68%", "label": "Women over 35 with suboptimal magnesium levels", "citation": "NHANES, 2022" } },
-        "st2": { "type": "stat", "settings": { "number": "4 weeks", "label": "To measurable improvement in sleep quality", "citation": "Abbasi et al., 2012" } },
-        "st3": { "type": "stat", "settings": { "number": "80%", "label": "Bioavailability of glycinate vs. ~4% for magnesium oxide", "citation": "Schuette et al., 1994" } }
+        "st1": {
+          "type": "stat",
+          "settings": {
+            "number": "68%",
+            "label": "Women over 35 with suboptimal magnesium levels",
+            "citation": "NHANES, 2022"
+          }
+        },
+        "st2": {
+          "type": "stat",
+          "settings": {
+            "number": "4 weeks",
+            "label": "To measurable improvement in sleep quality",
+            "citation": "Abbasi et al., 2012"
+          }
+        },
+        "st3": {
+          "type": "stat",
+          "settings": {
+            "number": "80%",
+            "label": "Bioavailability of glycinate vs. ~4% for magnesium oxide",
+            "citation": "Schuette et al., 1994"
+          }
+        }
       },
-      "block_order": ["st1", "st2", "st3"],
+      "block_order": [
+        "st1",
+        "st2",
+        "st3"
+      ],
       "settings": {
         "kicker": "The research",
         "headline": "The form matters as much as the mineral.",
         "body": "Most magnesium supplements use the oxide form — cheap to produce, nearly impossible to absorb. Glycinate binds magnesium to glycine, an amino acid the gut readily recognizes. The result is absorption that actually reaches the tissues that need it: the brain, the muscles, the adrenals.",
-        "disclaimer": "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease."
+        "disclaimer": "These statements have not been evaluated by the FDA. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+        "headline_size": 48,
+        "padding_top": 96,
+        "padding_bottom": 96,
+        "background": ""
       }
     },
     "faq": {
@@ -105,23 +221,73 @@
           }
         }
       },
-      "block_order": ["q1", "q2", "q3", "q4", "q5", "q6"],
+      "block_order": [
+        "q1",
+        "q2",
+        "q3",
+        "q4",
+        "q5",
+        "q6"
+      ],
       "settings": {
         "kicker": "Questions",
-        "headline": "Straight answers."
+        "headline": "Straight answers.",
+        "headline_size": 40,
+        "padding_top": 80,
+        "padding_bottom": 80,
+        "background": ""
       }
     },
     "testing-strip": {
       "type": "testing-strip",
       "blocks": {
-        "a": { "type": "item", "settings": { "label": "Heavy metals" } },
-        "b": { "type": "item", "settings": { "label": "Microbials" } },
-        "c": { "type": "item", "settings": { "label": "Identity" } },
-        "d": { "type": "item", "settings": { "label": "Potency" } }
+        "a": {
+          "type": "item",
+          "settings": {
+            "label": "Heavy metals"
+          }
+        },
+        "b": {
+          "type": "item",
+          "settings": {
+            "label": "Microbials"
+          }
+        },
+        "c": {
+          "type": "item",
+          "settings": {
+            "label": "Identity"
+          }
+        },
+        "d": {
+          "type": "item",
+          "settings": {
+            "label": "Potency"
+          }
+        }
       },
-      "block_order": ["a", "b", "c", "d"],
-      "settings": {}
+      "block_order": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ],
+      "settings": {
+        "heading": "Third-party tested every batch",
+        "heading_size": 22,
+        "heading_kerning": 0,
+        "item_size": 13,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "heading_margin_bottom": 16,
+        "background": ""
+      }
     }
   },
-  "order": ["main", "science", "faq", "testing-strip"]
+  "order": [
+    "main",
+    "science",
+    "faq",
+    "testing-strip"
+  ]
 }
