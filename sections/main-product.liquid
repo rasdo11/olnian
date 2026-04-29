@@ -357,22 +357,36 @@
     {%- endfor -%}
   </script>
 
-  {%- comment -%} ── Sticky buy bar — slides up once main ATC scrolls out of view ── {%- endcomment -%}
+  {%- comment -%} ── Sticky cross-sell bar — slides up once main ATC scrolls out of view ── {%- endcomment -%}
+  {%- assign _cs = section.settings.crosssell_product -%}
   <div class="pdp-sticky-bar" id="PdpStickyBar">
     <div class="pdp-sticky-bar__inner container">
-      <div class="pdp-sticky-bar__left">
-        <div class="pdp-sticky-bar__name">{{ product.title }}</div>
-        <div class="pdp-sticky-bar__price">{{ product.selected_or_first_available_variant.price | money }}</div>
-      </div>
-      <div class="pdp-sticky-bar__actions">
-        {%- if _first_selling_plan != nil -%}
-          <button type="button" class="pdp-sticky-bar__sub" data-sticky-sub>Save 15%</button>
-        {%- endif -%}
-        <button type="button" class="btn btn--primary pdp-sticky-bar__atc" data-sticky-atc
-          {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
-          {%- if product.selected_or_first_available_variant.available -%}Start Now{%- else -%}Sold Out{%- endif -%}
-        </button>
-      </div>
+      {%- if _cs != blank -%}
+        {%- assign _cs_variant = _cs.selected_or_first_available_variant -%}
+        <div class="pdp-sticky-bar__left">
+          <div class="pdp-sticky-bar__name">{{ _cs.title }}</div>
+          <div class="pdp-sticky-bar__price">{{ _cs_variant.price | money }}</div>
+        </div>
+        <div class="pdp-sticky-bar__actions">
+          <a href="{{ _cs.url }}" class="btn btn--primary pdp-sticky-bar__atc">
+            {%- if _cs_variant.available -%}Add to Routine{%- else -%}View{%- endif -%}
+          </a>
+        </div>
+      {%- else -%}
+        <div class="pdp-sticky-bar__left">
+          <div class="pdp-sticky-bar__name">{{ product.title }}</div>
+          <div class="pdp-sticky-bar__price">{{ product.selected_or_first_available_variant.price | money }}</div>
+        </div>
+        <div class="pdp-sticky-bar__actions">
+          {%- if _first_selling_plan != nil -%}
+            <button type="button" class="pdp-sticky-bar__sub" data-sticky-sub>Save 15%</button>
+          {%- endif -%}
+          <button type="button" class="btn btn--primary pdp-sticky-bar__atc" data-sticky-atc
+            {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}>
+            {%- if product.selected_or_first_available_variant.available -%}Start Now{%- else -%}Sold Out{%- endif -%}
+          </button>
+        </div>
+      {%- endif -%}
     </div>
   </div>
 
@@ -421,6 +435,8 @@
     { "type": "header", "content": "Gift banner" },
     { "type": "checkbox", "id": "show_gift_banner", "label": "Show gift banner", "default": true },
     { "type": "text", "id": "gift_banner_text", "label": "Gift banner text", "default": "First subscription includes a free gold measuring spoon." },
+    { "type": "header", "content": "Sticky cross-sell bar" },
+    { "type": "product", "id": "crosssell_product", "label": "Cross-sell product", "info": "Shown in the sticky bar at the bottom. Leave empty to show current product's ATC." },
     { "type": "header", "content": "Bundle + Save card" },
     { "type": "checkbox", "id": "show_bundle_upsell", "label": "Show bundle card", "default": true },
     { "type": "text", "id": "bundle_upsell_headline", "label": "Headline (e.g. Bundle + Save 25%)", "default": "Bundle + Save 25%" },

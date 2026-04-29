@@ -135,6 +135,7 @@
       ],
       "settings": {
         "hero_image": "shopify://shop_images/pdp-1-hero.png",
+        "crosssell_product": "magnesium-glycincate",
         "show_rating": true,
         "rating_value": 46,
         "rating_count": "142 reviews",

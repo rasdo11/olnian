@@ -124,6 +124,7 @@
       ],
       "settings": {
         "hero_image": "shopify://shop_images/mg-pdp-1.png",
+        "crosssell_product": "creatine",
         "show_rating": true,
         "rating_value": 47,
         "rating_count": "89 reviews",
