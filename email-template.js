@@ -457,121 +457,115 @@ window.EMAIL_TEMPLATE_HTML = `<div id="email-root">
 
     <!-- HEADER -->
     <div class="ef-header">
-        <span class="ef-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</span>
-        <span class="ef-tagline">Clarity is Luxury</span>
+      <span class="ef-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</span>
+      <span class="ef-tagline">Clarity is Luxury</span>
     </div>
 
     <!-- HERO -->
     <div class="ef-hero-wrap" id="hero-wrap">
 
-        <img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display: block;">
-        <div class="ef-hero-overlay" id="hero-overlay" style="display: block;">
-            <p class="ef-hero-kicker"><br></p>
-            <h1 class="ef-hero-headline">The supplement doctors<br>wish they'd told you<br>about at 35.</h1>
-        </div>
+
+      <div class="ef-hero-overlay" id="hero-overlay" style="display:none;">
+        <p class="ef-hero-kicker">Mother's Day · May 10, 2026</p>
+        <h1 class="ef-hero-headline">The supplement doctors<br>wish they'd told you<br>about at 35.</h1>
+      </div>
     </div>
 
 
     <!-- PROMO BAND -->
     <div class="ef-promo">
-        <p class="ef-promo-left">Mother's Day weekend only.<br>Expires Sunday May 10 at midnight PT.</p>
-        <div class="ef-promo-code-wrap">
-            <span class="ef-promo-code-label">Your code</span>
-            <span class="ef-promo-code">MOM15</span>
-        </div>
+      <p class="ef-promo-left">Mother's Day weekend only.<br>Expires Sunday May 10 at midnight PT.</p>
+      <div class="ef-promo-code-wrap">
+        <span class="ef-promo-code-label">Your code</span>
+        <span class="ef-promo-code">MOM15</span>
+      </div>
     </div>
 
     <!-- BODY COPY -->
     <div class="ef-body">
-        <p class="ef-eyebrow">The science</p>
-        <h2 class="ef-h2">After 35, your body makes less creatine. Most women don't know that.</h2>
-        <p class="ef-p">Women naturally have lower creatine levels than men, and they shift further during
-            perimenopause. The result shows up as the 3pm fog, slower recovery, the mental friction that wasn't there at
-            30.</p>
-        <p class="ef-p">ØLNIAN isn't a gym supplement repackaged for women. It was formulated specifically for cognitive
-            support, muscle maintenance, and daily energy for women 35 and older.</p>
+      <p class="ef-eyebrow">The science</p>
+      <h2 class="ef-h2">After 35, your body makes less creatine. Most women don't know that.</h2>
+      <p class="ef-p">Women naturally have lower creatine stores than men — and those levels shift further during perimenopause. The result shows up as the 3pm fog, slower recovery, the mental friction that wasn't there at 30.</p>
+      <p class="ef-p">ØLNIAN isn't a gym supplement repackaged for women. It was formulated specifically for cognitive support, muscle maintenance, and daily energy — for women 35 and older.</p>
     </div>
 
     <!-- PRODUCT -->
     <div class="ef-product">
 
-        <img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display: block;">
 
-        <div class="ef-product-info">
-            <p class="ef-product-name">Pure Creatine Monohydrate</p>
-            <p class="ef-product-desc">Brain · Body · Balance</p>
-            <p class="ef-product-price">$54.99</p>
-            <p class="ef-product-sale">$46.74 with MOM15 — you save $8.25</p>
-            <a href="https://olnian.com/products/creatine" class="ef-btn">Shop now — use code MOM15</a>
-            <a href="https://olnian.com/products/creatine" class="ef-btn-outline">Learn more →</a>
-        </div>
+
+      <div class="ef-product-info">
+        <p class="ef-product-name">Pure Creatine Monohydrate</p>
+        <p class="ef-product-desc">Brain · Body · Balance</p>
+        <p class="ef-product-price">$54.99</p>
+        <p class="ef-product-sale">$46.74 with MOM15 — you save $8.25</p>
+        <a href="https://olnian.com/products/creatine" class="ef-btn">Shop now — use code MOM15</a>
+        <a href="https://olnian.com/products/creatine" class="ef-btn-outline">Learn more →</a>
+      </div>
     </div>
 
     <!-- STATS -->
     <div class="ef-stats">
-        <div class="ef-stat">
-            <p class="ef-stat-num">5g</p>
-            <p class="ef-stat-label">Per serving</p>
-        </div>
-        <div class="ef-stat">
-            <p class="ef-stat-num">100%</p>
-            <p class="ef-stat-label">Batch tested</p>
-        </div>
-        <div class="ef-stat">
-            <p class="ef-stat-num">0</p>
-            <p class="ef-stat-label">Warehouse months</p>
-        </div>
+      <div class="ef-stat">
+        <p class="ef-stat-num">5g</p>
+        <p class="ef-stat-label">Per serving</p>
+      </div>
+      <div class="ef-stat">
+        <p class="ef-stat-num">100%</p>
+        <p class="ef-stat-label">Batch tested</p>
+      </div>
+      <div class="ef-stat">
+        <p class="ef-stat-num">0</p>
+        <p class="ef-stat-label">Warehouse months</p>
+      </div>
     </div>
 
     <!-- HOW IT WORKS -->
     <div class="ef-steps">
-        <p class="ef-eyebrow" style="margin-bottom:16px;">How it works</p>
-        <div class="ef-step">
-            <span class="ef-step-num">01</span>
-            <div>
-                <p class="ef-step-title">You order</p>
-                <p class="ef-step-body">Production begins after your order — not before. No warehouse. No mystery shelf
-                    date.</p>
-            </div>
+      <p class="ef-eyebrow" style="margin-bottom:16px;">How it works</p>
+      <div class="ef-step">
+        <span class="ef-step-num">01</span>
+        <div>
+          <p class="ef-step-title">You order</p>
+          <p class="ef-step-body">Production begins after your order — not before. No warehouse. No mystery shelf date.</p>
         </div>
-        <div class="ef-step">
-            <span class="ef-step-num">02</span>
-            <div>
-                <p class="ef-step-title">We make your batch</p>
-                <p class="ef-step-body">Milled, tested, and weighed the week it ships. Every batch includes a
-                    Certificate of Analysis.</p>
-            </div>
+      </div>
+      <div class="ef-step">
+        <span class="ef-step-num">02</span>
+        <div>
+          <p class="ef-step-title">We make your batch</p>
+          <p class="ef-step-body">Milled, tested, and weighed the week it ships. Every batch includes a Certificate of Analysis.</p>
         </div>
-        <div class="ef-step">
-            <span class="ef-step-num">03</span>
-            <div>
-                <p class="ef-step-title">It arrives fresh</p>
-                <p class="ef-step-body">Ships in 2–4 weeks. Subscribe and save 15% while refills arrive on schedule
-                    automatically.</p>
-            </div>
+      </div>
+      <div class="ef-step">
+        <span class="ef-step-num">03</span>
+        <div>
+          <p class="ef-step-title">It arrives fresh</p>
+          <p class="ef-step-body">Ships in 2–4 weeks. Subscribe and save 15% — refills arrive on schedule automatically.</p>
         </div>
+      </div>
     </div>
 
     <!-- CLOSING CTA -->
     <div class="ef-closing">
-        <h2 class="ef-closing-h">This Mother's Day,<br>clarity is the gift.</h2>
-        <p class="ef-closing-sub">15% off with code MOM15 · Expires May 12</p>
-        <a href="https://olnian.com/products/creatine" class="ef-btn">Claim your 15% off →</a>
+      <h2 class="ef-closing-h">This Mother's Day,<br>clarity is the gift.</h2>
+      <p class="ef-closing-sub">15% off with code MOM15 · Expires Sunday, May 10</p>
+      <a href="https://olnian.com/products/creatine" class="ef-btn">Claim your 15% off →</a>
     </div>
 
     <!-- FOOTER -->
     <div class="ef-footer">
-        <p class="ef-footer-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</p>
-        <p class="ef-footer-tagline">Made in small batches. Tested in every one.</p>
-        <p class="ef-disclaimer">These statements have not been evaluated by the Food and Drug Administration. This
-            product is not intended to diagnose, treat, cure, or prevent any disease.</p>
-        <p class="ef-footer-links">
-            <a href="https://olnian.com">olnian.com</a> &nbsp;·&nbsp;
-            <a>Reply THANK YOU to Unsubscribe</a> &nbsp;·&nbsp;
-        </p>
+      <p class="ef-footer-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</p>
+      <p class="ef-footer-tagline">Made in small batches. Tested in every one.</p>
+      <p class="ef-disclaimer">These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
+      <p class="ef-footer-links">
+        <a href="https://olnian.com">olnian.com</a> &nbsp;·&nbsp;
+        <a href="#">Unsubscribe</a> &nbsp;·&nbsp;
+        <a href="#">Manage preferences</a>
+      </p>
     </div>
 
-</div>`;
+  </div>`;
 
 window.getBlankDraftHTML = function () {
     return window.EMAIL_TEMPLATE_HTML;
