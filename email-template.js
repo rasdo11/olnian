@@ -1,0 +1,578 @@
+// Email template constants for the ØLNIAN multi-draft email editor.
+// Inlined as JS so the app works under file:// (Chrome blocks fetch() of
+// sibling files via CORS in that mode). Both constants are attached to
+// `window` so plain <script> tags can consume them without ES modules.
+
+window.EMAIL_EXPORT_CSS = `
+    body,
+    table,
+    td,
+    a {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #email-root {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #FFFFFF;
+        font-family: 'Nunito Sans', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .ef-header {
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #FFFFFF;
+        border-bottom: 1px solid #BDBDBD;
+    }
+
+    .ef-wordmark {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 20px;
+        letter-spacing: 0.14em;
+        color: #2F2F2F;
+        text-transform: uppercase;
+        line-height: 1;
+    }
+
+    .ef-wordmark-accent {
+        color: #F2663A;
+    }
+
+    .ef-tagline {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #6B6B6B;
+    }
+
+    .ef-hero-wrap {
+        position: relative;
+        width: 100%;
+        background: #EAD2B7;
+        overflow: hidden;
+    }
+
+    .ef-hero-img {
+        width: 100%;
+        display: block;
+        object-fit: cover;
+    }
+
+    .ef-hero-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(28, 16, 8, 0.78) 0%, rgba(28, 16, 8, 0.1) 58%, transparent 100%);
+        padding: 32px 24px 22px;
+    }
+
+    .ef-hero-kicker {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.65);
+        margin: 0 0 8px;
+    }
+
+    .ef-hero-headline {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 26px;
+        font-weight: 400;
+        line-height: 1.2;
+        color: #FFFFFF;
+        margin: 0;
+        letter-spacing: 0.01em;
+    }
+
+    .ef-promo {
+        background: #F2663A;
+        padding: 14px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .ef-promo-left {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+    }
+
+    .ef-promo-code-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        flex-shrink: 0;
+    }
+
+    .ef-promo-code-label {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 8px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.62);
+        margin-bottom: 3px;
+    }
+
+    .ef-promo-code {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 20px;
+        letter-spacing: 0.16em;
+        color: #FFFFFF;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+        padding-bottom: 1px;
+    }
+
+    .ef-body {
+        padding: 28px 24px;
+        background: #FFFFFF;
+        border-bottom: 1px solid #BDBDBD;
+    }
+
+    .ef-eyebrow {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        letter-spacing: 0.32em;
+        text-transform: uppercase;
+        color: #F2663A;
+        margin: 0 0 14px;
+    }
+
+    .ef-h2 {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 22px;
+        font-weight: 400;
+        line-height: 1.25;
+        color: #2F2F2F;
+        margin: 0 0 16px;
+        letter-spacing: 0.01em;
+    }
+
+    .ef-p {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 14px;
+        line-height: 1.8;
+        color: #3A3A3A;
+        margin: 0 0 12px;
+    }
+
+    .ef-p:last-child {
+        margin-bottom: 0;
+    }
+
+    .ef-product {
+        border-top: 1px solid #BDBDBD;
+        border-bottom: 1px solid #BDBDBD;
+        background: #FFFFFF;
+    }
+
+    .ef-product-img {
+        width: 100%;
+        display: block;
+        object-fit: cover;
+    }
+
+    .ef-product-info {
+        padding: 20px 24px 26px;
+    }
+
+    .ef-product-name {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 10px;
+        letter-spacing: 0.38em;
+        text-transform: uppercase;
+        color: #2F2F2F;
+        margin: 0 0 5px;
+    }
+
+    .ef-product-desc {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #6B6B6B;
+        margin: 0 0 14px;
+    }
+
+    .ef-product-price {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 28px;
+        color: #2F2F2F;
+        margin: 0 0 5px;
+        letter-spacing: 0.02em;
+    }
+
+    .ef-product-sale {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 12px;
+        color: #277A46;
+        margin: 0 0 22px;
+        letter-spacing: 0.02em;
+    }
+
+    .ef-btn {
+        display: block;
+        width: 100%;
+        background: #F2663A;
+        color: #FFFFFF !important;
+        text-decoration: none !important;
+        text-align: center;
+        padding: 15px 0;
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 10px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        border-radius: 1px;
+        box-sizing: border-box;
+    }
+
+    .ef-btn-outline {
+        display: block;
+        width: 100%;
+        background: transparent;
+        color: #2F2F2F !important;
+        text-decoration: none !important;
+        text-align: center;
+        padding: 13px 0;
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 10px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        border-radius: 1px;
+        border: 1px solid #BDBDBD;
+        margin-top: 10px;
+        box-sizing: border-box;
+    }
+
+    .ef-stats {
+        display: flex;
+        background: #EAD2B7;
+        border-bottom: 1px solid #BDBDBD;
+    }
+
+    .ef-stat {
+        flex: 1;
+        text-align: center;
+        padding: 20px 8px;
+        border-right: 1px solid rgba(189, 189, 189, 0.35);
+    }
+
+    .ef-stat:last-child {
+        border-right: none;
+    }
+
+    .ef-stat-num {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 26px;
+        color: #F2663A;
+        margin: 0 0 4px;
+    }
+
+    .ef-stat-label {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 8px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #6B6B6B;
+        margin: 0;
+    }
+
+    .ef-steps {
+        background: #FFFFFF;
+        padding: 26px 24px;
+        border-bottom: 1px solid #BDBDBD;
+    }
+
+    .ef-step {
+        display: flex;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid #D6D6D6;
+    }
+
+    .ef-step:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .ef-step:first-child {
+        padding-top: 0;
+    }
+
+    .ef-step-num {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        letter-spacing: 0.12em;
+        color: #F2663A;
+        min-width: 20px;
+        padding-top: 3px;
+    }
+
+    .ef-step-title {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 400;
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        color: #2F2F2F;
+        margin: 0 0 4px;
+    }
+
+    .ef-step-body {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 12px;
+        color: #3A3A3A;
+        margin: 0;
+        line-height: 1.65;
+    }
+
+    .ef-closing {
+        padding: 34px 24px;
+        text-align: center;
+        background: #FFFFFF;
+        border-bottom: 1px solid #BDBDBD;
+    }
+
+    .ef-closing-h {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 24px;
+        font-weight: 400;
+        margin: 0 0 8px;
+        line-height: 1.25;
+        color: #2F2F2F;
+        letter-spacing: 0.01em;
+    }
+
+    .ef-closing-sub {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 12px;
+        color: #6B6B6B;
+        margin: 0 0 22px;
+        letter-spacing: 0.06em;
+    }
+
+    .ef-footer {
+        background: #2F2F2F;
+        padding: 28px 24px;
+        text-align: center;
+    }
+
+    .ef-footer-wordmark {
+        font-family: 'Belleza', Georgia, serif;
+        font-size: 18px;
+        letter-spacing: 0.14em;
+        color: #FFFFFF;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+    }
+
+    .ef-footer-wordmark .ef-wordmark-accent {
+        color: #F2663A;
+    }
+
+    .ef-footer-tagline {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.32);
+        margin: 0 0 18px;
+    }
+
+    .ef-disclaimer {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.26);
+        line-height: 1.7;
+        margin: 0 0 14px;
+    }
+
+    .ef-footer-links {
+        font-family: 'Nunito Sans', sans-serif;
+        font-weight: 300;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.32);
+        letter-spacing: 0.06em;
+    }
+
+    .ef-footer-links a {
+        color: rgba(255, 255, 255, 0.42);
+        text-decoration: underline;
+    }
+
+    @media only screen and (max-width:480px) {
+        .ef-hero-headline {
+            font-size: 22px !important;
+        }
+
+        .ef-h2 {
+            font-size: 19px !important;
+        }
+
+        .ef-closing-h {
+            font-size: 20px !important;
+        }
+
+        .ef-promo {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+
+        .ef-promo-code-wrap {
+            align-items: flex-start !important;
+        }
+    }
+`;
+
+window.EMAIL_TEMPLATE_HTML = `<div id="email-root">
+
+    <!-- HEADER -->
+    <div class="ef-header">
+        <span class="ef-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</span>
+        <span class="ef-tagline">Clarity is Luxury</span>
+    </div>
+
+    <!-- HERO -->
+    <div class="ef-hero-wrap" id="hero-wrap">
+
+        <img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display: block;">
+        <div class="ef-hero-overlay" id="hero-overlay" style="display: block;">
+            <p class="ef-hero-kicker"><br></p>
+            <h1 class="ef-hero-headline">The supplement doctors<br>wish they'd told you<br>about at 35.</h1>
+        </div>
+    </div>
+
+
+    <!-- PROMO BAND -->
+    <div class="ef-promo">
+        <p class="ef-promo-left">Mother's Day weekend only.<br>Expires Sunday May 10 at midnight PT.</p>
+        <div class="ef-promo-code-wrap">
+            <span class="ef-promo-code-label">Your code</span>
+            <span class="ef-promo-code">MOM15</span>
+        </div>
+    </div>
+
+    <!-- BODY COPY -->
+    <div class="ef-body">
+        <p class="ef-eyebrow">The science</p>
+        <h2 class="ef-h2">After 35, your body makes less creatine. Most women don't know that.</h2>
+        <p class="ef-p">Women naturally have lower creatine levels than men, and they shift further during
+            perimenopause. The result shows up as the 3pm fog, slower recovery, the mental friction that wasn't there at
+            30.</p>
+        <p class="ef-p">ØLNIAN isn't a gym supplement repackaged for women. It was formulated specifically for cognitive
+            support, muscle maintenance, and daily energy for women 35 and older.</p>
+    </div>
+
+    <!-- PRODUCT -->
+    <div class="ef-product">
+
+        <img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display: block;">
+
+        <div class="ef-product-info">
+            <p class="ef-product-name">Pure Creatine Monohydrate</p>
+            <p class="ef-product-desc">Brain · Body · Balance</p>
+            <p class="ef-product-price">$54.99</p>
+            <p class="ef-product-sale">$46.74 with MOM15 — you save $8.25</p>
+            <a href="https://olnian.com/products/creatine" class="ef-btn">Shop now — use code MOM15</a>
+            <a href="https://olnian.com/products/creatine" class="ef-btn-outline">Learn more →</a>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="ef-stats">
+        <div class="ef-stat">
+            <p class="ef-stat-num">5g</p>
+            <p class="ef-stat-label">Per serving</p>
+        </div>
+        <div class="ef-stat">
+            <p class="ef-stat-num">100%</p>
+            <p class="ef-stat-label">Batch tested</p>
+        </div>
+        <div class="ef-stat">
+            <p class="ef-stat-num">0</p>
+            <p class="ef-stat-label">Warehouse months</p>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="ef-steps">
+        <p class="ef-eyebrow" style="margin-bottom:16px;">How it works</p>
+        <div class="ef-step">
+            <span class="ef-step-num">01</span>
+            <div>
+                <p class="ef-step-title">You order</p>
+                <p class="ef-step-body">Production begins after your order — not before. No warehouse. No mystery shelf
+                    date.</p>
+            </div>
+        </div>
+        <div class="ef-step">
+            <span class="ef-step-num">02</span>
+            <div>
+                <p class="ef-step-title">We make your batch</p>
+                <p class="ef-step-body">Milled, tested, and weighed the week it ships. Every batch includes a
+                    Certificate of Analysis.</p>
+            </div>
+        </div>
+        <div class="ef-step">
+            <span class="ef-step-num">03</span>
+            <div>
+                <p class="ef-step-title">It arrives fresh</p>
+                <p class="ef-step-body">Ships in 2–4 weeks. Subscribe and save 15% while refills arrive on schedule
+                    automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLOSING CTA -->
+    <div class="ef-closing">
+        <h2 class="ef-closing-h">This Mother's Day,<br>clarity is the gift.</h2>
+        <p class="ef-closing-sub">15% off with code MOM15 · Expires May 12</p>
+        <a href="https://olnian.com/products/creatine" class="ef-btn">Claim your 15% off →</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="ef-footer">
+        <p class="ef-footer-wordmark">ØL<span class="ef-wordmark-accent">N</span>IAN</p>
+        <p class="ef-footer-tagline">Made in small batches. Tested in every one.</p>
+        <p class="ef-disclaimer">These statements have not been evaluated by the Food and Drug Administration. This
+            product is not intended to diagnose, treat, cure, or prevent any disease.</p>
+        <p class="ef-footer-links">
+            <a href="https://olnian.com">olnian.com</a> &nbsp;·&nbsp;
+            <a>Reply THANK YOU to Unsubscribe</a> &nbsp;·&nbsp;
+        </p>
+    </div>
+
+</div>`;
+
+window.getBlankDraftHTML = function () {
+    return window.EMAIL_TEMPLATE_HTML;
+};
