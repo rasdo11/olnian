@@ -1,15 +1,15 @@
-// ØLNIAN multi-draft email editor — app logic.
-// No framework, no build step, single IIFE. Persists to localStorage.
+// Olnian multi-draft email editor with OpenAI copy coaching.
+// Static frontend, localStorage memory, and a serverless API proxy.
 
 (function () {
 'use strict';
 
-const STORAGE_KEY = 'olnian.drafts.v1';
+const STORAGE_KEY = 'olnian.drafts.v2';
+const LEGACY_STORAGE_KEY = 'olnian.drafts.v1';
 const AUTOSAVE_MS = 30 * 1000;
-const FLASH_MS = 1500;
+const FLASH_MS = 1600;
+const API_ENDPOINT = '/api/copy-suggest';
 
-// Text-bearing leaves inside the email template that we make contenteditable
-// at runtime. The export step strips contenteditable so the output is clean.
 const EDITABLE_SELECTOR = [
     '.ef-wordmark', '.ef-tagline',
     '.ef-hero-kicker', '.ef-hero-headline',
@@ -23,27 +23,79 @@ const EDITABLE_SELECTOR = [
     '.ef-footer-wordmark', '.ef-footer-tagline', '.ef-disclaimer', '.ef-footer-links'
 ].join(',');
 
-let elPreview, elPreviewScroll, elDraftList;
-let elDraftName, elDraftSubject, elHeroUrl, elProductUrl;
-let elSaveIndicator, elNewBtn, elSaveBtn, elCopyBtn, elViewportToggle;
+const TEXT_TRANSFER_CLASSES = [
+    'ef-wordmark', 'ef-tagline',
+    'ef-hero-kicker', 'ef-hero-headline',
+    'ef-promo-left', 'ef-promo-code-label', 'ef-promo-code',
+    'ef-eyebrow', 'ef-h2', 'ef-p',
+    'ef-product-name', 'ef-product-desc', 'ef-product-price', 'ef-product-sale',
+    'ef-btn', 'ef-btn-outline',
+    'ef-stat-num', 'ef-stat-label',
+    'ef-step-num', 'ef-step-title', 'ef-step-body',
+    'ef-closing-h', 'ef-closing-sub',
+    'ef-footer-wordmark', 'ef-footer-tagline', 'ef-disclaimer', 'ef-footer-links'
+];
 
-let store = { drafts: [], activeId: null };
+const ACTION_PROMPTS = {
+    chat: '',
+    subject_variants: 'Suggest 6 high-performing subject lines and 3 preheaders for this email.',
+    rewrite_section: 'Rewrite the selected section to be clearer, more specific, and more conversion-oriented.',
+    punchier: 'Make the selected copy punchier without sounding hypey.',
+    luxury: 'Make the selected copy feel more premium, quiet, and luxury wellness.',
+    urgent: 'Add tasteful urgency around the offer without sounding pushy.',
+    objections: 'Handle likely buyer objections around supplements, trust, safety, freshness, and price.',
+    ab_test: 'Create three A/B test variants with distinct sales angles.'
+};
+
+const DEFAULT_BRAND_MEMORY = [
+    'Olnian sells pure supplements for women, especially women 35+.',
+    'Voice: elegant, calm, specific, science-literate, premium, never bro-y.',
+    'Avoid medical promises, disease-treatment claims, exaggerated certainty, and fear-based urgency.',
+    'Approved proof points: 5g serving, micronized creatine monohydrate, made to order, batch tested, Certificate of Analysis.',
+    'Core audience tension: women who feel brain fog, slower recovery, and lower daily energy but dislike gym-supplement language.',
+    'CTA style: direct, restrained, benefit-led. Prefer clarity over cleverness.'
+].join('\n');
+
+let elPreview, elDraftList;
+let elDraftName, elDraftSubject, elDraftPreheader, elHeroUrl, elProductUrl, elAccentColor;
+let elSaveIndicator, elNewBtn, elSaveBtn, elCopyBtn, elCopySubjectBtn, elCopyPreheaderBtn, elViewportToggle;
+let elInboxSubject, elInboxPreheader, elBrandMemory, elSuggestionList, elSavedSuggestionList;
+let elChatLog, elChatInput, elChatSendBtn, elActionButtons, elVariantList, elSelectedSection, elCoachStatus;
+
+let store = freshStore();
 let isDirty = false;
 let flashTimer = null;
+let selectedEditable = null;
+
+function freshStore() {
+    return {
+        version: 2,
+        drafts: [],
+        activeId: null,
+        brandMemory: DEFAULT_BRAND_MEMORY,
+        suggestions: [],
+        chat: []
+    };
+}
 
 // ---------- Storage ----------
 
 function loadStore() {
     try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed || !Array.isArray(parsed.drafts)) return null;
-        return parsed;
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.drafts)) return normalizeStore(parsed);
+        }
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+            const parsed = JSON.parse(legacy);
+            if (parsed && Array.isArray(parsed.drafts)) return normalizeStore(parsed);
+        }
     } catch (e) {
         console.error('loadStore failed', e);
-        return null;
     }
+    return null;
 }
 
 function persist() {
@@ -52,6 +104,52 @@ function persist() {
     } catch (e) {
         console.error('persist failed', e);
     }
+}
+
+function normalizeStore(raw) {
+    const next = freshStore();
+    next.version = 2;
+    next.activeId = raw.activeId || null;
+    next.brandMemory = raw.brandMemory || DEFAULT_BRAND_MEMORY;
+    next.suggestions = Array.isArray(raw.suggestions) ? raw.suggestions : [];
+    next.chat = Array.isArray(raw.chat) ? raw.chat : [];
+    next.drafts = raw.drafts.map(normalizeDraft);
+    if (!next.drafts.length) {
+        const d = newDraft('Untitled draft');
+        next.drafts.push(d);
+        next.activeId = d.id;
+    }
+    if (!next.drafts.some(d => d.id === next.activeId)) next.activeId = next.drafts[0].id;
+    return next;
+}
+
+function normalizeDraft(d) {
+    return {
+        id: d.id || newId(),
+        name: d.name || 'Untitled draft',
+        subject: d.subject || '',
+        preheader: d.preheader || '',
+        html: d.html || window.EMAIL_TEMPLATE_HTML,
+        accentColor: d.accentColor || window.DEFAULT_ACCENT,
+        createdAt: d.createdAt || Date.now(),
+        updatedAt: d.updatedAt || Date.now(),
+        variants: Array.isArray(d.variants) ? d.variants.map(normalizeVariant) : [],
+        activeVariantId: d.activeVariantId || null
+    };
+}
+
+function normalizeVariant(v) {
+    return {
+        id: v.id || newId(),
+        label: v.label || 'Variant',
+        subject: v.subject || '',
+        preheader: v.preheader || '',
+        html: v.html || window.EMAIL_TEMPLATE_HTML,
+        accentColor: v.accentColor || window.DEFAULT_ACCENT,
+        notes: v.notes || '',
+        createdAt: v.createdAt || Date.now(),
+        updatedAt: v.updatedAt || Date.now()
+    };
 }
 
 // ---------- Draft helpers ----------
@@ -80,9 +178,13 @@ function newDraft(name) {
         id: newId(),
         name: name || nextUntitledName(),
         subject: '',
+        preheader: '',
         html: window.EMAIL_TEMPLATE_HTML,
+        accentColor: window.DEFAULT_ACCENT,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
+        variants: [],
+        activeVariantId: null
     };
 }
 
@@ -90,18 +192,37 @@ function activeDraft() {
     return store.drafts.find(d => d.id === store.activeId) || null;
 }
 
+function activeVariant(d) {
+    if (!d || !d.activeVariantId) return null;
+    return d.variants.find(v => v.id === d.activeVariantId) || null;
+}
+
+function currentDraftState() {
+    const d = activeDraft();
+    if (!d) return null;
+    return {
+        draftName: d.name,
+        subject: elDraftSubject.value,
+        preheader: elDraftPreheader.value,
+        selectedSection: selectedSectionLabel(),
+        selectedCopy: selectedEditable ? textFromNode(selectedEditable) : '',
+        emailSummary: extractSnippet(elPreview.innerHTML),
+        fullEmailText: extractText(elPreview.innerHTML)
+    };
+}
+
 // ---------- Bootstrap ----------
 
 function bootstrap() {
     const loaded = loadStore();
-    if (loaded && loaded.drafts.length) {
-        store = loaded;
-        if (!activeDraft()) store.activeId = store.drafts[0].id;
-    } else {
+    if (loaded && loaded.drafts.length) store = loaded;
+    else {
         const d = newDraft('Untitled draft');
-        store = { drafts: [d], activeId: d.id };
-        persist();
+        store = freshStore();
+        store.drafts = [d];
+        store.activeId = d.id;
     }
+    persist();
 }
 
 // ---------- Mount draft into preview ----------
@@ -109,12 +230,55 @@ function bootstrap() {
 function mountActive() {
     const d = activeDraft();
     if (!d) return;
-    elPreview.innerHTML = d.html;
+    const v = activeVariant(d);
+    const mounted = v || d;
+    if (!mounted.accentColor) mounted.accentColor = window.DEFAULT_ACCENT;
+    const migrated = migrateLegacyHTML(mounted.html);
+    if (migrated !== mounted.html) {
+        mounted.html = migrated;
+        mounted.updatedAt = Date.now();
+        persist();
+    }
+    elPreview.innerHTML = mounted.html;
     applyContentEditable();
+    const root = elPreview.querySelector('#email-root');
+    window.applyAccentToDOM(root, mounted.accentColor);
     syncImageInputsFromDOM();
     elDraftName.value = d.name;
-    elDraftSubject.value = d.subject || '';
+    elDraftSubject.value = mounted.subject || '';
+    elDraftPreheader.value = mounted.preheader || '';
+    elAccentColor.value = mounted.accentColor;
+    selectedEditable = null;
     isDirty = false;
+    renderMetadata();
+    renderVariants();
+    renderChat();
+    renderSuggestions();
+}
+
+function migrateLegacyHTML(html) {
+    if (!html) return html;
+    if (html.indexOf('data-v="3"') !== -1) return html;
+
+    const oldWrap = document.createElement('div');
+    oldWrap.innerHTML = html;
+    const newWrap = document.createElement('div');
+    newWrap.innerHTML = window.EMAIL_TEMPLATE_HTML;
+
+    TEXT_TRANSFER_CLASSES.forEach(cls => {
+        const olds = oldWrap.querySelectorAll('.' + cls);
+        const news = newWrap.querySelectorAll('.' + cls);
+        const limit = Math.min(olds.length, news.length);
+        for (let i = 0; i < limit; i++) news[i].innerHTML = olds[i].innerHTML;
+    });
+
+    [['#hero-img', 'src'], ['#product-img', 'src']].forEach(([sel, attr]) => {
+        const o = oldWrap.querySelector(sel);
+        const n = newWrap.querySelector(sel);
+        if (o && n && o.getAttribute(attr)) n.setAttribute(attr, o.getAttribute(attr));
+    });
+
+    return newWrap.innerHTML;
 }
 
 function applyContentEditable() {
@@ -122,6 +286,7 @@ function applyContentEditable() {
     if (!root) return;
     root.querySelectorAll(EDITABLE_SELECTOR).forEach(el => {
         el.setAttribute('contenteditable', 'true');
+        el.setAttribute('data-copy-section', sectionNameForElement(el));
     });
 }
 
@@ -132,7 +297,7 @@ function syncImageInputsFromDOM() {
     elProductUrl.value = product ? product.getAttribute('src') || '' : '';
 }
 
-// ---------- Sidebar render ----------
+// ---------- Sidebar ----------
 
 function renderSidebar() {
     elDraftList.innerHTML = '';
@@ -170,23 +335,8 @@ function renderSidebar() {
 
         const actions = document.createElement('div');
         actions.className = 'draft-row-actions';
-
-        const dup = document.createElement('button');
-        dup.type = 'button';
-        dup.className = 'draft-action';
-        dup.textContent = 'Dup';
-        dup.title = 'Duplicate draft';
-        dup.addEventListener('click', e => { e.stopPropagation(); duplicateDraft(d.id); });
-        actions.appendChild(dup);
-
-        const del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'draft-action danger';
-        del.textContent = 'Del';
-        del.title = 'Delete draft';
-        del.addEventListener('click', e => { e.stopPropagation(); deleteDraft(d.id); });
-        actions.appendChild(del);
-
+        actions.appendChild(rowAction('Dup', 'Duplicate draft', () => duplicateDraft(d.id)));
+        actions.appendChild(rowAction('Del', 'Delete draft', () => deleteDraft(d.id), 'danger'));
         meta.appendChild(actions);
         li.appendChild(meta);
 
@@ -203,13 +353,38 @@ function renderSidebar() {
     }
 }
 
+function rowAction(text, title, onClick, danger) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'draft-action' + (danger ? ' danger' : '');
+    btn.textContent = text;
+    btn.title = title;
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        onClick();
+    });
+    return btn;
+}
+
 function extractSnippet(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
     const heading = tmp.querySelector('.ef-h2, .ef-hero-headline, .ef-closing-h');
-    const text = (heading ? heading.textContent : tmp.textContent || '')
-        .trim().replace(/\s+/g, ' ');
-    return text.length > 80 ? text.slice(0, 80) + '…' : text;
+    const raw = heading ? textFromNode(heading) : tmp.textContent || '';
+    const text = raw.trim().replace(/\s+/g, ' ');
+    return text.length > 80 ? text.slice(0, 80) + '...' : text;
+}
+
+function extractText(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 4000);
+}
+
+function textFromNode(node) {
+    const clone = node.cloneNode(true);
+    clone.querySelectorAll('br').forEach(br => br.replaceWith(' '));
+    return (clone.textContent || '').trim().replace(/\s+/g, ' ');
 }
 
 function formatRelative(ts) {
@@ -221,8 +396,7 @@ function formatRelative(ts) {
     if (hrs < 24) return hrs + 'h ago';
     const days = Math.floor(hrs / 24);
     if (days < 7) return days + 'd ago';
-    const date = new Date(ts);
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 // ---------- Inline rename ----------
@@ -249,9 +423,7 @@ function startInlineRename(nameEl, id) {
             d.updatedAt = Date.now();
             persist();
             if (id === store.activeId) elDraftName.value = d.name;
-        } else {
-            nameEl.textContent = d.name;
-        }
+        } else nameEl.textContent = d.name;
         renderSidebar();
     }
     function onBlur() { commit(true); }
@@ -268,7 +440,6 @@ function startInlineRename(nameEl, id) {
 function selectDraft(id) {
     if (store.activeId === id) return;
     captureActiveIntoStore();
-    persist();
     store.activeId = id;
     persist();
     mountActive();
@@ -287,17 +458,14 @@ function createDraft() {
 
 function duplicateDraft(id) {
     captureActiveIntoStore();
-    persist();
     const src = store.drafts.find(d => d.id === id);
     if (!src) return;
-    const copy = {
-        id: newId(),
-        name: src.name + ' (copy)',
-        subject: src.subject,
-        html: src.html,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    };
+    const copy = normalizeDraft(JSON.parse(JSON.stringify(src)));
+    copy.id = newId();
+    copy.name = src.name + ' (copy)';
+    copy.createdAt = Date.now();
+    copy.updatedAt = Date.now();
+    copy.variants = copy.variants.map(v => ({ ...v, id: newId() }));
     store.drafts.push(copy);
     store.activeId = copy.id;
     persist();
@@ -308,12 +476,11 @@ function duplicateDraft(id) {
 function deleteDraft(id) {
     const d = store.drafts.find(x => x.id === id);
     if (!d) return;
-    if (!confirm('Delete "' + d.name + '"? This can\'t be undone.')) return;
+    if (!confirm('Delete "' + d.name + '"? This cannot be undone.')) return;
     store.drafts = store.drafts.filter(x => x.id !== id);
     if (store.activeId === id) {
-        if (store.drafts.length) {
-            store.activeId = store.drafts[0].id;
-        } else {
+        if (store.drafts.length) store.activeId = store.drafts[0].id;
+        else {
             const fresh = newDraft('Untitled draft');
             store.drafts.push(fresh);
             store.activeId = fresh.id;
@@ -324,47 +491,55 @@ function deleteDraft(id) {
     renderSidebar();
 }
 
-// ---------- Capture editor state into the active draft ----------
+// ---------- Capture / save ----------
 
 function captureActiveIntoStore() {
     const d = activeDraft();
     if (!d) return false;
     const root = elPreview.querySelector('#email-root');
     if (!root) return false;
+    const target = activeVariant(d) || d;
     const cleaned = stripContentEditable(root.outerHTML);
-    const subject = elDraftSubject.value;
-    if (cleaned === d.html && subject === d.subject) return false;
-    d.html = cleaned;
-    d.subject = subject;
+    const subject = elDraftSubject.value.trim();
+    const preheader = elDraftPreheader.value.trim();
+    const changed = cleaned !== target.html ||
+        subject !== target.subject ||
+        preheader !== target.preheader ||
+        elAccentColor.value !== target.accentColor;
+    if (!changed) return false;
+    target.html = cleaned;
+    target.subject = subject;
+    target.preheader = preheader;
+    target.accentColor = elAccentColor.value;
+    target.updatedAt = Date.now();
     d.updatedAt = Date.now();
+    if (!activeVariant(d)) {
+        d.subject = subject;
+        d.preheader = preheader;
+        d.html = cleaned;
+        d.accentColor = elAccentColor.value;
+    }
     return true;
 }
 
 function stripContentEditable(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
-    tmp.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    tmp.querySelectorAll('[contenteditable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+        el.removeAttribute('data-copy-section');
+    });
     return tmp.innerHTML;
 }
-
-// ---------- Save / autosave ----------
 
 function saveActive(reason) {
     const changed = captureActiveIntoStore();
     if (changed) persist();
     isDirty = false;
-    flash(reason === 'auto' ? 'Auto-saved' : 'Saved ✓');
     renderSidebar();
-}
-
-function flash(message) {
-    elSaveIndicator.textContent = message;
-    elSaveIndicator.classList.add('is-flash');
-    clearTimeout(flashTimer);
-    flashTimer = setTimeout(() => {
-        elSaveIndicator.classList.remove('is-flash');
-        elSaveIndicator.textContent = '';
-    }, FLASH_MS);
+    renderMetadata();
+    renderVariants();
+    flash(reason === 'auto' ? 'Auto-saved' : 'Saved');
 }
 
 function startAutosave() {
@@ -378,7 +553,28 @@ function startAutosave() {
     });
 }
 
-// ---------- Image URL inputs ----------
+function markDirty() {
+    isDirty = true;
+    renderMetadata();
+}
+
+function flash(message) {
+    elSaveIndicator.textContent = message;
+    elSaveIndicator.classList.add('is-flash');
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => {
+        elSaveIndicator.classList.remove('is-flash');
+        elSaveIndicator.textContent = '';
+    }, FLASH_MS);
+}
+
+// ---------- Metadata / preview ----------
+
+function renderMetadata() {
+    if (!elInboxSubject) return;
+    elInboxSubject.textContent = elDraftSubject.value.trim() || 'Subject line';
+    elInboxPreheader.textContent = elDraftPreheader.value.trim() || 'Preheader preview text';
+}
 
 function bindImageInputs() {
     elHeroUrl.addEventListener('input', () => {
@@ -393,8 +589,6 @@ function bindImageInputs() {
     });
 }
 
-// ---------- Viewport toggle ----------
-
 function bindViewport() {
     const buttons = elViewportToggle.querySelectorAll('button');
     function set(width) {
@@ -405,9 +599,321 @@ function bindViewport() {
     set(480);
 }
 
-// ---------- Dirty tracking ----------
+function bindSelectionTracking() {
+    elPreview.addEventListener('focusin', e => {
+        const editable = e.target.closest(EDITABLE_SELECTOR);
+        if (!editable) return;
+        if (selectedEditable) selectedEditable.classList.remove('is-selected-copy');
+        selectedEditable = editable;
+        selectedEditable.classList.add('is-selected-copy');
+        elSelectedSection.textContent = selectedSectionLabel();
+    });
+    elPreview.addEventListener('click', e => {
+        const editable = e.target.closest(EDITABLE_SELECTOR);
+        if (!editable) return;
+        selectedEditable = editable;
+        elSelectedSection.textContent = selectedSectionLabel();
+    });
+}
 
-function markDirty() { isDirty = true; }
+function selectedSectionLabel() {
+    if (!selectedEditable) return 'No section selected';
+    return selectedEditable.getAttribute('data-copy-section') || sectionNameForElement(selectedEditable);
+}
+
+function sectionNameForElement(el) {
+    if (el.closest('.ef-hero-text')) return 'Hero';
+    if (el.closest('.ef-promo')) return 'Promo';
+    if (el.closest('.ef-body')) return 'Body';
+    if (el.closest('.ef-product')) return 'Product';
+    if (el.closest('.ef-stats')) return 'Stats';
+    if (el.closest('.ef-steps')) return 'How it works';
+    if (el.closest('.ef-closing')) return 'Closing';
+    if (el.closest('.ef-footer')) return 'Footer';
+    if (el.closest('.ef-header')) return 'Header';
+    return 'Email copy';
+}
+
+// ---------- A/B variants ----------
+
+function renderVariants() {
+    const d = activeDraft();
+    if (!d || !elVariantList) return;
+    elVariantList.innerHTML = '';
+
+    const base = document.createElement('button');
+    base.type = 'button';
+    base.className = 'variant-chip' + (!d.activeVariantId ? ' is-active' : '');
+    base.textContent = 'Base';
+    base.addEventListener('click', () => switchVariant(null));
+    elVariantList.appendChild(base);
+
+    d.variants.forEach((v, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'variant-chip' + (d.activeVariantId === v.id ? ' is-active' : '');
+        btn.textContent = v.label || ('Variant ' + String.fromCharCode(65 + index));
+        btn.title = v.notes || '';
+        btn.addEventListener('click', () => switchVariant(v.id));
+        elVariantList.appendChild(btn);
+    });
+}
+
+function switchVariant(id) {
+    const d = activeDraft();
+    if (!d) return;
+    captureActiveIntoStore();
+    d.activeVariantId = id;
+    persist();
+    mountActive();
+    renderSidebar();
+}
+
+function createVariantFromCurrent(label, notes, overrides) {
+    const d = activeDraft();
+    if (!d) return;
+    captureActiveIntoStore();
+    const letter = String.fromCharCode(65 + d.variants.length);
+    const snapshot = activeVariant(d) || d;
+    const next = normalizeVariant({
+        id: newId(),
+        label: label || 'Variant ' + letter,
+        subject: overrides && overrides.subject ? overrides.subject : snapshot.subject,
+        preheader: overrides && overrides.preheader ? overrides.preheader : snapshot.preheader,
+        html: snapshot.html,
+        accentColor: snapshot.accentColor,
+        notes: notes || '',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    });
+    d.variants.push(next);
+    d.activeVariantId = next.id;
+    d.updatedAt = Date.now();
+    persist();
+    mountActive();
+    renderSidebar();
+    flash('Variant created');
+}
+
+// ---------- Copy coach ----------
+
+function renderChat() {
+    if (!elChatLog) return;
+    elChatLog.innerHTML = '';
+    const messages = store.chat.slice(-16);
+    messages.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'chat-message ' + (m.role === 'user' ? 'user' : 'assistant');
+        div.textContent = m.content;
+        elChatLog.appendChild(div);
+    });
+    elChatLog.scrollTop = elChatLog.scrollHeight;
+}
+
+function renderSuggestions() {
+    renderSuggestionList(elSuggestionList, store.suggestions.filter(s => !s.saved).slice(-8).reverse());
+    renderSuggestionList(elSavedSuggestionList, store.suggestions.filter(s => s.saved).slice(-8).reverse());
+}
+
+function renderSuggestionList(container, suggestions) {
+    if (!container) return;
+    container.innerHTML = '';
+    if (!suggestions.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No suggestions yet.';
+        container.appendChild(empty);
+        return;
+    }
+    suggestions.forEach(s => container.appendChild(suggestionCard(s)));
+}
+
+function suggestionCard(s) {
+    const card = document.createElement('article');
+    card.className = 'suggestion-card';
+
+    const meta = document.createElement('div');
+    meta.className = 'suggestion-meta';
+    meta.textContent = (s.target || 'copy') + ' · ' + formatRelative(s.createdAt);
+    card.appendChild(meta);
+
+    if (s.subject) {
+        const subj = document.createElement('p');
+        subj.className = 'suggestion-subject';
+        subj.textContent = s.subject;
+        card.appendChild(subj);
+    }
+
+    const copy = document.createElement('p');
+    copy.className = 'suggestion-copy';
+    copy.textContent = s.copy || s.preheader || s.reply || '';
+    card.appendChild(copy);
+
+    if (s.rationale) {
+        const why = document.createElement('p');
+        why.className = 'suggestion-rationale';
+        why.textContent = s.rationale;
+        card.appendChild(why);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'suggestion-actions';
+    actions.appendChild(smallButton('Apply', () => applySuggestion(s)));
+    actions.appendChild(smallButton(s.saved ? 'Saved' : 'Save', () => saveSuggestion(s.id), s.saved));
+    actions.appendChild(smallButton('Make Variant', () => createVariantFromSuggestion(s)));
+    actions.appendChild(smallButton('Try Again', () => requestCopy(s.action || 'chat', s.prompt || 'Try another version of this suggestion.')));
+    card.appendChild(actions);
+
+    return card;
+}
+
+function smallButton(label, onClick, disabled) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mini-btn';
+    btn.textContent = label;
+    btn.disabled = !!disabled;
+    btn.addEventListener('click', onClick);
+    return btn;
+}
+
+function saveSuggestion(id) {
+    const s = store.suggestions.find(x => x.id === id);
+    if (!s) return;
+    s.saved = true;
+    persist();
+    renderSuggestions();
+}
+
+function createVariantFromSuggestion(s) {
+    createVariantFromCurrent('Variant ' + String.fromCharCode(65 + activeDraft().variants.length), s.rationale || s.copy || '', {
+        subject: s.subject || '',
+        preheader: s.preheader || ''
+    });
+}
+
+function applySuggestion(s) {
+    if (s.subject) elDraftSubject.value = s.subject;
+    if (s.preheader) elDraftPreheader.value = s.preheader;
+    if (s.copy && selectedEditable && !s.subjectOnly) selectedEditable.textContent = s.copy;
+    s.applied = true;
+    markDirty();
+    saveActive('manual');
+    persist();
+    renderSuggestions();
+    flash('Applied');
+}
+
+function bindCoach() {
+    elBrandMemory.addEventListener('change', () => {
+        store.brandMemory = elBrandMemory.value.trim() || DEFAULT_BRAND_MEMORY;
+        persist();
+    });
+
+    elChatSendBtn.addEventListener('click', () => sendChat());
+    elChatInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendChat();
+    });
+
+    elActionButtons.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => requestCopy(btn.dataset.action, ACTION_PROMPTS[btn.dataset.action]));
+    });
+}
+
+function sendChat() {
+    const message = elChatInput.value.trim();
+    if (!message) return;
+    elChatInput.value = '';
+    requestCopy('chat', message);
+}
+
+async function requestCopy(action, message) {
+    captureActiveIntoStore();
+    persist();
+    const prompt = message || ACTION_PROMPTS[action] || '';
+    const userMessage = prompt || action;
+    store.chat.push({ role: 'user', content: userMessage, createdAt: Date.now() });
+    renderChat();
+    setCoachBusy(true);
+
+    try {
+        const res = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action,
+                message: prompt,
+                brandMemory: store.brandMemory,
+                draft: currentDraftState(),
+                priorSuggestions: store.suggestions.slice(-12),
+                chat: store.chat.slice(-12)
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Copy coach request failed.');
+
+        const reply = data.reply || 'I made a few options for you.';
+        store.chat.push({ role: 'assistant', content: reply, createdAt: Date.now() });
+        addSuggestionsFromResponse(data, action, prompt);
+        if (Array.isArray(data.brandMemoryUpdates) && data.brandMemoryUpdates.length) {
+            store.brandMemory = [store.brandMemory, '', 'Learned preferences:', data.brandMemoryUpdates.join('\n')].join('\n');
+            elBrandMemory.value = store.brandMemory;
+        }
+        persist();
+        renderChat();
+        renderSuggestions();
+    } catch (e) {
+        const msg = e.message || 'Copy coach is unavailable.';
+        store.chat.push({ role: 'assistant', content: msg, createdAt: Date.now() });
+        renderChat();
+    } finally {
+        setCoachBusy(false);
+    }
+}
+
+function addSuggestionsFromResponse(data, action, prompt) {
+    const now = Date.now();
+    const suggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
+    const variants = Array.isArray(data.variants) ? data.variants : [];
+
+    suggestions.forEach(s => {
+        store.suggestions.push({
+            id: newId(),
+            createdAt: now,
+            action,
+            prompt,
+            target: s.target || action,
+            subject: s.subject || '',
+            preheader: s.preheader || '',
+            copy: s.copy || s.text || '',
+            rationale: s.rationale || '',
+            saved: false,
+            applied: false
+        });
+    });
+
+    variants.forEach((v, index) => {
+        store.suggestions.push({
+            id: newId(),
+            createdAt: now,
+            action: 'ab_test',
+            prompt,
+            target: v.label || ('Variant ' + String.fromCharCode(65 + index)),
+            subject: v.subject || '',
+            preheader: v.preheader || '',
+            copy: v.heroHeadline || v.bodyCopy || v.cta || '',
+            rationale: v.rationale || v.angle || '',
+            saved: false,
+            applied: false
+        });
+    });
+}
+
+function setCoachBusy(busy) {
+    elCoachStatus.textContent = busy ? 'Thinking...' : '';
+    elChatSendBtn.disabled = busy;
+    elActionButtons.querySelectorAll('button').forEach(btn => { btn.disabled = busy; });
+}
 
 // ---------- Copy export ----------
 
@@ -416,12 +922,22 @@ function copyEmailHTML() {
     persist();
     const d = activeDraft();
     if (!d) return;
+    copyText(buildExportDocument(activeVariant(d) || d), 'Copied HTML');
+}
 
-    const exportHTML = buildExportDocument(d);
+function copySubject() {
+    copyText(elDraftSubject.value.trim(), 'Copied subject');
+}
 
+function copyPreheader() {
+    copyText(elDraftPreheader.value.trim(), 'Copied preheader');
+}
+
+function copyText(value, message) {
+    const text = value || '';
     const fallback = () => {
         const ta = document.createElement('textarea');
-        ta.value = exportHTML;
+        ta.value = text;
         ta.style.position = 'fixed';
         ta.style.left = '-9999px';
         document.body.appendChild(ta);
@@ -431,20 +947,22 @@ function copyEmailHTML() {
     };
 
     if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(exportHTML).then(
-            () => flash('Copied ✓'),
-            () => { fallback(); flash('Copied ✓'); }
+        navigator.clipboard.writeText(text).then(
+            () => flash(message),
+            () => { fallback(); flash(message); }
         );
     } else {
         fallback();
-        flash('Copied ✓');
+        flash(message);
     }
 }
 
 function buildExportDocument(d) {
+    const accent = d.accentColor || window.DEFAULT_ACCENT;
     const cleanRoot = d.html;
-    const title = (d.subject || d.name || 'ØLNIAN email')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const css = window.applyAccent(window.EMAIL_EXPORT_CSS, accent);
+    const subject = d.subject || 'Olnian email';
+    const preheader = d.preheader || '';
     return [
         '<!doctype html>',
         '<html lang="en">',
@@ -452,18 +970,37 @@ function buildExportDocument(d) {
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width,initial-scale=1">',
         '<meta http-equiv="X-UA-Compatible" content="IE=edge">',
-        '<title>' + title + '</title>',
+        '<title>' + escapeHTML(subject) + '</title>',
         '<link rel="preconnect" href="https://fonts.googleapis.com">',
         '<link href="https://fonts.googleapis.com/css2?family=Belleza&family=Nunito+Sans:wght@300;400&display=swap" rel="stylesheet">',
         '<style>',
-        window.EMAIL_EXPORT_CSS,
+        css,
         '</style>',
         '</head>',
         '<body>',
+        '<!-- Subject: ' + escapeComment(subject) + ' -->',
+        '<!-- Preheader: ' + escapeComment(preheader) + ' -->',
+        hiddenPreheader(preheader),
         cleanRoot,
         '</body>',
         '</html>'
     ].join('\n');
+}
+
+function hiddenPreheader(text) {
+    if (!text) return '';
+    return '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#ffffff;opacity:0;">' +
+        escapeHTML(text) +
+        '&#847;&zwnj;&nbsp;&#8199;&#65279;&#847;&zwnj;&nbsp;&#8199;&#65279;&#847;&zwnj;&nbsp;&#8199;&#65279;' +
+        '</div>';
+}
+
+function escapeHTML(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function escapeComment(s) {
+    return String(s || '').replace(/--/g, '- -').replace(/[<>]/g, '');
 }
 
 // ---------- Init ----------
@@ -477,28 +1014,49 @@ function injectEmailStyles() {
 
 function init() {
     elPreview = document.getElementById('preview-frame');
-    elPreviewScroll = document.getElementById('preview-scroll');
     elDraftList = document.getElementById('draft-list');
     elDraftName = document.getElementById('draft-name-input');
     elDraftSubject = document.getElementById('draft-subject-input');
+    elDraftPreheader = document.getElementById('draft-preheader-input');
     elHeroUrl = document.getElementById('hero-url-input');
     elProductUrl = document.getElementById('product-url-input');
+    elAccentColor = document.getElementById('accent-color-input');
     elSaveIndicator = document.getElementById('save-indicator');
     elNewBtn = document.getElementById('new-draft-btn');
     elSaveBtn = document.getElementById('save-btn');
     elCopyBtn = document.getElementById('copy-btn');
+    elCopySubjectBtn = document.getElementById('copy-subject-btn');
+    elCopyPreheaderBtn = document.getElementById('copy-preheader-btn');
     elViewportToggle = document.getElementById('viewport-toggle');
+    elInboxSubject = document.getElementById('inbox-subject');
+    elInboxPreheader = document.getElementById('inbox-preheader');
+    elBrandMemory = document.getElementById('brand-memory-input');
+    elSuggestionList = document.getElementById('suggestion-list');
+    elSavedSuggestionList = document.getElementById('saved-suggestion-list');
+    elChatLog = document.getElementById('chat-log');
+    elChatInput = document.getElementById('chat-input');
+    elChatSendBtn = document.getElementById('chat-send-btn');
+    elActionButtons = document.getElementById('coach-actions');
+    elVariantList = document.getElementById('variant-list');
+    elSelectedSection = document.getElementById('selected-section');
+    elCoachStatus = document.getElementById('coach-status');
 
     injectEmailStyles();
     bootstrap();
+    elBrandMemory.value = store.brandMemory;
     mountActive();
     renderSidebar();
 
     bindImageInputs();
     bindViewport();
+    bindSelectionTracking();
+    bindCoach();
 
     elPreview.addEventListener('input', markDirty);
     elDraftSubject.addEventListener('input', markDirty);
+    elDraftPreheader.addEventListener('input', markDirty);
+    elDraftSubject.addEventListener('input', renderMetadata);
+    elDraftPreheader.addEventListener('input', renderMetadata);
 
     elDraftName.addEventListener('change', () => {
         const d = activeDraft();
@@ -516,14 +1074,19 @@ function init() {
     elNewBtn.addEventListener('click', createDraft);
     elSaveBtn.addEventListener('click', () => saveActive('manual'));
     elCopyBtn.addEventListener('click', copyEmailHTML);
+    elCopySubjectBtn.addEventListener('click', copySubject);
+    elCopyPreheaderBtn.addEventListener('click', copyPreheader);
+
+    elAccentColor.addEventListener('input', () => {
+        const root = elPreview.querySelector('#email-root');
+        window.applyAccentToDOM(root, elAccentColor.value);
+        markDirty();
+    });
 
     startAutosave();
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
 
 })();
