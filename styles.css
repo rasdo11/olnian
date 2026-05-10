@@ -1,0 +1,388 @@
+:root {
+    --app-bg: #1A1008;
+    --sidebar-bg: #150C06;
+    --accent: #F2663A;
+    --accent-deep: #5C1A00;
+    --sand: #EAD2B7;
+    --text-on-dark: rgba(255, 255, 255, 0.86);
+    --text-on-dark-sub: rgba(255, 255, 255, 0.42);
+    --text-on-dark-faint: rgba(255, 255, 255, 0.22);
+    --border-on-dark: rgba(255, 255, 255, 0.08);
+    --border-on-dark-strong: rgba(255, 255, 255, 0.18);
+    --row-hover: rgba(255, 255, 255, 0.04);
+    --row-active: rgba(242, 102, 58, 0.10);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--app-bg);
+    color: var(--text-on-dark);
+    font-family: 'Nunito Sans', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ---------- SIDEBAR ---------- */
+
+#sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-on-dark);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid var(--border-on-dark);
+}
+
+.sidebar-wordmark {
+    font-family: 'Belleza', Georgia, serif;
+    font-size: 22px;
+    letter-spacing: 0.16em;
+    color: var(--text-on-dark);
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.sidebar-wordmark .accent {
+    color: var(--accent);
+}
+
+.sidebar-eyebrow {
+    margin-top: 10px;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-sub);
+}
+
+.new-draft-btn {
+    margin: 16px 16px 8px;
+    padding: 12px 14px;
+    background: var(--accent);
+    color: #FFFFFF;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    border-radius: 1px;
+    transition: background 120ms ease;
+}
+
+.new-draft-btn:hover {
+    background: var(--accent-deep);
+}
+
+#draft-list {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.draft-row {
+    position: relative;
+    padding: 12px 16px 12px 20px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 100ms ease;
+}
+
+.draft-row:hover {
+    background: var(--row-hover);
+}
+
+.draft-row.is-active {
+    background: var(--row-active);
+    border-left-color: var(--accent);
+}
+
+.draft-row-name {
+    font-family: 'Belleza', Georgia, serif;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: var(--text-on-dark);
+    line-height: 1.2;
+    margin: 0 0 3px;
+    outline: none;
+    word-break: break-word;
+}
+
+.draft-row-name[contenteditable="true"] {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 1px 4px;
+    margin-left: -4px;
+    border-radius: 2px;
+}
+
+.draft-row-subject {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--text-on-dark-sub);
+    margin: 0 0 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.draft-row-snippet {
+    font-size: 11px;
+    color: var(--text-on-dark-sub);
+    line-height: 1.4;
+    margin: 0 0 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-height: 32px;
+}
+
+.draft-row-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.draft-row-time {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-faint);
+}
+
+.draft-row-actions {
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 100ms ease;
+}
+
+.draft-row:hover .draft-row-actions,
+.draft-row.is-active .draft-row-actions {
+    opacity: 1;
+}
+
+.draft-action {
+    background: transparent;
+    border: 1px solid var(--border-on-dark-strong);
+    color: var(--text-on-dark-sub);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 7px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: color 100ms ease, border-color 100ms ease;
+}
+
+.draft-action:hover {
+    color: var(--text-on-dark);
+    border-color: var(--text-on-dark);
+}
+
+.draft-action.danger:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* ---------- MAIN / TOOLBAR ---------- */
+
+#editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    padding: 14px 22px;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-on-dark);
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-label {
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-sub);
+}
+
+.toolbar-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-on-dark-strong);
+    color: var(--text-on-dark);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 1px;
+    outline: none;
+    transition: border-color 100ms ease, background 100ms ease;
+}
+
+.toolbar-input:focus {
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+#draft-name-input {
+    width: 200px;
+    font-family: 'Belleza', Georgia, serif;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+}
+
+#draft-subject-input {
+    width: 280px;
+}
+
+.toolbar-input.url {
+    width: 280px;
+    font-size: 11px;
+}
+
+#viewport-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-on-dark-strong);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+#viewport-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--text-on-dark-sub);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    cursor: pointer;
+    transition: background 100ms ease, color 100ms ease;
+}
+
+#viewport-toggle button:hover {
+    color: var(--text-on-dark);
+}
+
+#viewport-toggle button.is-active {
+    background: var(--accent);
+    color: #FFFFFF;
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
+}
+
+#save-indicator {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-faint);
+    transition: color 200ms ease;
+    min-width: 70px;
+    text-align: right;
+}
+
+#save-indicator.is-flash {
+    color: var(--accent);
+}
+
+.btn {
+    background: transparent;
+    border: 1px solid var(--border-on-dark-strong);
+    color: var(--text-on-dark);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 9px 16px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: background 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+.btn:hover {
+    border-color: var(--text-on-dark);
+}
+
+.btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background: var(--accent-deep);
+    border-color: var(--accent-deep);
+    color: #FFFFFF;
+}
+
+/* ---------- PREVIEW FRAME ---------- */
+
+#preview-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--app-bg);
+    padding: 32px 24px 64px;
+}
+
+#preview-frame {
+    margin: 0 auto;
+    max-width: 600px;
+    width: 100%;
+    background: #FFFFFF;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.45);
+    transition: max-width 180ms ease;
+}
+
+#preview-frame.viewport-mobile {
+    max-width: 480px;
+}
+
+/* Visual cue when text is contenteditable inside the preview. */
+#preview-frame [contenteditable="true"]:focus {
+    outline: 2px solid rgba(242, 102, 58, 0.55);
+    outline-offset: 2px;
+    border-radius: 1px;
+}
