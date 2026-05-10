@@ -32,6 +32,10 @@
                 <input id="draft-subject-input" class="toolbar-input" type="text" autocomplete="off" placeholder="Subject line">
             </div>
             <div class="toolbar-group">
+                <span class="toolbar-label">Preheader</span>
+                <input id="draft-preheader-input" class="toolbar-input" type="text" autocomplete="off" placeholder="Inbox preview text">
+            </div>
+            <div class="toolbar-group">
                 <span class="toolbar-label">Hero img</span>
                 <input id="hero-url-input" class="toolbar-input url" type="text" autocomplete="off" placeholder="https://…">
             </div>
@@ -50,13 +54,83 @@
             <div class="toolbar-spacer"></div>
             <span id="save-indicator"></span>
             <button id="save-btn" class="btn" type="button">Save Draft</button>
-            <button id="copy-btn" class="btn btn-primary" type="button">Copy Email HTML</button>
+            <button id="copy-subject-btn" class="btn" type="button">Copy Subject</button>
+            <button id="copy-preheader-btn" class="btn" type="button">Copy Preheader</button>
+            <button id="copy-btn" class="btn btn-primary" type="button">Copy HTML</button>
         </div>
 
         <div id="preview-scroll">
             <div id="preview-frame" class="viewport-mobile"></div>
         </div>
     </main>
+
+    <aside id="copy-coach">
+        <section class="coach-panel">
+            <div class="panel-heading">
+                <div>
+                    <div class="panel-eyebrow">AI Copy Coach</div>
+                    <h2>Iterate for sales</h2>
+                </div>
+                <span id="coach-status"></span>
+            </div>
+
+            <div class="inbox-card">
+                <div class="inbox-from">ØLNIAN</div>
+                <div id="inbox-subject" class="inbox-subject">Subject line</div>
+                <div id="inbox-preheader" class="inbox-preheader">Preheader preview text</div>
+            </div>
+
+            <div class="variant-block">
+                <div class="section-label">A/B Variants</div>
+                <div id="variant-list" class="variant-list"></div>
+            </div>
+
+            <details class="memory-drawer">
+                <summary>Brand Memory</summary>
+                <textarea id="brand-memory-input" spellcheck="true"></textarea>
+            </details>
+
+            <div class="selected-copy">
+                <span class="section-label">Selected</span>
+                <span id="selected-section">No section selected</span>
+            </div>
+
+            <div id="coach-actions" class="coach-actions">
+                <button type="button" data-action="subject_variants">Suggest Subjects</button>
+                <button type="button" data-action="punchier">Make Punchier</button>
+                <button type="button" data-action="luxury">More Luxury</button>
+                <button type="button" data-action="urgent">More Urgent</button>
+                <button type="button" data-action="objections">Handle Objections</button>
+                <button type="button" data-action="ab_test">Create A/B Variants</button>
+            </div>
+
+            <div id="chat-log" class="chat-log"></div>
+            <div class="chat-box">
+                <textarea id="chat-input" placeholder="Ask for a sharper subject, a new angle, or a better CTA. Press Cmd/Ctrl+Enter to send."></textarea>
+                <button id="chat-send-btn" type="button">Send</button>
+            </div>
+        </section>
+
+        <section class="coach-panel suggestion-panel">
+            <div class="panel-heading compact">
+                <div>
+                    <div class="panel-eyebrow">Suggestions</div>
+                    <h2>Fresh</h2>
+                </div>
+            </div>
+            <div id="suggestion-list" class="suggestion-list"></div>
+        </section>
+
+        <section class="coach-panel suggestion-panel">
+            <div class="panel-heading compact">
+                <div>
+                    <div class="panel-eyebrow">Memory</div>
+                    <h2>Saved</h2>
+                </div>
+            </div>
+            <div id="saved-suggestion-list" class="suggestion-list"></div>
+        </section>
+    </aside>
 
 </div>
 
