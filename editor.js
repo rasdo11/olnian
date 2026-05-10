@@ -23,8 +23,21 @@ const EDITABLE_SELECTOR = [
     '.ef-footer-wordmark', '.ef-footer-tagline', '.ef-disclaimer', '.ef-footer-links'
 ].join(',');
 
+const TEXT_TRANSFER_CLASSES = [
+    'ef-wordmark', 'ef-tagline',
+    'ef-hero-kicker', 'ef-hero-headline',
+    'ef-promo-left', 'ef-promo-code-label', 'ef-promo-code',
+    'ef-eyebrow', 'ef-h2', 'ef-p',
+    'ef-product-name', 'ef-product-desc', 'ef-product-price', 'ef-product-sale',
+    'ef-btn', 'ef-btn-outline',
+    'ef-stat-num', 'ef-stat-label',
+    'ef-step-num', 'ef-step-title', 'ef-step-body',
+    'ef-closing-h', 'ef-closing-sub',
+    'ef-footer-wordmark', 'ef-footer-tagline', 'ef-disclaimer', 'ef-footer-links'
+];
+
 let elPreview, elPreviewScroll, elDraftList;
-let elDraftName, elDraftSubject, elHeroUrl, elProductUrl;
+let elDraftName, elDraftSubject, elHeroUrl, elProductUrl, elAccentColor;
 let elSaveIndicator, elNewBtn, elSaveBtn, elCopyBtn, elViewportToggle;
 
 let store = { drafts: [], activeId: null };
@@ -81,6 +94,7 @@ function newDraft(name) {
         name: name || nextUntitledName(),
         subject: '',
         html: window.EMAIL_TEMPLATE_HTML,
+        accentColor: window.DEFAULT_ACCENT,
         createdAt: now,
         updatedAt: now
     };
@@ -109,12 +123,53 @@ function bootstrap() {
 function mountActive() {
     const d = activeDraft();
     if (!d) return;
+    if (!d.accentColor) d.accentColor = window.DEFAULT_ACCENT;
+    const migrated = migrateLegacyHTML(d.html);
+    if (migrated !== d.html) {
+        d.html = migrated;
+        d.updatedAt = Date.now();
+        persist();
+    }
     elPreview.innerHTML = d.html;
     applyContentEditable();
+    const root = elPreview.querySelector('#email-root');
+    window.applyAccentToDOM(root, d.accentColor);
     syncImageInputsFromDOM();
     elDraftName.value = d.name;
     elDraftSubject.value = d.subject || '';
+    elAccentColor.value = d.accentColor;
     isDirty = false;
+}
+
+// One-shot, idempotent migration: drafts created with the v2 (broken) template
+// have <div class="ef-promo"> + flex layouts that don't render in email
+// clients. Detect and rebuild from the v3 template, transferring text edits
+// and image URLs by class/id mapping.
+function migrateLegacyHTML(html) {
+    if (!html) return html;
+    if (html.indexOf('data-v="3"') !== -1) return html;
+
+    const oldWrap = document.createElement('div');
+    oldWrap.innerHTML = html;
+    const newWrap = document.createElement('div');
+    newWrap.innerHTML = window.EMAIL_TEMPLATE_HTML;
+
+    TEXT_TRANSFER_CLASSES.forEach(cls => {
+        const olds = oldWrap.querySelectorAll('.' + cls);
+        const news = newWrap.querySelectorAll('.' + cls);
+        const limit = Math.min(olds.length, news.length);
+        for (let i = 0; i < limit; i++) {
+            news[i].innerHTML = olds[i].innerHTML;
+        }
+    });
+
+    [['#hero-img', 'src'], ['#product-img', 'src']].forEach(([sel, attr]) => {
+        const o = oldWrap.querySelector(sel);
+        const n = newWrap.querySelector(sel);
+        if (o && n && o.getAttribute(attr)) n.setAttribute(attr, o.getAttribute(attr));
+    });
+
+    return newWrap.innerHTML;
 }
 
 function applyContentEditable() {
@@ -207,8 +262,15 @@ function extractSnippet(html) {
     const tmp = document.createElement('div');
     tmp.innerHTML = html;
     const heading = tmp.querySelector('.ef-h2, .ef-hero-headline, .ef-closing-h');
-    const text = (heading ? heading.textContent : tmp.textContent || '')
-        .trim().replace(/\s+/g, ' ');
+    let raw = '';
+    if (heading) {
+        const clone = heading.cloneNode(true);
+        clone.querySelectorAll('br').forEach(br => br.replaceWith(' '));
+        raw = clone.textContent || '';
+    } else {
+        raw = tmp.textContent || '';
+    }
+    const text = raw.trim().replace(/\s+/g, ' ');
     return text.length > 80 ? text.slice(0, 80) + '…' : text;
 }
 
@@ -295,6 +357,7 @@ function duplicateDraft(id) {
         name: src.name + ' (copy)',
         subject: src.subject,
         html: src.html,
+        accentColor: src.accentColor || window.DEFAULT_ACCENT,
         createdAt: Date.now(),
         updatedAt: Date.now()
     };
@@ -442,7 +505,9 @@ function copyEmailHTML() {
 }
 
 function buildExportDocument(d) {
+    const accent = d.accentColor || window.DEFAULT_ACCENT;
     const cleanRoot = d.html;
+    const css = window.applyAccent(window.EMAIL_EXPORT_CSS, accent);
     const title = (d.subject || d.name || 'ØLNIAN email')
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return [
@@ -456,7 +521,7 @@ function buildExportDocument(d) {
         '<link rel="preconnect" href="https://fonts.googleapis.com">',
         '<link href="https://fonts.googleapis.com/css2?family=Belleza&family=Nunito+Sans:wght@300;400&display=swap" rel="stylesheet">',
         '<style>',
-        window.EMAIL_EXPORT_CSS,
+        css,
         '</style>',
         '</head>',
         '<body>',
@@ -483,6 +548,7 @@ function init() {
     elDraftSubject = document.getElementById('draft-subject-input');
     elHeroUrl = document.getElementById('hero-url-input');
     elProductUrl = document.getElementById('product-url-input');
+    elAccentColor = document.getElementById('accent-color-input');
     elSaveIndicator = document.getElementById('save-indicator');
     elNewBtn = document.getElementById('new-draft-btn');
     elSaveBtn = document.getElementById('save-btn');
@@ -516,6 +582,15 @@ function init() {
     elNewBtn.addEventListener('click', createDraft);
     elSaveBtn.addEventListener('click', () => saveActive('manual'));
     elCopyBtn.addEventListener('click', copyEmailHTML);
+
+    elAccentColor.addEventListener('input', () => {
+        const d = activeDraft();
+        if (!d) return;
+        d.accentColor = elAccentColor.value;
+        const root = elPreview.querySelector('#email-root');
+        window.applyAccentToDOM(root, d.accentColor);
+        markDirty();
+    });
 
     startAutosave();
 }

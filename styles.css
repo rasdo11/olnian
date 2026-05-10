@@ -278,6 +278,32 @@ html, body {
     font-size: 11px;
 }
 
+.toolbar-color {
+    width: 36px;
+    height: 30px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid var(--border-on-dark-strong);
+    border-radius: 1px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.toolbar-color::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+.toolbar-color::-webkit-color-swatch {
+    border: none;
+    border-radius: 0;
+}
+
+.toolbar-color::-moz-color-swatch {
+    border: none;
+    border-radius: 0;
+}
+
 #viewport-toggle {
     display: inline-flex;
     border: 1px solid var(--border-on-dark-strong);
