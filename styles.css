@@ -75,8 +75,13 @@ html, body {
     color: var(--text-on-dark-sub);
 }
 
-.new-draft-btn {
+.new-draft-wrap {
+    position: relative;
     margin: 16px 16px 8px;
+}
+
+.new-draft-btn {
+    width: 100%;
     padding: 12px 14px;
     background: var(--accent);
     color: #FFFFFF;
@@ -91,8 +96,73 @@ html, body {
     transition: background 120ms ease;
 }
 
-.new-draft-btn:hover {
+.new-draft-btn:hover,
+.new-draft-btn.is-open {
     background: var(--accent-deep);
+}
+
+.template-picker {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    background: #1F1308;
+    border: 1px solid var(--border-on-dark-strong);
+    border-radius: 2px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.template-picker[hidden] { display: none; }
+
+.template-picker-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 12px;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: background 100ms ease;
+}
+
+.template-picker-item:hover {
+    background: var(--row-hover);
+}
+
+.template-picker-item strong {
+    font-family: 'Belleza', Georgia, serif;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    color: var(--text-on-dark);
+}
+
+.template-picker-item span {
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-on-dark-sub);
+}
+
+.draft-row-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(242, 102, 58, 0.12);
+    border: 1px solid rgba(242, 102, 58, 0.3);
+    border-radius: 1px;
+    margin-right: 8px;
+}
+
+.draft-row-meta-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 #draft-list {
@@ -280,6 +350,19 @@ html, body {
 
 .toolbar-input.url {
     width: 220px;
+    font-size: 11px;
+}
+
+.toolbar-group-cta {
+    gap: 6px;
+}
+
+.toolbar-input.cta-label {
+    width: 150px;
+}
+
+.toolbar-input.cta-url {
+    width: 200px;
     font-size: 11px;
 }
 

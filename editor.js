@@ -58,6 +58,7 @@ const DEFAULT_BRAND_MEMORY = [
 
 let elPreview, elDraftList;
 let elDraftName, elDraftSubject, elDraftPreheader, elHeroUrl, elProductUrl, elAccentColor;
+let elCtaLabel, elCtaUrl, elTemplatePicker, elNewDraftWrap;
 let elSaveIndicator, elNewBtn, elSaveBtn, elCopyBtn, elCopySubjectBtn, elCopyPreheaderBtn, elViewportToggle;
 let elInboxSubject, elInboxPreheader, elBrandMemory, elSuggestionList, elSavedSuggestionList;
 let elChatLog, elChatInput, elChatSendBtn, elActionButtons, elVariantList, elSelectedSection, elCoachStatus;
@@ -124,32 +125,52 @@ function normalizeStore(raw) {
 }
 
 function normalizeDraft(d) {
+    const templateId = d.templateId || inferTemplateId(d.html);
+    const templateDefaults = window.getTemplate(templateId).defaults;
     return {
         id: d.id || newId(),
         name: d.name || 'Untitled draft',
+        templateId,
         subject: d.subject || '',
         preheader: d.preheader || '',
-        html: d.html || window.EMAIL_TEMPLATE_HTML,
+        primaryCTA: d.primaryCTA || derivePrimaryCTA(d.html) || { ...templateDefaults.primaryCTA },
+        html: d.html || window.getBlankDraftHTML(templateId),
         accentColor: d.accentColor || window.DEFAULT_ACCENT,
         createdAt: d.createdAt || Date.now(),
         updatedAt: d.updatedAt || Date.now(),
-        variants: Array.isArray(d.variants) ? d.variants.map(normalizeVariant) : [],
+        variants: Array.isArray(d.variants) ? d.variants.map(v => normalizeVariant(v, templateId)) : [],
         activeVariantId: d.activeVariantId || null
     };
 }
 
-function normalizeVariant(v) {
+function normalizeVariant(v, parentTemplateId) {
+    const templateId = v.templateId || parentTemplateId || inferTemplateId(v.html);
+    const templateDefaults = window.getTemplate(templateId).defaults;
     return {
         id: v.id || newId(),
         label: v.label || 'Variant',
+        templateId,
         subject: v.subject || '',
         preheader: v.preheader || '',
-        html: v.html || window.EMAIL_TEMPLATE_HTML,
+        primaryCTA: v.primaryCTA || derivePrimaryCTA(v.html) || { ...templateDefaults.primaryCTA },
+        html: v.html || window.getBlankDraftHTML(templateId),
         accentColor: v.accentColor || window.DEFAULT_ACCENT,
         notes: v.notes || '',
         createdAt: v.createdAt || Date.now(),
         updatedAt: v.updatedAt || Date.now()
     };
+}
+
+function inferTemplateId(html) {
+    if (!html) return window.DEFAULT_TEMPLATE_ID;
+    const match = html.match(/data-template="([^"]+)"/);
+    if (match && window.getTemplate(match[1])) return match[1];
+    return window.DEFAULT_TEMPLATE_ID;
+}
+
+function derivePrimaryCTA(html) {
+    if (!html) return null;
+    return window.readPrimaryCTAFromHTML(html);
 }
 
 // ---------- Draft helpers ----------
@@ -172,14 +193,17 @@ function nextUntitledName() {
     return 'Untitled draft ' + (max + 1);
 }
 
-function newDraft(name) {
+function newDraft(name, templateId) {
     const now = Date.now();
+    const t = window.getTemplate(templateId || window.DEFAULT_TEMPLATE_ID);
     return {
         id: newId(),
         name: name || nextUntitledName(),
+        templateId: t.id,
         subject: '',
-        preheader: '',
-        html: window.EMAIL_TEMPLATE_HTML,
+        preheader: t.defaults.previewText || '',
+        primaryCTA: { ...t.defaults.primaryCTA },
+        html: t.html,
         accentColor: window.DEFAULT_ACCENT,
         createdAt: now,
         updatedAt: now,
@@ -195,6 +219,12 @@ function activeDraft() {
 function activeVariant(d) {
     if (!d || !d.activeVariantId) return null;
     return d.variants.find(v => v.id === d.activeVariantId) || null;
+}
+
+function activeMounted() {
+    const d = activeDraft();
+    if (!d) return null;
+    return activeVariant(d) || d;
 }
 
 function currentDraftState() {
@@ -233,7 +263,11 @@ function mountActive() {
     const v = activeVariant(d);
     const mounted = v || d;
     if (!mounted.accentColor) mounted.accentColor = window.DEFAULT_ACCENT;
-    const migrated = migrateLegacyHTML(mounted.html);
+    if (!mounted.primaryCTA) {
+        const t = window.getTemplate(mounted.templateId || d.templateId);
+        mounted.primaryCTA = { ...t.defaults.primaryCTA };
+    }
+    const migrated = migrateLegacyHTML(mounted.html, mounted.templateId || d.templateId);
     if (migrated !== mounted.html) {
         mounted.html = migrated;
         mounted.updatedAt = Date.now();
@@ -243,11 +277,14 @@ function mountActive() {
     applyContentEditable();
     const root = elPreview.querySelector('#email-root');
     window.applyAccentToDOM(root, mounted.accentColor);
+    window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
     elDraftName.value = d.name;
     elDraftSubject.value = mounted.subject || '';
     elDraftPreheader.value = mounted.preheader || '';
     elAccentColor.value = mounted.accentColor;
+    elCtaLabel.value = mounted.primaryCTA.label || '';
+    elCtaUrl.value = mounted.primaryCTA.url || '';
     selectedEditable = null;
     isDirty = false;
     renderMetadata();
@@ -256,14 +293,15 @@ function mountActive() {
     renderSuggestions();
 }
 
-function migrateLegacyHTML(html) {
+function migrateLegacyHTML(html, templateId) {
     if (!html) return html;
-    if (html.indexOf('data-v="3"') !== -1) return html;
+    if (html.indexOf('data-v="4"') !== -1) return html;
 
+    const targetTemplate = window.getTemplate(templateId || inferTemplateId(html));
     const oldWrap = document.createElement('div');
     oldWrap.innerHTML = html;
     const newWrap = document.createElement('div');
-    newWrap.innerHTML = window.EMAIL_TEMPLATE_HTML;
+    newWrap.innerHTML = targetTemplate.html;
 
     TEXT_TRANSFER_CLASSES.forEach(cls => {
         const olds = oldWrap.querySelectorAll('.' + cls);
@@ -328,10 +366,22 @@ function renderSidebar() {
         const meta = document.createElement('div');
         meta.className = 'draft-row-meta';
 
+        const left = document.createElement('div');
+        left.className = 'draft-row-meta-left';
+
+        const t = window.getTemplate(d.templateId);
+        const badge = document.createElement('span');
+        badge.className = 'draft-row-badge';
+        badge.textContent = t.shortLabel;
+        badge.title = t.label;
+        left.appendChild(badge);
+
         const time = document.createElement('span');
         time.className = 'draft-row-time';
         time.textContent = formatRelative(d.updatedAt);
-        meta.appendChild(time);
+        left.appendChild(time);
+
+        meta.appendChild(left);
 
         const actions = document.createElement('div');
         actions.className = 'draft-row-actions';
@@ -446,9 +496,9 @@ function selectDraft(id) {
     renderSidebar();
 }
 
-function createDraft() {
+function createDraft(templateId) {
     captureActiveIntoStore();
-    const d = newDraft();
+    const d = newDraft(undefined, templateId);
     store.drafts.push(d);
     store.activeId = d.id;
     persist();
@@ -502,15 +552,21 @@ function captureActiveIntoStore() {
     const cleaned = stripContentEditable(root.outerHTML);
     const subject = elDraftSubject.value.trim();
     const preheader = elDraftPreheader.value.trim();
+    const ctaLabel = elCtaLabel.value.trim();
+    const ctaUrl = elCtaUrl.value.trim();
+    const currentCTA = target.primaryCTA || { label: '', url: '' };
     const changed = cleaned !== target.html ||
         subject !== target.subject ||
         preheader !== target.preheader ||
-        elAccentColor.value !== target.accentColor;
+        elAccentColor.value !== target.accentColor ||
+        ctaLabel !== currentCTA.label ||
+        ctaUrl !== currentCTA.url;
     if (!changed) return false;
     target.html = cleaned;
     target.subject = subject;
     target.preheader = preheader;
     target.accentColor = elAccentColor.value;
+    target.primaryCTA = { label: ctaLabel, url: ctaUrl };
     target.updatedAt = Date.now();
     d.updatedAt = Date.now();
     if (!activeVariant(d)) {
@@ -518,6 +574,7 @@ function captureActiveIntoStore() {
         d.preheader = preheader;
         d.html = cleaned;
         d.accentColor = elAccentColor.value;
+        d.primaryCTA = { label: ctaLabel, url: ctaUrl };
     }
     return true;
 }
@@ -587,6 +644,57 @@ function bindImageInputs() {
         if (img) img.setAttribute('src', elProductUrl.value);
         markDirty();
     });
+}
+
+function bindTemplatePicker() {
+    if (!elTemplatePicker || !elNewBtn) return;
+    elTemplatePicker.innerHTML = '';
+    window.TEMPLATES.forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'template-picker-item';
+        li.dataset.templateId = t.id;
+        const title = document.createElement('strong');
+        title.textContent = t.label;
+        const desc = document.createElement('span');
+        desc.textContent = t.description;
+        li.appendChild(title);
+        li.appendChild(desc);
+        li.addEventListener('click', () => {
+            closeTemplatePicker();
+            createDraft(t.id);
+        });
+        elTemplatePicker.appendChild(li);
+    });
+
+    elNewBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleTemplatePicker();
+    });
+    document.addEventListener('click', e => {
+        if (!elNewDraftWrap || elNewDraftWrap.contains(e.target)) return;
+        closeTemplatePicker();
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeTemplatePicker();
+    });
+}
+
+function toggleTemplatePicker() {
+    if (!elTemplatePicker) return;
+    const open = !elTemplatePicker.hasAttribute('hidden');
+    if (open) closeTemplatePicker(); else openTemplatePicker();
+}
+
+function openTemplatePicker() {
+    if (!elTemplatePicker) return;
+    elTemplatePicker.removeAttribute('hidden');
+    elNewBtn.classList.add('is-open');
+}
+
+function closeTemplatePicker() {
+    if (!elTemplatePicker) return;
+    elTemplatePicker.setAttribute('hidden', '');
+    elNewBtn.classList.remove('is-open');
 }
 
 function bindViewport() {
@@ -1021,6 +1129,10 @@ function init() {
     elHeroUrl = document.getElementById('hero-url-input');
     elProductUrl = document.getElementById('product-url-input');
     elAccentColor = document.getElementById('accent-color-input');
+    elCtaLabel = document.getElementById('cta-label-input');
+    elCtaUrl = document.getElementById('cta-url-input');
+    elNewDraftWrap = document.getElementById('new-draft-wrap');
+    elTemplatePicker = document.getElementById('template-picker');
     elSaveIndicator = document.getElementById('save-indicator');
     elNewBtn = document.getElementById('new-draft-btn');
     elSaveBtn = document.getElementById('save-btn');
@@ -1071,7 +1183,7 @@ function init() {
         }
     });
 
-    elNewBtn.addEventListener('click', createDraft);
+    bindTemplatePicker();
     elSaveBtn.addEventListener('click', () => saveActive('manual'));
     elCopyBtn.addEventListener('click', copyEmailHTML);
     elCopySubjectBtn.addEventListener('click', copySubject);
@@ -1082,6 +1194,17 @@ function init() {
         window.applyAccentToDOM(root, elAccentColor.value);
         markDirty();
     });
+
+    function syncCtaFromInputs() {
+        const m = activeMounted();
+        if (!m) return;
+        m.primaryCTA = { label: elCtaLabel.value, url: elCtaUrl.value };
+        const root = elPreview.querySelector('#email-root');
+        window.syncPrimaryCTAToDOM(root, m.primaryCTA);
+        markDirty();
+    }
+    elCtaLabel.addEventListener('input', syncCtaFromInputs);
+    elCtaUrl.addEventListener('input', syncCtaFromInputs);
 
     startAutosave();
 }
