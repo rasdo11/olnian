@@ -17,7 +17,10 @@
             <div class="sidebar-wordmark">ØL<span class="accent">N</span>IAN</div>
             <div class="sidebar-eyebrow">Drafts</div>
         </div>
-        <button id="new-draft-btn" class="new-draft-btn" type="button">+ New Email</button>
+        <div id="new-draft-wrap" class="new-draft-wrap">
+            <button id="new-draft-btn" class="new-draft-btn" type="button" aria-haspopup="menu" aria-expanded="false">+ New Email</button>
+            <ul id="template-picker" class="template-picker" role="menu" hidden></ul>
+        </div>
         <ul id="draft-list"></ul>
     </aside>
 
@@ -42,6 +45,11 @@
             <div class="toolbar-group">
                 <span class="toolbar-label">Product img</span>
                 <input id="product-url-input" class="toolbar-input url" type="text" autocomplete="off" placeholder="https://…">
+            </div>
+            <div class="toolbar-group toolbar-group-cta">
+                <span class="toolbar-label">CTA</span>
+                <input id="cta-label-input" class="toolbar-input cta-label" type="text" autocomplete="off" placeholder="Button label">
+                <input id="cta-url-input" class="toolbar-input cta-url" type="text" autocomplete="off" placeholder="https://…">
             </div>
             <div class="toolbar-group toolbar-group-accent">
                 <span class="toolbar-label">Accent</span>
@@ -93,6 +101,12 @@
             <div class="selected-copy">
                 <span class="section-label">Selected</span>
                 <span id="selected-section">No section selected</span>
+            </div>
+
+            <div id="coach-setup-notice" class="coach-setup-notice" hidden>
+                <div class="coach-setup-title">Copy Coach needs setup</div>
+                <p class="coach-setup-body">Add OPENAI_API_KEY to your Vercel env vars and redeploy.</p>
+                <button type="button" class="coach-setup-dismiss" id="coach-setup-dismiss">Dismiss</button>
             </div>
 
             <div id="coach-actions" class="coach-actions">

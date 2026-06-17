@@ -38,7 +38,11 @@ module.exports = async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     if (!process.env.OPENAI_API_KEY) {
-        return res.status(500).json({ error: 'OPENAI_API_KEY is not configured.' });
+        return res.status(500).json({
+            error: 'OPENAI_API_KEY is not configured.',
+            code: 'NO_KEY',
+            help: 'Add OPENAI_API_KEY to your Vercel project (Settings → Environment Variables → Add), then redeploy. Get a key from https://platform.openai.com/api-keys.'
+        });
     }
 
     try {
