@@ -189,7 +189,7 @@ function primaryCtaBlock(label, url) {
 
 const PROMO_CTA = { label: 'Shop now — use code MOM15', url: 'https://olnian.com/products/creatine' };
 
-const PROMO_HTML = `<div id="email-root" data-v="4" data-template="promo" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
+const PROMO_HTML = `<div id="email-root" data-v="5" data-template="promo" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
 
 ${HEADER_HTML}
 
@@ -291,9 +291,9 @@ ${FOOTER_HTML}
 
 // ---------- Product Education template ----------
 
-const EDU_CTA = { label: 'Read the science', url: 'https://olnian.com/products/creatine' };
+const EDU_CTA = { label: 'Start the daily ritual', url: 'https://olnian.com/products/creatine' };
 
-const EDUCATION_HTML = `<div id="email-root" data-v="4" data-template="education" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
+const EDUCATION_HTML = `<div id="email-root" data-v="5" data-template="education" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
 
 ${HEADER_HTML}
 
@@ -304,9 +304,9 @@ ${HEADER_HTML}
 
   <!-- HERO TEXT -->
   <div class="ef-hero-text" style="background:#FFFFFF;padding:28px 22px 22px;">
-    <p class="ef-hero-kicker" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#F2663A;margin:0 0 12px;">The science</p>
-    <h1 class="ef-hero-headline" style="font-family:'Belleza',Georgia,serif;font-size:28px;font-weight:400;line-height:1.18;color:#2F2F2F;margin:0;letter-spacing:0.01em;">Creatine isn't a gym supplement.<br>It's brain fuel.</h1>
-    <p class="ef-hero-sub" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.6;color:#3A3A3A;margin:14px 0 0;">Especially for women over 35, when natural creatine stores start to drop.</p>
+    <p class="ef-hero-kicker" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#F2663A;margin:0 0 12px;">The inside-out shift</p>
+    <h1 class="ef-hero-headline" style="font-family:'Belleza',Georgia,serif;font-size:28px;font-weight:400;line-height:1.18;color:#2F2F2F;margin:0;letter-spacing:0.01em;">Beauty is starting<br>to feel different.</h1>
+    <p class="ef-hero-sub" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.6;color:#3A3A3A;margin:14px 0 0;">More women are refining what wellness means to them — and what it does for them.</p>
   </div>
 
   <!-- ABOVE-FOLD PRIMARY CTA -->
@@ -315,9 +315,9 @@ ${primaryCtaBlock(EDU_CTA.label, EDU_CTA.url)}
   <!-- BODY COPY -->
   <div class="ef-body" style="padding:28px 22px;background:#FFFFFF;border-bottom:1px solid #BDBDBD;">
     <p class="ef-eyebrow" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.32em;text-transform:uppercase;color:#F2663A;margin:0 0 14px;">Why it matters</p>
-    <h2 class="ef-h2" style="font-family:'Belleza',Georgia,serif;font-size:24px;font-weight:400;line-height:1.22;color:#2F2F2F;margin:0 0 16px;letter-spacing:0.01em;">Your body makes less of it after 35.</h2>
-    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0 0 14px;">Creatine isn't just stored in muscle — it powers cognition, recovery, and daily energy. After 35, especially through perimenopause, your body produces less of it.</p>
-    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0;">ØLNIAN was formulated specifically for this. A clean, single-ingredient creatine monohydrate, dosed for cognitive support, muscle maintenance, and the mental clarity that disappears around 3pm.</p>
+    <h2 class="ef-h2" style="font-family:'Belleza',Georgia,serif;font-size:24px;font-weight:400;line-height:1.22;color:#2F2F2F;margin:0 0 16px;letter-spacing:0.01em;">Strength is part of beauty.</h2>
+    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0 0 14px;">Beauty has always been about more than what is on the surface. As women refine their routines, they are paying more attention to what supports energy, strength, and clarity in everyday life.</p>
+    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0;">That is where ØLNIAN Creatine fits. One clean ingredient. 5g a day. Built for women refining how they want to feel.</p>
   </div>
 
   <!-- BENEFITS -->
@@ -427,4 +427,193 @@ window.getTemplate = function (id) {
 
 window.getBlankDraftHTML = function (id) {
     return window.getTemplate(id).html;
+};
+
+// ---------- Strategy presets ----------
+// Each strategy is a copy overlay — same template structure, different voice.
+// Source: positioning brief, beauty-first / inside-out-ritual angles.
+
+window.STRATEGIES = [
+    {
+        id: 'beauty_ritual',
+        name: 'Beauty Ritual',
+        description: 'Inside-out beauty positioning. Recommended A in the first A/B test.',
+        copy: {
+            subject: 'Your beauty routine may be missing 5g',
+            preheader: 'Creatine is simpler than it sounds, and it is not just for the gym.',
+            heroKicker: 'Inside-out beauty',
+            heroHeadline: 'Your beauty routine<br>may be missing 5g.',
+            heroSub: 'Strength, energy, and feeling good belong in the ritual too.',
+            bodyEyebrow: 'The 5g habit',
+            bodyH2: 'Most beauty routines stop at your skin.',
+            bodyP1: 'Most beauty routines focus on what you put on your skin. But how you feel in your body matters too. Strength. Energy. Movement. Confidence. The feeling that you are supporting yourself from the inside out.',
+            bodyP2: 'That is why more women are starting to look at creatine differently. ØLNIAN Creatine keeps it simple — one active ingredient, mixed into water once a day. No caffeine. No flavor. No complicated routine. Just 5g a day.',
+            ctaLabel: 'Start the 5g ritual'
+        }
+    },
+    {
+        id: 'beginner_education',
+        name: 'Beginner Education',
+        description: 'Softer "explain this to me" entry point. Recommended B in the first A/B test.',
+        copy: {
+            subject: 'Not sure what creatine is? Start here.',
+            preheader: 'A simple explanation for women who care about beauty, strength, and feeling good.',
+            heroKicker: 'Start here',
+            heroHeadline: 'A simple explainer,<br>no gym talk.',
+            heroSub: 'For women who care about beauty, strength, and feeling good.',
+            bodyEyebrow: 'What it is',
+            bodyH2: 'Not sure what creatine is? Here is the short version.',
+            bodyP1: 'Creatine is a compound your body naturally uses to help support quick energy, especially in your muscles and brain. You also get small amounts from food. After 35, your body makes a little less of it.',
+            bodyP2: 'ØLNIAN Creatine is one ingredient — pure creatine monohydrate — mixed into water once a day. No caffeine. No flavor. No complicated routine.',
+            ctaLabel: 'Read the simple explainer'
+        }
+    },
+    {
+        id: 'inside_out',
+        name: 'Inside-out Beauty',
+        description: 'Aspirational ritual framing for women refining their wellness routine.',
+        copy: {
+            subject: 'The inside-out beauty ritual women are adding',
+            preheader: 'One simple scoop, once a day, with no complicated routine.',
+            heroKicker: 'The quiet ritual',
+            heroHeadline: 'Beauty is starting<br>to feel different.',
+            heroSub: 'Less surface. More substance.',
+            bodyEyebrow: 'The shift',
+            bodyH2: 'Wellness is getting quieter, and smarter.',
+            bodyP1: 'It is not only about what you put on your skin. It is about how supported, energized, and clear you feel underneath. A quieter kind of beauty.',
+            bodyP2: 'ØLNIAN Creatine is the quiet daily ritual women are adding to their wellness routine. 5g in water. Once a day. No flavor, no caffeine, no fuss.',
+            ctaLabel: 'Add it to your ritual'
+        }
+    },
+    {
+        id: 'myth_busting',
+        name: 'Myth-busting',
+        description: 'Anti-gym framing. Removes the "creatine is for bodybuilders" objection.',
+        copy: {
+            subject: 'Creatine is not just for the gym',
+            preheader: 'Women are starting to understand it differently.',
+            heroKicker: 'Let us clear it up',
+            heroHeadline: 'Creatine is not what<br>you have been told.',
+            heroSub: 'It has been badly marketed to women for years.',
+            bodyEyebrow: 'The real story',
+            bodyH2: 'Not a stimulant. Not a diet pill. Not complicated.',
+            bodyP1: 'For years, creatine has been packaged for bodybuilders. That packaging has confused women out of one of the most well-studied wellness ingredients available.',
+            bodyP2: 'It is one ingredient. It supports energy, recovery, and clarity. ØLNIAN Creatine is the clean version of an ingredient women have always deserved access to — without the gym-bag styling.',
+            ctaLabel: 'See the cleaner version'
+        }
+    },
+    {
+        id: 'skincare_bridge',
+        name: 'Skincare Bridge',
+        description: 'Positions creatine next to skincare on the shelf — clean ritual, not supplement aisle.',
+        copy: {
+            subject: 'The supplement that belongs next to your skincare',
+            preheader: 'A simple daily ritual for beauty, strength, and balance.',
+            heroKicker: 'On the shelf',
+            heroHeadline: 'Belongs on the shelf<br>with your serums.',
+            heroSub: 'Not buried in a gym bag.',
+            bodyEyebrow: 'A cleaner shelf',
+            bodyH2: 'Your inside-out routine deserves the same care as your skincare.',
+            bodyP1: 'Your skincare cabinet has gotten thoughtful. Curated. Considered. Your inside-out routine can too.',
+            bodyP2: 'ØLNIAN Creatine is one clean ingredient in water, once a day. Designed to live next to your skincare, not in the supplement aisle.',
+            ctaLabel: 'Shop the clean ritual'
+        }
+    },
+    {
+        id: 'age_smart',
+        name: 'Age-smart',
+        description: 'Strength + beauty positioning without using the word "older". For women 35+.',
+        copy: {
+            subject: 'Strength is part of beauty',
+            preheader: 'Looking good is one thing. Feeling strong is another.',
+            heroKicker: 'The quiet shift',
+            heroHeadline: 'Strength is part<br>of beauty.',
+            heroSub: 'The quiet shift in women’s wellness.',
+            bodyEyebrow: 'Refining the routine',
+            bodyH2: 'Beauty, energy, and strength belong together.',
+            bodyP1: 'Beauty has always been about more than what is on the surface. As women refine their routines, they are paying more attention to what supports energy, strength, and clarity in everyday life.',
+            bodyP2: 'That is where ØLNIAN Creatine fits. One clean ingredient. 5g a day. Built for women refining how they want to feel.',
+            ctaLabel: 'Refine the routine'
+        }
+    }
+];
+
+window.getStrategy = function (id) {
+    return window.STRATEGIES.find(s => s.id === id) || null;
+};
+
+// Apply a strategy's copy values to a live #email-root subtree. Idempotent.
+window.applyStrategyToDOM = function (root, strategy) {
+    if (!root || !strategy) return;
+    const c = strategy.copy || {};
+    const set = (sel, val, useHTML) => {
+        const el = root.querySelector(sel);
+        if (!el || val == null) return;
+        if (useHTML) el.innerHTML = val;
+        else el.textContent = val;
+    };
+    set('.ef-hero-kicker', c.heroKicker);
+    set('.ef-hero-headline', c.heroHeadline, true);
+    set('.ef-hero-sub', c.heroSub);
+
+    const body = root.querySelector('.ef-body');
+    if (body) {
+        const eyebrow = body.querySelector('.ef-eyebrow');
+        if (eyebrow && c.bodyEyebrow != null) eyebrow.textContent = c.bodyEyebrow;
+        const h2 = body.querySelector('.ef-h2');
+        if (h2 && c.bodyH2 != null) h2.textContent = c.bodyH2;
+        const ps = body.querySelectorAll('.ef-p');
+        if (ps[0] && c.bodyP1 != null) ps[0].textContent = c.bodyP1;
+        if (ps[1] && c.bodyP2 != null) ps[1].textContent = c.bodyP2;
+    }
+
+    if (c.ctaLabel != null) {
+        const cta = { label: c.ctaLabel, url: c.ctaUrl };
+        window.syncPrimaryCTAToDOM(root, cta);
+    }
+};
+
+// Returns mutated HTML for a draft seeded from a template + strategy.
+window.buildStrategyHTML = function (templateId, strategyId) {
+    const t = window.getTemplate(templateId);
+    const s = window.getStrategy(strategyId);
+    if (!s) return t.html;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = t.html;
+    const root = wrap.querySelector('#email-root');
+    if (root) window.applyStrategyToDOM(root, s);
+    return wrap.innerHTML;
+};
+
+// ---------- A/B test starters ----------
+
+window.AB_STARTERS = [
+    {
+        id: 'test1',
+        name: 'Beauty Ritual vs Beginner Education',
+        description: 'Recommended first test. Aspiration vs softer entry point.',
+        templateId: 'education',
+        variantA: 'beauty_ritual',
+        variantB: 'beginner_education'
+    },
+    {
+        id: 'test2',
+        name: 'Inside-out Beauty vs Anti-gym',
+        description: 'Aspiration vs objection removal.',
+        templateId: 'education',
+        variantA: 'inside_out',
+        variantB: 'myth_busting'
+    },
+    {
+        id: 'test3',
+        name: 'Skincare Bridge vs Misconception',
+        description: 'More aggressive frame. Run after the first test resolves.',
+        templateId: 'education',
+        variantA: 'skincare_bridge',
+        variantB: 'myth_busting'
+    }
+];
+
+window.getABStarter = function (id) {
+    return window.AB_STARTERS.find(t => t.id === id) || null;
 };
