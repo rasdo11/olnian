@@ -295,6 +295,7 @@ function mountActive() {
     window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
     bindImageDropTargets();
+    bindSectionMenu();
     elDraftName.value = d.name;
     elDraftSubject.value = mounted.subject || '';
     elDraftPreheader.value = mounted.preheader || '';
@@ -962,6 +963,114 @@ function setReferralBlock(on) {
     captureActiveIntoStore();
 }
 
+// ---------- Section move/remove menu (per top-level block in the email) ----------
+
+let activeSection = null;
+let sectionMenuPersist = false;
+
+function ensureSectionMenu() {
+    let menu = document.getElementById('section-menu');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'section-menu';
+    menu.className = 'section-menu';
+    menu.hidden = true;
+    menu.innerHTML = [
+        '<button type="button" data-action="up" title="Move section up">&uarr;</button>',
+        '<button type="button" data-action="down" title="Move section down">&darr;</button>',
+        '<button type="button" data-action="remove" title="Remove this block" class="section-menu-remove">&times;</button>'
+    ].join('');
+    document.body.appendChild(menu);
+    menu.addEventListener('mouseenter', () => { sectionMenuPersist = true; });
+    menu.addEventListener('mouseleave', () => {
+        sectionMenuPersist = false;
+        hideSectionMenu();
+    });
+    menu.addEventListener('click', e => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn || !activeSection) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        const section = activeSection;
+        if (action === 'up') {
+            const prev = section.previousElementSibling;
+            if (prev) section.parentNode.insertBefore(section, prev);
+        } else if (action === 'down') {
+            const next = section.nextElementSibling;
+            if (next) section.parentNode.insertBefore(next, section);
+        } else if (action === 'remove') {
+            if (!section.hasAttribute('data-block')) return;
+            const kind = section.getAttribute('data-block');
+            section.remove();
+            activeSection = null;
+            hideSectionMenu();
+            if (kind === 'referral') {
+                const tog = document.getElementById('block-referral-toggle');
+                if (tog) tog.checked = false;
+            }
+        }
+        markDirty();
+        captureActiveIntoStore();
+        if (activeSection) positionSectionMenu();
+    });
+    return menu;
+}
+
+function bindSectionMenu() {
+    ensureSectionMenu();
+    const root = elPreview.querySelector('#email-root');
+    if (!root) return;
+    const container = root.querySelector('.ef-email');
+    if (!container) return;
+
+    container.querySelectorAll(':scope > *').forEach(section => {
+        if (section.classList.contains('ef-header') || section.classList.contains('ef-footer')) return;
+        section.addEventListener('mouseenter', () => {
+            activeSection = section;
+            positionSectionMenu();
+        });
+        section.addEventListener('mouseleave', () => {
+            if (sectionMenuPersist) return;
+            setTimeout(() => {
+                if (sectionMenuPersist) return;
+                if (activeSection === section) hideSectionMenu();
+            }, 120);
+        });
+    });
+
+    const scroller = document.getElementById('preview-scroll');
+    if (scroller && !scroller.dataset.sectionMenuBound) {
+        scroller.addEventListener('scroll', () => {
+            if (activeSection) positionSectionMenu();
+        });
+        scroller.dataset.sectionMenuBound = 'true';
+    }
+}
+
+function positionSectionMenu() {
+    const menu = ensureSectionMenu();
+    if (!activeSection) { hideSectionMenu(); return; }
+    const rect = activeSection.getBoundingClientRect();
+    menu.hidden = false;
+    const removeBtn = menu.querySelector('.section-menu-remove');
+    if (removeBtn) removeBtn.style.display = activeSection.hasAttribute('data-block') ? 'inline-block' : 'none';
+    const menuW = menu.offsetWidth || 92;
+    let left = rect.right - menuW - 8;
+    let top = rect.top + 8;
+    left = Math.max(8, left);
+    if (top < 8) top = 8;
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+
+function hideSectionMenu() {
+    const menu = document.getElementById('section-menu');
+    if (!menu) return;
+    menu.hidden = true;
+    activeSection = null;
+}
+
 // ---------- iPhone Gmail preview modal ----------
 
 const PHONE_CLICKABLES_CSS = [
@@ -993,19 +1102,26 @@ const PHONE_CLICKABLES_CSS = [
 function bindIphonePreview() {
     const openBtn = document.getElementById('iphone-preview-btn');
     const closeBtn = document.getElementById('iphone-preview-close');
+    const closeX = document.getElementById('iphone-preview-close-x');
     const refreshBtn = document.getElementById('iphone-preview-refresh');
     const showClickables = document.getElementById('iphone-show-clickables');
     const modal = document.getElementById('iphone-preview-modal');
+    const stage = modal && modal.querySelector('.iphone-preview-stage');
     if (!openBtn || !modal) return;
 
     openBtn.addEventListener('click', openIphonePreview);
     if (closeBtn) closeBtn.addEventListener('click', closeIphonePreview);
+    if (closeX) closeX.addEventListener('click', closeIphonePreview);
     if (refreshBtn) refreshBtn.addEventListener('click', renderIphonePreview);
     if (showClickables) showClickables.addEventListener('change', renderIphonePreview);
 
-    modal.addEventListener('click', e => {
-        if (e.target === modal) closeIphonePreview();
-    });
+    // Backdrop click: anywhere on the stage that isn't the phone frame closes.
+    if (stage) {
+        stage.addEventListener('click', e => {
+            const frame = document.getElementById('iphone-frame');
+            if (frame && !frame.contains(e.target)) closeIphonePreview();
+        });
+    }
 
     document.querySelectorAll('.iphone-device-toggle button').forEach(btn => {
         btn.addEventListener('click', () => {
