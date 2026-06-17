@@ -1025,6 +1025,7 @@ html, body {
 }
 
 .photo-thumb {
+    position: relative;
     margin: 0;
     background: #1F1308;
     border: 1px solid var(--border-on-dark);
@@ -1060,6 +1061,57 @@ html, body {
     text-overflow: ellipsis;
 }
 
+.photo-thumb-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    line-height: 18px;
+    text-align: center;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(14, 7, 3, 0.78);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 100ms ease, background 100ms ease;
+}
+
+.photo-thumb:hover .photo-thumb-remove { opacity: 1; }
+.photo-thumb-remove:hover { background: var(--accent); }
+
+/* Add-image form row in the photo drawer. */
+.photo-add-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border-on-dark);
+    flex-shrink: 0;
+}
+
+.photo-add-url { flex: 2; }
+.photo-add-alt { flex: 1; }
+
+.photo-add-url,
+.photo-add-alt {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-on-dark-strong);
+    color: var(--text-on-dark);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 1px;
+    outline: none;
+}
+
+.photo-add-url:focus,
+.photo-add-alt:focus { border-color: var(--accent); }
+
 .photo-empty {
     grid-column: 1 / -1;
     text-align: center;
@@ -1072,50 +1124,4 @@ html, body {
 #preview-frame img.is-drop-target {
     outline: 3px solid var(--accent);
     outline-offset: -3px;
-}
-
-/* Reusable setup-notice block (same shape as .coach-setup-notice, parametrised). */
-.setup-notice {
-    background: var(--sand);
-    color: #2F2F2F;
-    border-radius: 2px;
-    padding: 12px 16px;
-    margin: 0 18px 12px;
-}
-
-.setup-notice[hidden] { display: none; }
-
-.setup-notice-title {
-    font-family: 'Belleza', Georgia, serif;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent-deep);
-    margin-bottom: 4px;
-}
-
-.setup-notice-body {
-    font-size: 12px;
-    line-height: 1.5;
-    color: #2F2F2F;
-    margin: 0 0 8px;
-}
-
-.setup-notice-dismiss {
-    background: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    color: #2F2F2F;
-    font-family: inherit;
-    font-weight: 300;
-    font-size: 9px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 1px;
-}
-
-.setup-notice-dismiss:hover {
-    border-color: var(--accent-deep);
-    color: var(--accent-deep);
 }

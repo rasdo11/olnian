@@ -708,21 +708,100 @@ function bindImageInputs() {
     });
 }
 
-// ---------- Photo drawer (Shopify Files) ----------
+// ---------- Photo drawer (local, no API) ----------
+//
+// Photos come from two places, merged: the static seed in photos.js
+// (window.PHOTO_LIBRARY) and a localStorage store the user fills via the
+// drawer's "Add image" field. Shopify CDN URLs are public, so no auth needed.
 
-let photoCache = null;
+const PHOTOS_KEY = 'olnian.photos.v1';
+
+function loadStoredPhotos() {
+    try {
+        const raw = localStorage.getItem(PHOTOS_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list.filter(p => p && p.url) : [];
+    } catch (_) {
+        return [];
+    }
+}
+
+function saveStoredPhotos(list) {
+    try {
+        localStorage.setItem(PHOTOS_KEY, JSON.stringify(list));
+    } catch (_) {}
+}
+
+// Accepts a raw string (newline/comma separated URLs) or an array; dedupes by
+// url against what's already stored. Returns the number actually added.
+function addStoredPhotos(input, alt) {
+    const urls = (Array.isArray(input) ? input : String(input || '').split(/[\s,]+/))
+        .map(u => u.trim())
+        .filter(Boolean);
+    if (!urls.length) return 0;
+    const stored = loadStoredPhotos();
+    const seen = new Set(stored.map(p => p.url));
+    let added = 0;
+    urls.forEach(url => {
+        if (seen.has(url)) return;
+        seen.add(url);
+        stored.push({ id: 'ph_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7), url: url, alt: (alt || '').trim() });
+        added++;
+    });
+    if (added) saveStoredPhotos(stored);
+    return added;
+}
+
+function removeStoredPhoto(id) {
+    const stored = loadStoredPhotos().filter(p => p.id !== id);
+    saveStoredPhotos(stored);
+}
+
+// Merge seed (read-only) + stored (removable), dedupe by url. Seed entries get
+// no id (so no remove control); stored entries carry their id.
+function getAllPhotos() {
+    const seed = Array.isArray(window.PHOTO_LIBRARY) ? window.PHOTO_LIBRARY : [];
+    const out = [];
+    const seen = new Set();
+    seed.forEach(p => {
+        if (!p || !p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: false });
+    });
+    loadStoredPhotos().forEach(p => {
+        if (!p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ id: p.id, url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: true });
+    });
+    return out;
+}
 
 function bindPhotoDrawer() {
     const openBtn = document.getElementById('photos-toggle-btn');
     const closeBtn = document.getElementById('photo-drawer-close');
-    const refreshBtn = document.getElementById('photo-drawer-refresh');
     const search = document.getElementById('photo-search');
     if (openBtn) openBtn.addEventListener('click', openPhotoDrawer);
     if (closeBtn) closeBtn.addEventListener('click', closePhotoDrawer);
-    if (refreshBtn) refreshBtn.addEventListener('click', () => { photoCache = null; loadPhotos(); });
-    if (search) search.addEventListener('input', () => renderPhotoGrid(photoCache || [], search.value));
-    const dismiss = document.getElementById('photo-setup-dismiss');
-    if (dismiss) dismiss.addEventListener('click', () => hideSetupNotice(document.getElementById('photo-setup-notice')));
+    if (search) search.addEventListener('input', () => renderPhotoGrid(getAllPhotos(), search.value));
+
+    const addForm = document.getElementById('photo-add-form');
+    const addUrl = document.getElementById('photo-add-url');
+    const addAlt = document.getElementById('photo-add-alt');
+    if (addForm) {
+        addForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const added = addStoredPhotos(addUrl ? addUrl.value : '', addAlt ? addAlt.value : '');
+            if (!added) {
+                flash('Enter an image URL');
+                return;
+            }
+            if (addUrl) addUrl.value = '';
+            if (addAlt) addAlt.value = '';
+            renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+            flash('Added ' + added + ' image' + (added === 1 ? '' : 's'));
+            if (addUrl) addUrl.focus();
+        });
+    }
 }
 
 function openPhotoDrawer() {
@@ -730,7 +809,8 @@ function openPhotoDrawer() {
     if (!drawer) return;
     drawer.hidden = false;
     requestAnimationFrame(() => drawer.classList.add('is-open'));
-    if (!photoCache) loadPhotos();
+    const search = document.getElementById('photo-search');
+    renderPhotoGrid(getAllPhotos(), search ? search.value : '');
 }
 
 function closePhotoDrawer() {
@@ -740,32 +820,6 @@ function closePhotoDrawer() {
     setTimeout(() => { drawer.hidden = true; }, 220);
 }
 
-async function loadPhotos() {
-    const grid = document.getElementById('photo-grid');
-    if (grid) grid.innerHTML = '<div class="photo-empty">Loading…</div>';
-    try {
-        const res = await fetch('/api/shopify-files');
-        const data = await res.json();
-        if (!res.ok) {
-            if (data && data.code === 'NO_SHOPIFY') {
-                showSetupNotice(
-                    document.getElementById('photo-setup-notice'),
-                    data.help || 'Add SHOPIFY_STORE_DOMAIN + SHOPIFY_ADMIN_API_TOKEN to your Vercel env vars and redeploy.'
-                );
-                if (grid) grid.innerHTML = '';
-                return;
-            }
-            throw new Error(data.error || 'Failed to load photos.');
-        }
-        hideSetupNotice(document.getElementById('photo-setup-notice'));
-        photoCache = Array.isArray(data.files) ? data.files : [];
-        const search = document.getElementById('photo-search');
-        renderPhotoGrid(photoCache, search ? search.value : '');
-    } catch (e) {
-        if (grid) grid.innerHTML = '<div class="photo-empty">Couldn\'t load photos: ' + (e.message || 'unknown error') + '</div>';
-    }
-}
-
 function renderPhotoGrid(files, filter) {
     const grid = document.getElementById('photo-grid');
     if (!grid) return;
@@ -773,7 +827,7 @@ function renderPhotoGrid(files, filter) {
     const rows = files.filter(f => !q || (f.alt || '').toLowerCase().includes(q) || (f.filename || '').toLowerCase().includes(q));
     grid.innerHTML = '';
     if (!rows.length) {
-        grid.innerHTML = '<div class="photo-empty">' + (files.length ? 'No matches.' : 'No photos in Shopify Files yet.') + '</div>';
+        grid.innerHTML = '<div class="photo-empty">' + (files.length ? 'No matches.' : 'No photos yet — paste an image URL above to start your library.') + '</div>';
         return;
     }
     rows.forEach(f => {
@@ -788,6 +842,21 @@ function renderPhotoGrid(files, filter) {
         cap.textContent = f.alt || f.filename || '';
         fig.appendChild(img);
         fig.appendChild(cap);
+        if (f.removable && f.id) {
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'photo-thumb-remove';
+            del.title = 'Remove from library';
+            del.textContent = '×';
+            del.addEventListener('click', ev => {
+                ev.stopPropagation();
+                removeStoredPhoto(f.id);
+                const search = document.getElementById('photo-search');
+                renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+                flash('Removed');
+            });
+            fig.appendChild(del);
+        }
         fig.addEventListener('dragstart', e => {
             e.dataTransfer.effectAllowed = 'copy';
             e.dataTransfer.setData('text/uri-list', f.url);
@@ -829,20 +898,6 @@ function bindImageDropTargets() {
             flash('Image updated');
         });
     });
-}
-
-// ---------- Generic setup notice (parametrised from showCoachSetupNotice pattern) ----------
-
-function showSetupNotice(noticeEl, help) {
-    if (!noticeEl) return;
-    const body = noticeEl.querySelector('.setup-notice-body, .coach-setup-body');
-    if (body) body.textContent = help;
-    noticeEl.hidden = false;
-}
-
-function hideSetupNotice(noticeEl) {
-    if (!noticeEl) return;
-    noticeEl.hidden = true;
 }
 
 function addPickerSection(label, hint) {
