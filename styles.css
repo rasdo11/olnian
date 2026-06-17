@@ -382,19 +382,6 @@ html, body {
     font-size: 11px;
 }
 
-.toolbar-group-cta {
-    gap: 6px;
-}
-
-.toolbar-input.cta-label {
-    width: 150px;
-}
-
-.toolbar-input.cta-url {
-    width: 200px;
-    font-size: 11px;
-}
-
 .toolbar-color {
     width: 36px;
     height: 30px;
@@ -506,7 +493,7 @@ html, body {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    background: var(--app-bg);
+    background: #FFFFFF;
     padding: 32px 24px 64px;
 }
 
@@ -1586,6 +1573,60 @@ html, body {
 
 .section-menu .section-menu-remove { color: #ffb3a0; }
 .section-menu .section-menu-remove:hover { background: var(--accent-deep); color: #fff; }
+
+/* Inline element menu — floats over a hovered CTA button or linked image,
+   offering link editing (both) and delete (CTA buttons only). */
+.element-menu {
+    position: fixed;
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(20, 12, 6, 0.94);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.element-menu[hidden] { display: none; }
+
+.element-menu button {
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    font: 11px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: 0.04em;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: background 100ms ease;
+    white-space: nowrap;
+}
+
+.element-menu button:hover { background: var(--accent); }
+
+.element-menu .element-menu-remove {
+    color: #ffb3a0;
+    font-size: 15px;
+    padding: 0;
+    width: 26px;
+}
+.element-menu .element-menu-remove:hover { background: var(--accent-deep); color: #fff; }
+
+.element-menu-input {
+    width: 220px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    color: #fff;
+    font-size: 11px;
+    padding: 0 8px;
+}
+.element-menu-input:focus { outline: none; border-color: var(--accent); }
 
 .shopify-status {
     font-size: 10px;
