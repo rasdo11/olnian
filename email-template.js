@@ -14,7 +14,7 @@ window.applyAccent = function (s, hex) {
 window.applyAccentToDOM = function (root, hex) {
     if (!root || !hex) return;
     const colorTargets = root.querySelectorAll(
-        '.ef-wordmark-accent, .ef-hero-kicker, .ef-eyebrow, .ef-stat-num, .ef-step-num, .ef-benefit-dot'
+        '.ef-hero-kicker, .ef-eyebrow, .ef-stat-num, .ef-step-num, .ef-benefit-dot'
     );
     colorTargets.forEach(el => {
         if (el.classList.contains('ef-benefit-dot')) {
@@ -76,7 +76,7 @@ img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: b
 }
 
 .ef-wordmark { font-family: 'Belleza', Georgia, serif; font-size: 20px; letter-spacing: 0.14em; color: #2F2F2F; text-transform: uppercase; line-height: 1; }
-.ef-wordmark-accent { color: #F2663A; }
+.ef-wordmark-accent { color: inherit; }
 .ef-tagline { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #6B6B6B; }
 
 .ef-hero-wrap { background: #EAD2B7; }
@@ -132,7 +132,7 @@ img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: b
 
 .ef-footer { background: #2F2F2F; padding: 28px 22px; text-align: center; }
 .ef-footer-wordmark { font-family: 'Belleza', Georgia, serif; font-size: 18px; letter-spacing: 0.14em; color: #FFFFFF; margin: 0 0 5px; text-transform: uppercase; }
-.ef-footer-wordmark .ef-wordmark-accent { color: #F2663A; }
+.ef-footer-wordmark .ef-wordmark-accent { color: inherit; }
 .ef-footer-tagline { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.32); margin: 0 0 18px; }
 .ef-disclaimer { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 11px; color: rgba(255,255,255,0.26); line-height: 1.6; margin: 0 0 14px; }
 .ef-footer-links { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 11px; color: rgba(255,255,255,0.32); letter-spacing: 0.04em; margin: 0; line-height: 1.7; }
@@ -154,7 +154,7 @@ img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: b
 const HEADER_HTML = `  <table class="ef-header" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" style="background:#FFFFFF;border-bottom:1px solid #BDBDBD;">
     <tr>
       <td align="left" valign="middle" style="padding:16px 22px;">
-        <span class="ef-wordmark" style="font-family:'Belleza',Georgia,serif;font-size:20px;letter-spacing:0.14em;color:#2F2F2F;text-transform:uppercase;line-height:1;">ØL<span class="ef-wordmark-accent" style="color:#F2663A;">N</span>IAN</span>
+        <span class="ef-wordmark" style="font-family:'Belleza',Georgia,serif;font-size:20px;letter-spacing:0.14em;color:#2F2F2F;text-transform:uppercase;line-height:1;">ØL<span class="ef-wordmark-accent" style="color:inherit;">N</span>IAN</span>
       </td>
       <td align="right" valign="middle" style="padding:16px 22px;">
         <span class="ef-tagline" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#6B6B6B;">Clarity is Luxury</span>
@@ -163,7 +163,7 @@ const HEADER_HTML = `  <table class="ef-header" role="presentation" border="0" c
   </table>`;
 
 const FOOTER_HTML = `  <div class="ef-footer" style="background:#2F2F2F;padding:28px 22px;text-align:center;">
-    <p class="ef-footer-wordmark" style="font-family:'Belleza',Georgia,serif;font-size:18px;letter-spacing:0.14em;color:#FFFFFF;margin:0 0 5px;text-transform:uppercase;">ØL<span class="ef-wordmark-accent" style="color:#F2663A;">N</span>IAN</p>
+    <p class="ef-footer-wordmark" style="font-family:'Belleza',Georgia,serif;font-size:18px;letter-spacing:0.14em;color:#FFFFFF;margin:0 0 5px;text-transform:uppercase;">ØL<span class="ef-wordmark-accent" style="color:inherit;">N</span>IAN</p>
     <p class="ef-footer-tagline" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin:0 0 18px;">Made in small batches. Tested in every one.</p>
     <p class="ef-disclaimer" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;color:rgba(255,255,255,0.26);line-height:1.6;margin:0 0 14px;">These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
     <p class="ef-footer-links" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;color:rgba(255,255,255,0.32);letter-spacing:0.04em;margin:0;line-height:1.7;">
@@ -200,7 +200,7 @@ ${HEADER_HTML}
 
   <!-- HERO TEXT -->
   <div class="ef-hero-text" style="background:#FFFFFF;padding:28px 22px 22px;">
-    <p class="ef-hero-kicker" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#F2663A;margin:0 0 12px;">Mother's Day · May 10, 2026</p>
+    <p class="ef-hero-kicker" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#F2663A;margin:0 0 12px;">Limited offer</p>
     <h1 class="ef-hero-headline" style="font-family:'Belleza',Georgia,serif;font-size:28px;font-weight:400;line-height:1.18;color:#2F2F2F;margin:0;letter-spacing:0.01em;">The supplement doctors<br>wish they'd told you<br>about at 35.</h1>
     <p class="ef-hero-sub" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.6;color:#3A3A3A;margin:14px 0 0;">15% off this weekend with code MOM15.</p>
   </div>

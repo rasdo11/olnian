@@ -276,6 +276,7 @@ function mountActive() {
     elPreview.innerHTML = mounted.html;
     applyContentEditable();
     const root = elPreview.querySelector('#email-root');
+    normalizeWordmark(root);
     window.applyAccentToDOM(root, mounted.accentColor);
     window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
@@ -291,6 +292,15 @@ function mountActive() {
     renderVariants();
     renderChat();
     renderSuggestions();
+}
+
+// Force every wordmark "N" back to inherit the parent color, regardless of
+// whatever accent hex was baked into existing drafts before Round 4.
+function normalizeWordmark(root) {
+    if (!root) return;
+    root.querySelectorAll('.ef-wordmark-accent').forEach(el => {
+        el.style.color = 'inherit';
+    });
 }
 
 function migrateLegacyHTML(html, templateId) {
@@ -926,6 +936,9 @@ function bindCoach() {
     elActionButtons.querySelectorAll('button[data-action]').forEach(btn => {
         btn.addEventListener('click', () => requestCopy(btn.dataset.action, ACTION_PROMPTS[btn.dataset.action]));
     });
+
+    const dismiss = document.getElementById('coach-setup-dismiss');
+    if (dismiss) dismiss.addEventListener('click', () => hideCoachSetupNotice());
 }
 
 function sendChat() {
@@ -958,8 +971,21 @@ async function requestCopy(action, message) {
             })
         });
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Copy coach request failed.');
+        if (!res.ok) {
+            if (data && data.code === 'NO_KEY') {
+                showCoachSetupNotice(data.help || 'Add OPENAI_API_KEY to your Vercel env vars and redeploy.');
+                store.chat.push({
+                    role: 'assistant',
+                    content: 'Copy Coach needs an OpenAI API key. ' + (data.help || ''),
+                    createdAt: Date.now()
+                });
+                renderChat();
+                return;
+            }
+            throw new Error(data.error || 'Copy coach request failed.');
+        }
 
+        hideCoachSetupNotice();
         const reply = data.reply || 'I made a few options for you.';
         store.chat.push({ role: 'assistant', content: reply, createdAt: Date.now() });
         addSuggestionsFromResponse(data, action, prompt);
@@ -977,6 +1003,24 @@ async function requestCopy(action, message) {
     } finally {
         setCoachBusy(false);
     }
+}
+
+function showCoachSetupNotice(help) {
+    const notice = document.getElementById('coach-setup-notice');
+    if (notice) {
+        const body = notice.querySelector('.coach-setup-body');
+        if (body) body.textContent = help;
+        notice.hidden = false;
+    }
+    if (elActionButtons) elActionButtons.querySelectorAll('button').forEach(b => { b.disabled = true; });
+    if (elChatSendBtn) elChatSendBtn.disabled = true;
+}
+
+function hideCoachSetupNotice() {
+    const notice = document.getElementById('coach-setup-notice');
+    if (notice) notice.hidden = true;
+    if (elActionButtons) elActionButtons.querySelectorAll('button').forEach(b => { b.disabled = false; });
+    if (elChatSendBtn) elChatSendBtn.disabled = false;
 }
 
 function addSuggestionsFromResponse(data, action, prompt) {

@@ -103,6 +103,12 @@
                 <span id="selected-section">No section selected</span>
             </div>
 
+            <div id="coach-setup-notice" class="coach-setup-notice" hidden>
+                <div class="coach-setup-title">Copy Coach needs setup</div>
+                <p class="coach-setup-body">Add OPENAI_API_KEY to your Vercel env vars and redeploy.</p>
+                <button type="button" class="coach-setup-dismiss" id="coach-setup-dismiss">Dismiss</button>
+            </div>
+
             <div id="coach-actions" class="coach-actions">
                 <button type="button" data-action="subject_variants">Suggest Subjects</button>
                 <button type="button" data-action="punchier">Make Punchier</button>

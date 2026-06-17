@@ -670,6 +670,52 @@ html, body {
     font-size: 11px;
 }
 
+.coach-setup-notice {
+    background: var(--sand);
+    color: #2F2F2F;
+    border-radius: 2px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    position: relative;
+}
+
+.coach-setup-notice[hidden] { display: none; }
+
+.coach-setup-title {
+    font-family: 'Belleza', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    margin-bottom: 4px;
+}
+
+.coach-setup-body {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #2F2F2F;
+    margin: 0 0 8px;
+}
+
+.coach-setup-dismiss {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #2F2F2F;
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 1px;
+}
+
+.coach-setup-dismiss:hover {
+    border-color: var(--accent-deep);
+    color: var(--accent-deep);
+}
+
 .coach-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
