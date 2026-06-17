@@ -59,7 +59,22 @@
                 <button type="button" data-width="480">480</button>
                 <button type="button" data-width="600">600</button>
             </div>
-            <button id="photos-toggle-btn" class="btn" type="button" title="Open Shopify photo library">Photos</button>
+            <button id="photos-toggle-btn" class="btn" type="button" title="Open photo library">Photos</button>
+            <div id="blocks-wrap" class="blocks-wrap">
+                <button id="blocks-toggle-btn" class="btn" type="button" aria-haspopup="menu" aria-expanded="false">Blocks</button>
+                <ul id="blocks-panel" class="blocks-panel" role="menu" hidden>
+                    <li class="blocks-panel-row">
+                        <div class="blocks-panel-info">
+                            <strong>Referral note</strong>
+                            <span>“No need to unsubscribe…” reassurance block above the footer. Editable inline.</span>
+                        </div>
+                        <label class="block-switch" title="Toggle referral note">
+                            <input type="checkbox" id="block-referral-toggle">
+                            <span class="block-switch-slider"></span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
             <div class="toolbar-spacer"></div>
             <span id="save-indicator"></span>
             <button id="save-btn" class="btn" type="button">Save Draft</button>

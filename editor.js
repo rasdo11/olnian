@@ -20,6 +20,7 @@ const EDITABLE_SELECTOR = [
     '.ef-stat-num', '.ef-stat-label',
     '.ef-step-num', '.ef-step-title', '.ef-step-body',
     '.ef-closing-h', '.ef-closing-sub',
+    '.ef-referral-text',
     '.ef-footer-wordmark', '.ef-footer-tagline', '.ef-disclaimer', '.ef-footer-links'
 ].join(',');
 
@@ -33,6 +34,7 @@ const TEXT_TRANSFER_CLASSES = [
     'ef-stat-num', 'ef-stat-label',
     'ef-step-num', 'ef-step-title', 'ef-step-body',
     'ef-closing-h', 'ef-closing-sub',
+    'ef-referral-text',
     'ef-footer-wordmark', 'ef-footer-tagline', 'ef-disclaimer', 'ef-footer-links'
 ];
 
@@ -318,7 +320,7 @@ function normalizeWordmark(root) {
 
 function migrateLegacyHTML(html, templateId) {
     if (!html) return html;
-    if (html.indexOf('data-v="4"') !== -1) return html;
+    if (html.indexOf('data-v="5"') !== -1) return html;
 
     const targetTemplate = window.getTemplate(templateId || inferTemplateId(html));
     const oldWrap = document.createElement('div');
@@ -337,6 +339,16 @@ function migrateLegacyHTML(html, templateId) {
         const o = oldWrap.querySelector(sel);
         const n = newWrap.querySelector(sel);
         if (o && n && o.getAttribute(attr)) n.setAttribute(attr, o.getAttribute(attr));
+    });
+
+    // Carry forward any optional toggleable blocks (e.g. referral note) that
+    // exist in the old draft but aren't in the fresh template.
+    oldWrap.querySelectorAll('[data-block]').forEach(block => {
+        const newRoot = newWrap.querySelector('#email-root');
+        const newFooter = newWrap.querySelector('.ef-footer');
+        if (!newRoot || !newFooter) return;
+        if (newRoot.querySelector('[data-block="' + block.getAttribute('data-block') + '"]')) return;
+        newFooter.parentNode.insertBefore(block.cloneNode(true), newFooter);
     });
 
     return newWrap.innerHTML;
@@ -817,12 +829,14 @@ function closePhotoDrawer() {
     const drawer = document.getElementById('photo-drawer');
     if (!drawer) return;
     drawer.classList.remove('is-open');
+    hidePhotoPreview();
     setTimeout(() => { drawer.hidden = true; }, 220);
 }
 
 function renderPhotoGrid(files, filter) {
     const grid = document.getElementById('photo-grid');
     if (!grid) return;
+    hidePhotoPreview();
     const q = (filter || '').trim().toLowerCase();
     const rows = files.filter(f => !q || (f.alt || '').toLowerCase().includes(q) || (f.filename || '').toLowerCase().includes(q));
     grid.innerHTML = '';
@@ -857,7 +871,10 @@ function renderPhotoGrid(files, filter) {
             });
             fig.appendChild(del);
         }
+        fig.addEventListener('mouseenter', () => showPhotoPreview(fig, f));
+        fig.addEventListener('mouseleave', hidePhotoPreview);
         fig.addEventListener('dragstart', e => {
+            hidePhotoPreview();
             e.dataTransfer.effectAllowed = 'copy';
             e.dataTransfer.setData('text/uri-list', f.url);
             e.dataTransfer.setData('text/plain', f.url);
@@ -870,6 +887,112 @@ function renderPhotoGrid(files, filter) {
         });
         grid.appendChild(fig);
     });
+}
+
+// ---------- Blocks panel (toggleable insertable sections) ----------
+
+function bindBlocksPanel() {
+    const btn = document.getElementById('blocks-toggle-btn');
+    const panel = document.getElementById('blocks-panel');
+    const toggle = document.getElementById('block-referral-toggle');
+    if (!btn || !panel || !toggle) return;
+
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = panel.hasAttribute('hidden');
+        if (open) {
+            syncBlocksPanelState();
+            panel.removeAttribute('hidden');
+            btn.classList.add('is-open');
+        } else {
+            panel.setAttribute('hidden', '');
+            btn.classList.remove('is-open');
+        }
+    });
+    document.addEventListener('click', e => {
+        if (panel.hasAttribute('hidden')) return;
+        if (e.target === btn || panel.contains(e.target)) return;
+        panel.setAttribute('hidden', '');
+        btn.classList.remove('is-open');
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !panel.hasAttribute('hidden')) {
+            panel.setAttribute('hidden', '');
+            btn.classList.remove('is-open');
+        }
+    });
+
+    toggle.addEventListener('change', () => {
+        setReferralBlock(toggle.checked);
+    });
+}
+
+function syncBlocksPanelState() {
+    const toggle = document.getElementById('block-referral-toggle');
+    if (!toggle) return;
+    toggle.checked = isReferralPresent();
+}
+
+function isReferralPresent() {
+    const root = elPreview && elPreview.querySelector('#email-root');
+    return !!(root && root.querySelector('[data-block="referral"]'));
+}
+
+function setReferralBlock(on) {
+    const root = elPreview && elPreview.querySelector('#email-root');
+    if (!root) return;
+    const existing = root.querySelector('[data-block="referral"]');
+    if (on && existing) return;
+    if (!on && !existing) return;
+    if (on) {
+        const footer = root.querySelector('.ef-footer');
+        if (!footer) return;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = (window.REFERRAL_BLOCK_HTML || '').trim();
+        const block = tmp.firstElementChild;
+        if (!block) return;
+        footer.parentNode.insertBefore(block, footer);
+        applyContentEditable();
+        flash('Referral note added');
+    } else {
+        existing.remove();
+        flash('Referral note removed');
+    }
+    markDirty();
+    captureActiveIntoStore();
+}
+
+// ---------- Photo hover preview (escapes drawer overflow) ----------
+
+function showPhotoPreview(thumbEl, file) {
+    hidePhotoPreview();
+    const pop = document.createElement('div');
+    pop.id = 'photo-hover-preview';
+    pop.className = 'photo-hover-preview';
+    const img = document.createElement('img');
+    img.src = file.url;
+    img.alt = file.alt || file.filename || '';
+    pop.appendChild(img);
+    const cap = document.createElement('div');
+    cap.className = 'photo-hover-preview-cap';
+    cap.textContent = file.alt || file.filename || '';
+    pop.appendChild(cap);
+    document.body.appendChild(pop);
+
+    const rect = thumbEl.getBoundingClientRect();
+    const popW = 320;
+    const popH = 360;
+    let left = rect.left + rect.width / 2 - popW / 2;
+    let top = rect.top - popH - 12;
+    if (top < 8) top = rect.bottom + 12;
+    left = Math.max(8, Math.min(window.innerWidth - popW - 8, left));
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+}
+
+function hidePhotoPreview() {
+    const existing = document.getElementById('photo-hover-preview');
+    if (existing) existing.remove();
 }
 
 // ---------- Image drop targets in the preview ----------
@@ -1474,6 +1597,7 @@ function init() {
     bindSelectionTracking();
     bindCoach();
     bindPhotoDrawer();
+    bindBlocksPanel();
 
     elPreview.addEventListener('input', markDirty);
     elDraftSubject.addEventListener('input', markDirty);
