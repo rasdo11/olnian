@@ -1586,3 +1586,10 @@ html, body {
 
 .section-menu .section-menu-remove { color: #ffb3a0; }
 .section-menu .section-menu-remove:hover { background: var(--accent-deep); color: #fff; }
+
+.shopify-status {
+    font-size: 10px;
+    color: var(--text-on-dark-sub);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}

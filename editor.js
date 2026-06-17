@@ -770,8 +770,9 @@ function removeStoredPhoto(id) {
     saveStoredPhotos(stored);
 }
 
-// Merge seed (read-only) + stored (removable), dedupe by url. Seed entries get
-// no id (so no remove control); stored entries carry their id.
+// Merge seed (read-only) + Shopify (read-only, fetched) + stored (removable),
+// dedupe by url. Seed and Shopify entries get no id (no remove control); stored
+// entries carry their id.
 function getAllPhotos() {
     const seed = Array.isArray(window.PHOTO_LIBRARY) ? window.PHOTO_LIBRARY : [];
     const out = [];
@@ -779,22 +780,70 @@ function getAllPhotos() {
     seed.forEach(p => {
         if (!p || !p.url || seen.has(p.url)) return;
         seen.add(p.url);
-        out.push({ url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: false });
+        out.push({ url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: false, source: 'seed' });
+    });
+    (shopifyPhotos || []).forEach(p => {
+        if (!p || !p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ url: p.url, alt: p.alt || '', filename: p.filename || p.url.split('/').pop().split('?')[0], removable: false, source: 'shopify' });
     });
     loadStoredPhotos().forEach(p => {
         if (!p.url || seen.has(p.url)) return;
         seen.add(p.url);
-        out.push({ id: p.id, url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: true });
+        out.push({ id: p.id, url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: true, source: 'local' });
     });
     return out;
+}
+
+// Optional Shopify Files source. Fetched lazily on first drawer open. If env
+// vars aren't configured or auth fails, we silently fall back to seed +
+// localStorage — no error noise.
+let shopifyPhotos = [];
+let shopifyFetchState = 'idle';
+
+function fetchShopifyPhotos(force) {
+    if (shopifyFetchState === 'loading') return;
+    if (shopifyFetchState === 'ok' && !force) return;
+    shopifyFetchState = 'loading';
+    fetch('/api/shopify-files')
+        .then(r => r.json().then(d => ({ ok: r.ok, status: r.status, data: d })))
+        .then(({ ok, data }) => {
+            if (ok && Array.isArray(data.files) && data.files.length) {
+                shopifyPhotos = data.files;
+                shopifyFetchState = 'ok';
+                const drawer = document.getElementById('photo-drawer');
+                if (drawer && !drawer.hidden) {
+                    const search = document.getElementById('photo-search');
+                    renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+                }
+                updateShopifyStatusLabel(shopifyPhotos.length + ' from Shopify');
+            } else {
+                shopifyFetchState = 'fail';
+                updateShopifyStatusLabel('');
+            }
+        })
+        .catch(() => {
+            shopifyFetchState = 'fail';
+            updateShopifyStatusLabel('');
+        });
+}
+
+function updateShopifyStatusLabel(text) {
+    const el = document.getElementById('shopify-status');
+    if (el) el.textContent = text;
 }
 
 function bindPhotoDrawer() {
     const openBtn = document.getElementById('photos-toggle-btn');
     const closeBtn = document.getElementById('photo-drawer-close');
+    const syncBtn = document.getElementById('photo-drawer-sync');
     const search = document.getElementById('photo-search');
     if (openBtn) openBtn.addEventListener('click', openPhotoDrawer);
     if (closeBtn) closeBtn.addEventListener('click', closePhotoDrawer);
+    if (syncBtn) syncBtn.addEventListener('click', () => {
+        updateShopifyStatusLabel('Syncing…');
+        fetchShopifyPhotos(true);
+    });
     if (search) search.addEventListener('input', () => renderPhotoGrid(getAllPhotos(), search.value));
 
     const addForm = document.getElementById('photo-add-form');
@@ -824,6 +873,7 @@ function openPhotoDrawer() {
     requestAnimationFrame(() => drawer.classList.add('is-open'));
     const search = document.getElementById('photo-search');
     renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+    fetchShopifyPhotos(false);
 }
 
 function closePhotoDrawer() {
