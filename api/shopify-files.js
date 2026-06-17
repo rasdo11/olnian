@@ -1,6 +1,8 @@
-// Shopify Files API proxy. Lists files from the brand's Shopify admin so the
-// editor's photo drawer can show drag-droppable thumbnails. Requires an Admin
-// API access token with `read_files` scope.
+// Shopify Files API proxy. Optional: if SHOPIFY_STORE_DOMAIN and
+// SHOPIFY_ADMIN_API_TOKEN are set in the env, the photo drawer pulls the
+// brand's Files library and merges it with the local library. If either var
+// is missing, returns a structured "not configured" response so the
+// frontend can silently skip without surfacing an error.
 
 const SHOPIFY_API_VERSION = '2024-01';
 
@@ -13,11 +15,7 @@ module.exports = async function handler(req, res) {
     const token = process.env.SHOPIFY_ADMIN_API_TOKEN;
 
     if (!domain || !token) {
-        return res.status(500).json({
-            error: 'Shopify credentials are not configured.',
-            code: 'NO_SHOPIFY',
-            help: 'Add SHOPIFY_STORE_DOMAIN (e.g. olnian.myshopify.com) and SHOPIFY_ADMIN_API_TOKEN to your Vercel env vars and redeploy. Generate the token in Shopify Admin under Settings → Apps and sales channels → Develop apps → create a custom app with the read_files scope.'
-        });
+        return res.status(200).json({ files: [], code: 'NOT_CONFIGURED' });
     }
 
     const url = `https://${domain}/admin/api/${SHOPIFY_API_VERSION}/files.json?limit=100`;
@@ -27,7 +25,11 @@ module.exports = async function handler(req, res) {
         });
         if (!response.ok) {
             const text = await response.text();
-            return res.status(response.status).json({ error: 'Shopify request failed: ' + response.status, detail: text.slice(0, 400) });
+            return res.status(response.status).json({
+                error: 'Shopify request failed: ' + response.status,
+                detail: text.slice(0, 400),
+                code: response.status === 401 ? 'AUTH' : 'UPSTREAM'
+            });
         }
         const data = await response.json();
         const raw = Array.isArray(data.files) ? data.files : [];
@@ -35,17 +37,13 @@ module.exports = async function handler(req, res) {
             .filter(f => f && (f.url || (f.preview && f.preview.image && f.preview.image.url)))
             .map(f => {
                 const previewUrl = f.preview && f.preview.image && f.preview.image.url;
-                const url = f.url || previewUrl;
-                const width = (f.preview && f.preview.image && f.preview.image.width) || f.width || null;
-                const height = (f.preview && f.preview.image && f.preview.image.height) || f.height || null;
-                const filename = url ? url.split('/').pop().split('?')[0] : '';
+                const fileUrl = f.url || previewUrl;
+                const filename = fileUrl ? fileUrl.split('/').pop().split('?')[0] : '';
                 return {
-                    id: String(f.id || ''),
-                    url,
+                    id: 'shop_' + String(f.id || filename),
+                    url: fileUrl,
                     alt: f.alt || '',
-                    filename,
-                    width,
-                    height,
+                    filename: filename,
                     createdAt: f.created_at || null
                 };
             })
@@ -53,6 +51,6 @@ module.exports = async function handler(req, res) {
 
         return res.status(200).json({ files });
     } catch (e) {
-        return res.status(500).json({ error: e.message || 'Failed to reach Shopify.' });
+        return res.status(500).json({ error: e.message || 'Failed to reach Shopify.', code: 'NETWORK' });
     }
 };

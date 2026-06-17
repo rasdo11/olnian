@@ -130,6 +130,9 @@ img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: b
 .ef-closing-h { font-family: 'Belleza', Georgia, serif; font-size: 24px; font-weight: 400; margin: 0 0 10px; line-height: 1.25; color: #2F2F2F; letter-spacing: 0.01em; }
 .ef-closing-sub { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 13px; color: #6B6B6B; margin: 0 0 22px; letter-spacing: 0.04em; }
 
+.ef-referral { padding: 22px 22px; text-align: center; background: #F6F1EA; border-bottom: 1px solid #BDBDBD; }
+.ef-referral-text { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 12px; line-height: 1.7; color: #4A4A4A; margin: 0 auto; letter-spacing: 0.02em; max-width: 520px; }
+
 .ef-footer { background: #2F2F2F; padding: 28px 22px; text-align: center; }
 .ef-footer-wordmark { font-family: 'Belleza', Georgia, serif; font-size: 18px; letter-spacing: 0.14em; color: #FFFFFF; margin: 0 0 5px; text-transform: uppercase; }
 .ef-footer-wordmark .ef-wordmark-accent { color: inherit; }
@@ -172,6 +175,11 @@ const FOOTER_HTML = `  <div class="ef-footer" style="background:#2F2F2F;padding:
       <a href="#" style="color:rgba(255,255,255,0.42);text-decoration:underline;">Manage preferences</a>
     </p>
   </div>`;
+
+window.REFERRAL_BLOCK_HTML = `  <div class="ef-referral" data-block="referral" style="padding:22px 22px;text-align:center;background:#F6F1EA;border-bottom:1px solid #BDBDBD;">
+    <p class="ef-referral-text" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:12px;line-height:1.7;color:#4A4A4A;margin:0 auto;letter-spacing:0.02em;max-width:520px;">No need to unsubscribe. You will not receive another email from us. This was sent as a referral from an existing customer. ØLNIAN grows through its community. No social media. No Amazon. Just women sharing what they trust.</p>
+  </div>
+`;
 
 function primaryCtaBlock(label, url) {
     return `  <div class="ef-cta-wrap" style="padding:0 22px 28px;background:#FFFFFF;border-bottom:1px solid #BDBDBD;">

@@ -20,6 +20,7 @@ const EDITABLE_SELECTOR = [
     '.ef-stat-num', '.ef-stat-label',
     '.ef-step-num', '.ef-step-title', '.ef-step-body',
     '.ef-closing-h', '.ef-closing-sub',
+    '.ef-referral-text',
     '.ef-footer-wordmark', '.ef-footer-tagline', '.ef-disclaimer', '.ef-footer-links'
 ].join(',');
 
@@ -33,6 +34,7 @@ const TEXT_TRANSFER_CLASSES = [
     'ef-stat-num', 'ef-stat-label',
     'ef-step-num', 'ef-step-title', 'ef-step-body',
     'ef-closing-h', 'ef-closing-sub',
+    'ef-referral-text',
     'ef-footer-wordmark', 'ef-footer-tagline', 'ef-disclaimer', 'ef-footer-links'
 ];
 
@@ -293,6 +295,7 @@ function mountActive() {
     window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
     bindImageDropTargets();
+    bindSectionMenu();
     elDraftName.value = d.name;
     elDraftSubject.value = mounted.subject || '';
     elDraftPreheader.value = mounted.preheader || '';
@@ -318,7 +321,7 @@ function normalizeWordmark(root) {
 
 function migrateLegacyHTML(html, templateId) {
     if (!html) return html;
-    if (html.indexOf('data-v="4"') !== -1) return html;
+    if (html.indexOf('data-v="5"') !== -1) return html;
 
     const targetTemplate = window.getTemplate(templateId || inferTemplateId(html));
     const oldWrap = document.createElement('div');
@@ -337,6 +340,16 @@ function migrateLegacyHTML(html, templateId) {
         const o = oldWrap.querySelector(sel);
         const n = newWrap.querySelector(sel);
         if (o && n && o.getAttribute(attr)) n.setAttribute(attr, o.getAttribute(attr));
+    });
+
+    // Carry forward any optional toggleable blocks (e.g. referral note) that
+    // exist in the old draft but aren't in the fresh template.
+    oldWrap.querySelectorAll('[data-block]').forEach(block => {
+        const newRoot = newWrap.querySelector('#email-root');
+        const newFooter = newWrap.querySelector('.ef-footer');
+        if (!newRoot || !newFooter) return;
+        if (newRoot.querySelector('[data-block="' + block.getAttribute('data-block') + '"]')) return;
+        newFooter.parentNode.insertBefore(block.cloneNode(true), newFooter);
     });
 
     return newWrap.innerHTML;
@@ -708,21 +721,149 @@ function bindImageInputs() {
     });
 }
 
-// ---------- Photo drawer (Shopify Files) ----------
+// ---------- Photo drawer (local, no API) ----------
+//
+// Photos come from two places, merged: the static seed in photos.js
+// (window.PHOTO_LIBRARY) and a localStorage store the user fills via the
+// drawer's "Add image" field. Shopify CDN URLs are public, so no auth needed.
 
-let photoCache = null;
+const PHOTOS_KEY = 'olnian.photos.v1';
+
+function loadStoredPhotos() {
+    try {
+        const raw = localStorage.getItem(PHOTOS_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list.filter(p => p && p.url) : [];
+    } catch (_) {
+        return [];
+    }
+}
+
+function saveStoredPhotos(list) {
+    try {
+        localStorage.setItem(PHOTOS_KEY, JSON.stringify(list));
+    } catch (_) {}
+}
+
+// Accepts a raw string (newline/comma separated URLs) or an array; dedupes by
+// url against what's already stored. Returns the number actually added.
+function addStoredPhotos(input, alt) {
+    const urls = (Array.isArray(input) ? input : String(input || '').split(/[\s,]+/))
+        .map(u => u.trim())
+        .filter(Boolean);
+    if (!urls.length) return 0;
+    const stored = loadStoredPhotos();
+    const seen = new Set(stored.map(p => p.url));
+    let added = 0;
+    urls.forEach(url => {
+        if (seen.has(url)) return;
+        seen.add(url);
+        stored.push({ id: 'ph_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7), url: url, alt: (alt || '').trim() });
+        added++;
+    });
+    if (added) saveStoredPhotos(stored);
+    return added;
+}
+
+function removeStoredPhoto(id) {
+    const stored = loadStoredPhotos().filter(p => p.id !== id);
+    saveStoredPhotos(stored);
+}
+
+// Merge seed (read-only) + Shopify (read-only, fetched) + stored (removable),
+// dedupe by url. Seed and Shopify entries get no id (no remove control); stored
+// entries carry their id.
+function getAllPhotos() {
+    const seed = Array.isArray(window.PHOTO_LIBRARY) ? window.PHOTO_LIBRARY : [];
+    const out = [];
+    const seen = new Set();
+    seed.forEach(p => {
+        if (!p || !p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: false, source: 'seed' });
+    });
+    (shopifyPhotos || []).forEach(p => {
+        if (!p || !p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ url: p.url, alt: p.alt || '', filename: p.filename || p.url.split('/').pop().split('?')[0], removable: false, source: 'shopify' });
+    });
+    loadStoredPhotos().forEach(p => {
+        if (!p.url || seen.has(p.url)) return;
+        seen.add(p.url);
+        out.push({ id: p.id, url: p.url, alt: p.alt || '', filename: p.url.split('/').pop().split('?')[0], removable: true, source: 'local' });
+    });
+    return out;
+}
+
+// Optional Shopify Files source. Fetched lazily on first drawer open. If env
+// vars aren't configured or auth fails, we silently fall back to seed +
+// localStorage — no error noise.
+let shopifyPhotos = [];
+let shopifyFetchState = 'idle';
+
+function fetchShopifyPhotos(force) {
+    if (shopifyFetchState === 'loading') return;
+    if (shopifyFetchState === 'ok' && !force) return;
+    shopifyFetchState = 'loading';
+    fetch('/api/shopify-files')
+        .then(r => r.json().then(d => ({ ok: r.ok, status: r.status, data: d })))
+        .then(({ ok, data }) => {
+            if (ok && Array.isArray(data.files) && data.files.length) {
+                shopifyPhotos = data.files;
+                shopifyFetchState = 'ok';
+                const drawer = document.getElementById('photo-drawer');
+                if (drawer && !drawer.hidden) {
+                    const search = document.getElementById('photo-search');
+                    renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+                }
+                updateShopifyStatusLabel(shopifyPhotos.length + ' from Shopify');
+            } else {
+                shopifyFetchState = 'fail';
+                updateShopifyStatusLabel('');
+            }
+        })
+        .catch(() => {
+            shopifyFetchState = 'fail';
+            updateShopifyStatusLabel('');
+        });
+}
+
+function updateShopifyStatusLabel(text) {
+    const el = document.getElementById('shopify-status');
+    if (el) el.textContent = text;
+}
 
 function bindPhotoDrawer() {
     const openBtn = document.getElementById('photos-toggle-btn');
     const closeBtn = document.getElementById('photo-drawer-close');
-    const refreshBtn = document.getElementById('photo-drawer-refresh');
+    const syncBtn = document.getElementById('photo-drawer-sync');
     const search = document.getElementById('photo-search');
     if (openBtn) openBtn.addEventListener('click', openPhotoDrawer);
     if (closeBtn) closeBtn.addEventListener('click', closePhotoDrawer);
-    if (refreshBtn) refreshBtn.addEventListener('click', () => { photoCache = null; loadPhotos(); });
-    if (search) search.addEventListener('input', () => renderPhotoGrid(photoCache || [], search.value));
-    const dismiss = document.getElementById('photo-setup-dismiss');
-    if (dismiss) dismiss.addEventListener('click', () => hideSetupNotice(document.getElementById('photo-setup-notice')));
+    if (syncBtn) syncBtn.addEventListener('click', () => {
+        updateShopifyStatusLabel('Syncing…');
+        fetchShopifyPhotos(true);
+    });
+    if (search) search.addEventListener('input', () => renderPhotoGrid(getAllPhotos(), search.value));
+
+    const addForm = document.getElementById('photo-add-form');
+    const addUrl = document.getElementById('photo-add-url');
+    const addAlt = document.getElementById('photo-add-alt');
+    if (addForm) {
+        addForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const added = addStoredPhotos(addUrl ? addUrl.value : '', addAlt ? addAlt.value : '');
+            if (!added) {
+                flash('Enter an image URL');
+                return;
+            }
+            if (addUrl) addUrl.value = '';
+            if (addAlt) addAlt.value = '';
+            renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+            flash('Added ' + added + ' image' + (added === 1 ? '' : 's'));
+            if (addUrl) addUrl.focus();
+        });
+    }
 }
 
 function openPhotoDrawer() {
@@ -730,50 +871,28 @@ function openPhotoDrawer() {
     if (!drawer) return;
     drawer.hidden = false;
     requestAnimationFrame(() => drawer.classList.add('is-open'));
-    if (!photoCache) loadPhotos();
+    const search = document.getElementById('photo-search');
+    renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+    fetchShopifyPhotos(false);
 }
 
 function closePhotoDrawer() {
     const drawer = document.getElementById('photo-drawer');
     if (!drawer) return;
     drawer.classList.remove('is-open');
+    hidePhotoPreview();
     setTimeout(() => { drawer.hidden = true; }, 220);
-}
-
-async function loadPhotos() {
-    const grid = document.getElementById('photo-grid');
-    if (grid) grid.innerHTML = '<div class="photo-empty">Loading…</div>';
-    try {
-        const res = await fetch('/api/shopify-files');
-        const data = await res.json();
-        if (!res.ok) {
-            if (data && data.code === 'NO_SHOPIFY') {
-                showSetupNotice(
-                    document.getElementById('photo-setup-notice'),
-                    data.help || 'Add SHOPIFY_STORE_DOMAIN + SHOPIFY_ADMIN_API_TOKEN to your Vercel env vars and redeploy.'
-                );
-                if (grid) grid.innerHTML = '';
-                return;
-            }
-            throw new Error(data.error || 'Failed to load photos.');
-        }
-        hideSetupNotice(document.getElementById('photo-setup-notice'));
-        photoCache = Array.isArray(data.files) ? data.files : [];
-        const search = document.getElementById('photo-search');
-        renderPhotoGrid(photoCache, search ? search.value : '');
-    } catch (e) {
-        if (grid) grid.innerHTML = '<div class="photo-empty">Couldn\'t load photos: ' + (e.message || 'unknown error') + '</div>';
-    }
 }
 
 function renderPhotoGrid(files, filter) {
     const grid = document.getElementById('photo-grid');
     if (!grid) return;
+    hidePhotoPreview();
     const q = (filter || '').trim().toLowerCase();
     const rows = files.filter(f => !q || (f.alt || '').toLowerCase().includes(q) || (f.filename || '').toLowerCase().includes(q));
     grid.innerHTML = '';
     if (!rows.length) {
-        grid.innerHTML = '<div class="photo-empty">' + (files.length ? 'No matches.' : 'No photos in Shopify Files yet.') + '</div>';
+        grid.innerHTML = '<div class="photo-empty">' + (files.length ? 'No matches.' : 'No photos yet — paste an image URL above to start your library.') + '</div>';
         return;
     }
     rows.forEach(f => {
@@ -788,7 +907,25 @@ function renderPhotoGrid(files, filter) {
         cap.textContent = f.alt || f.filename || '';
         fig.appendChild(img);
         fig.appendChild(cap);
+        if (f.removable && f.id) {
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'photo-thumb-remove';
+            del.title = 'Remove from library';
+            del.textContent = '×';
+            del.addEventListener('click', ev => {
+                ev.stopPropagation();
+                removeStoredPhoto(f.id);
+                const search = document.getElementById('photo-search');
+                renderPhotoGrid(getAllPhotos(), search ? search.value : '');
+                flash('Removed');
+            });
+            fig.appendChild(del);
+        }
+        fig.addEventListener('mouseenter', () => showPhotoPreview(fig, f));
+        fig.addEventListener('mouseleave', hidePhotoPreview);
         fig.addEventListener('dragstart', e => {
+            hidePhotoPreview();
             e.dataTransfer.effectAllowed = 'copy';
             e.dataTransfer.setData('text/uri-list', f.url);
             e.dataTransfer.setData('text/plain', f.url);
@@ -801,6 +938,334 @@ function renderPhotoGrid(files, filter) {
         });
         grid.appendChild(fig);
     });
+}
+
+// ---------- Blocks panel (toggleable insertable sections) ----------
+
+function bindBlocksPanel() {
+    const btn = document.getElementById('blocks-toggle-btn');
+    const panel = document.getElementById('blocks-panel');
+    const toggle = document.getElementById('block-referral-toggle');
+    if (!btn || !panel || !toggle) return;
+
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = panel.hasAttribute('hidden');
+        if (open) {
+            syncBlocksPanelState();
+            panel.removeAttribute('hidden');
+            btn.classList.add('is-open');
+        } else {
+            panel.setAttribute('hidden', '');
+            btn.classList.remove('is-open');
+        }
+    });
+    document.addEventListener('click', e => {
+        if (panel.hasAttribute('hidden')) return;
+        if (e.target === btn || panel.contains(e.target)) return;
+        panel.setAttribute('hidden', '');
+        btn.classList.remove('is-open');
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !panel.hasAttribute('hidden')) {
+            panel.setAttribute('hidden', '');
+            btn.classList.remove('is-open');
+        }
+    });
+
+    toggle.addEventListener('change', () => {
+        setReferralBlock(toggle.checked);
+    });
+}
+
+function syncBlocksPanelState() {
+    const toggle = document.getElementById('block-referral-toggle');
+    if (!toggle) return;
+    toggle.checked = isReferralPresent();
+}
+
+function isReferralPresent() {
+    const root = elPreview && elPreview.querySelector('#email-root');
+    return !!(root && root.querySelector('[data-block="referral"]'));
+}
+
+function setReferralBlock(on) {
+    const root = elPreview && elPreview.querySelector('#email-root');
+    if (!root) return;
+    const existing = root.querySelector('[data-block="referral"]');
+    if (on && existing) return;
+    if (!on && !existing) return;
+    if (on) {
+        const footer = root.querySelector('.ef-footer');
+        if (!footer) return;
+        const tmp = document.createElement('div');
+        tmp.innerHTML = (window.REFERRAL_BLOCK_HTML || '').trim();
+        const block = tmp.firstElementChild;
+        if (!block) return;
+        footer.parentNode.insertBefore(block, footer);
+        applyContentEditable();
+        flash('Referral note added');
+    } else {
+        existing.remove();
+        flash('Referral note removed');
+    }
+    markDirty();
+    captureActiveIntoStore();
+}
+
+// ---------- Section move/remove menu (per top-level block in the email) ----------
+
+let activeSection = null;
+let sectionMenuPersist = false;
+
+function ensureSectionMenu() {
+    let menu = document.getElementById('section-menu');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'section-menu';
+    menu.className = 'section-menu';
+    menu.hidden = true;
+    menu.innerHTML = [
+        '<button type="button" data-action="up" title="Move section up">&uarr;</button>',
+        '<button type="button" data-action="down" title="Move section down">&darr;</button>',
+        '<button type="button" data-action="remove" title="Remove this block" class="section-menu-remove">&times;</button>'
+    ].join('');
+    document.body.appendChild(menu);
+    menu.addEventListener('mouseenter', () => { sectionMenuPersist = true; });
+    menu.addEventListener('mouseleave', () => {
+        sectionMenuPersist = false;
+        hideSectionMenu();
+    });
+    menu.addEventListener('click', e => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn || !activeSection) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const action = btn.getAttribute('data-action');
+        const section = activeSection;
+        if (action === 'up') {
+            const prev = section.previousElementSibling;
+            if (prev) section.parentNode.insertBefore(section, prev);
+        } else if (action === 'down') {
+            const next = section.nextElementSibling;
+            if (next) section.parentNode.insertBefore(next, section);
+        } else if (action === 'remove') {
+            if (!section.hasAttribute('data-block')) return;
+            const kind = section.getAttribute('data-block');
+            section.remove();
+            activeSection = null;
+            hideSectionMenu();
+            if (kind === 'referral') {
+                const tog = document.getElementById('block-referral-toggle');
+                if (tog) tog.checked = false;
+            }
+        }
+        markDirty();
+        captureActiveIntoStore();
+        if (activeSection) positionSectionMenu();
+    });
+    return menu;
+}
+
+function bindSectionMenu() {
+    ensureSectionMenu();
+    const root = elPreview.querySelector('#email-root');
+    if (!root) return;
+    const container = root.querySelector('.ef-email');
+    if (!container) return;
+
+    container.querySelectorAll(':scope > *').forEach(section => {
+        if (section.classList.contains('ef-header') || section.classList.contains('ef-footer')) return;
+        section.addEventListener('mouseenter', () => {
+            activeSection = section;
+            positionSectionMenu();
+        });
+        section.addEventListener('mouseleave', () => {
+            if (sectionMenuPersist) return;
+            setTimeout(() => {
+                if (sectionMenuPersist) return;
+                if (activeSection === section) hideSectionMenu();
+            }, 120);
+        });
+    });
+
+    const scroller = document.getElementById('preview-scroll');
+    if (scroller && !scroller.dataset.sectionMenuBound) {
+        scroller.addEventListener('scroll', () => {
+            if (activeSection) positionSectionMenu();
+        });
+        scroller.dataset.sectionMenuBound = 'true';
+    }
+}
+
+function positionSectionMenu() {
+    const menu = ensureSectionMenu();
+    if (!activeSection) { hideSectionMenu(); return; }
+    const rect = activeSection.getBoundingClientRect();
+    menu.hidden = false;
+    const removeBtn = menu.querySelector('.section-menu-remove');
+    if (removeBtn) removeBtn.style.display = activeSection.hasAttribute('data-block') ? 'inline-block' : 'none';
+    const menuW = menu.offsetWidth || 92;
+    let left = rect.right - menuW - 8;
+    let top = rect.top + 8;
+    left = Math.max(8, left);
+    if (top < 8) top = 8;
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+
+function hideSectionMenu() {
+    const menu = document.getElementById('section-menu');
+    if (!menu) return;
+    menu.hidden = true;
+    activeSection = null;
+}
+
+// ---------- iPhone Gmail preview modal ----------
+
+const PHONE_CLICKABLES_CSS = [
+    'a[href], [data-cta-primary] { ',
+    '  outline: 2px dashed #F2663A !important;',
+    '  outline-offset: 2px !important;',
+    '  position: relative !important;',
+    '}',
+    'a[href]::after {',
+    '  content: attr(href);',
+    '  position: absolute;',
+    '  top: -18px;',
+    '  left: 0;',
+    '  font: 10px/1 -apple-system, BlinkMacSystemFont, sans-serif !important;',
+    '  background: #F2663A;',
+    '  color: #ffffff !important;',
+    '  padding: 2px 5px;',
+    '  border-radius: 2px;',
+    '  max-width: 240px;',
+    '  white-space: nowrap;',
+    '  overflow: hidden;',
+    '  text-overflow: ellipsis;',
+    '  z-index: 10;',
+    '  letter-spacing: 0 !important;',
+    '  text-transform: none !important;',
+    '}'
+].join('\n');
+
+function bindIphonePreview() {
+    const openBtn = document.getElementById('iphone-preview-btn');
+    const closeBtn = document.getElementById('iphone-preview-close');
+    const closeX = document.getElementById('iphone-preview-close-x');
+    const refreshBtn = document.getElementById('iphone-preview-refresh');
+    const showClickables = document.getElementById('iphone-show-clickables');
+    const modal = document.getElementById('iphone-preview-modal');
+    const stage = modal && modal.querySelector('.iphone-preview-stage');
+    if (!openBtn || !modal) return;
+
+    openBtn.addEventListener('click', openIphonePreview);
+    if (closeBtn) closeBtn.addEventListener('click', closeIphonePreview);
+    if (closeX) closeX.addEventListener('click', closeIphonePreview);
+    if (refreshBtn) refreshBtn.addEventListener('click', renderIphonePreview);
+    if (showClickables) showClickables.addEventListener('change', renderIphonePreview);
+
+    // Backdrop click: anywhere on the stage that isn't the phone frame closes.
+    if (stage) {
+        stage.addEventListener('click', e => {
+            const frame = document.getElementById('iphone-frame');
+            if (frame && !frame.contains(e.target)) closeIphonePreview();
+        });
+    }
+
+    document.querySelectorAll('.iphone-device-toggle button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const w = btn.getAttribute('data-width');
+            const frame = document.getElementById('iphone-frame');
+            if (frame) frame.style.width = w + 'px';
+            document.querySelectorAll('.iphone-device-toggle button').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+        });
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeIphonePreview();
+    });
+}
+
+function openIphonePreview() {
+    const modal = document.getElementById('iphone-preview-modal');
+    if (!modal) return;
+    renderIphonePreview();
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+}
+
+function closeIphonePreview() {
+    const modal = document.getElementById('iphone-preview-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    setTimeout(() => { modal.hidden = true; }, 180);
+}
+
+function renderIphonePreview() {
+    captureActiveIntoStore();
+    const d = activeDraft();
+    if (!d) return;
+    const v = activeVariant(d) || d;
+    const subject = v.subject || d.subject || '(no subject)';
+    const preheader = v.preheader || d.preheader || '';
+
+    const subjectEl = document.getElementById('iphone-preview-subject');
+    const preheaderEl = document.getElementById('iphone-preview-preheader');
+    if (subjectEl) subjectEl.textContent = subject;
+    if (preheaderEl) preheaderEl.textContent = preheader;
+
+    let doc = buildExportDocument(v);
+    const showClickables = document.getElementById('iphone-show-clickables');
+    if (showClickables && showClickables.checked) {
+        doc = doc.replace('</head>', '<style>' + PHONE_CLICKABLES_CSS + '</style></head>');
+    }
+
+    const iframe = document.getElementById('iphone-preview-frame');
+    if (iframe) iframe.srcdoc = doc;
+
+    const counter = document.getElementById('iphone-preview-counter');
+    if (counter) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = v.html || '';
+        const links = tmp.querySelectorAll('a[href]').length;
+        const primary = tmp.querySelectorAll('[data-cta-primary]').length;
+        counter.textContent = links + ' link' + (links === 1 ? '' : 's') + ' · ' + primary + ' primary CTA' + (primary === 1 ? '' : 's');
+    }
+}
+
+// ---------- Photo hover preview (escapes drawer overflow) ----------
+
+function showPhotoPreview(thumbEl, file) {
+    hidePhotoPreview();
+    const pop = document.createElement('div');
+    pop.id = 'photo-hover-preview';
+    pop.className = 'photo-hover-preview';
+    const img = document.createElement('img');
+    img.src = file.url;
+    img.alt = file.alt || file.filename || '';
+    pop.appendChild(img);
+    const cap = document.createElement('div');
+    cap.className = 'photo-hover-preview-cap';
+    cap.textContent = file.alt || file.filename || '';
+    pop.appendChild(cap);
+    document.body.appendChild(pop);
+
+    const rect = thumbEl.getBoundingClientRect();
+    const popW = 320;
+    const popH = 360;
+    let left = rect.left + rect.width / 2 - popW / 2;
+    let top = rect.top - popH - 12;
+    if (top < 8) top = rect.bottom + 12;
+    left = Math.max(8, Math.min(window.innerWidth - popW - 8, left));
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+}
+
+function hidePhotoPreview() {
+    const existing = document.getElementById('photo-hover-preview');
+    if (existing) existing.remove();
 }
 
 // ---------- Image drop targets in the preview ----------
@@ -829,20 +1294,6 @@ function bindImageDropTargets() {
             flash('Image updated');
         });
     });
-}
-
-// ---------- Generic setup notice (parametrised from showCoachSetupNotice pattern) ----------
-
-function showSetupNotice(noticeEl, help) {
-    if (!noticeEl) return;
-    const body = noticeEl.querySelector('.setup-notice-body, .coach-setup-body');
-    if (body) body.textContent = help;
-    noticeEl.hidden = false;
-}
-
-function hideSetupNotice(noticeEl) {
-    if (!noticeEl) return;
-    noticeEl.hidden = true;
 }
 
 function addPickerSection(label, hint) {
@@ -1419,6 +1870,8 @@ function init() {
     bindSelectionTracking();
     bindCoach();
     bindPhotoDrawer();
+    bindBlocksPanel();
+    bindIphonePreview();
 
     elPreview.addEventListener('input', markDirty);
     elDraftSubject.addEventListener('input', markDirty);
