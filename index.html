@@ -59,6 +59,7 @@
                 <button type="button" data-width="480">480</button>
                 <button type="button" data-width="600">600</button>
             </div>
+            <button id="photos-toggle-btn" class="btn" type="button" title="Open Shopify photo library">Photos</button>
             <div class="toolbar-spacer"></div>
             <span id="save-indicator"></span>
             <button id="save-btn" class="btn" type="button">Save Draft</button>
@@ -69,6 +70,24 @@
 
         <div id="preview-scroll">
             <div id="preview-frame" class="viewport-mobile"></div>
+        </div>
+
+        <div id="photo-drawer" class="photo-drawer" hidden>
+            <div class="photo-drawer-header">
+                <div class="photo-drawer-title">
+                    <span class="photo-drawer-eyebrow">Shopify Photos</span>
+                    <span class="photo-drawer-hint">Drag any image onto the hero or product slot.</span>
+                </div>
+                <input id="photo-search" class="photo-search" type="search" placeholder="Search by name or alt text" autocomplete="off">
+                <button id="photo-drawer-refresh" class="btn" type="button" title="Refresh from Shopify">Refresh</button>
+                <button id="photo-drawer-close" class="btn" type="button" title="Close drawer">Close</button>
+            </div>
+            <div id="photo-setup-notice" class="setup-notice" hidden>
+                <div class="setup-notice-title">Shopify photo library needs setup</div>
+                <p class="setup-notice-body">Add SHOPIFY_STORE_DOMAIN + SHOPIFY_ADMIN_API_TOKEN to your Vercel env vars and redeploy.</p>
+                <button type="button" class="setup-notice-dismiss" id="photo-setup-dismiss">Dismiss</button>
+            </div>
+            <div id="photo-grid" class="photo-grid"></div>
         </div>
     </main>
 

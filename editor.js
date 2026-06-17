@@ -193,17 +193,29 @@ function nextUntitledName() {
     return 'Untitled draft ' + (max + 1);
 }
 
-function newDraft(name, templateId) {
+function newDraft(name, templateId, strategyId) {
     const now = Date.now();
     const t = window.getTemplate(templateId || window.DEFAULT_TEMPLATE_ID);
+    const s = strategyId ? window.getStrategy(strategyId) : null;
+    let html = t.html;
+    let subject = '';
+    let preheader = t.defaults.previewText || '';
+    let cta = { ...t.defaults.primaryCTA };
+    if (s) {
+        cta = { label: s.copy.ctaLabel || cta.label, url: s.copy.ctaUrl || cta.url };
+        html = window.buildStrategyHTML(t.id, s.id);
+        subject = s.copy.subject || subject;
+        preheader = s.copy.preheader || preheader;
+    }
     return {
         id: newId(),
         name: name || nextUntitledName(),
         templateId: t.id,
-        subject: '',
-        preheader: t.defaults.previewText || '',
-        primaryCTA: { ...t.defaults.primaryCTA },
-        html: t.html,
+        strategyId: s ? s.id : null,
+        subject,
+        preheader,
+        primaryCTA: cta,
+        html,
         accentColor: window.DEFAULT_ACCENT,
         createdAt: now,
         updatedAt: now,
@@ -280,6 +292,7 @@ function mountActive() {
     window.applyAccentToDOM(root, mounted.accentColor);
     window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
+    bindImageDropTargets();
     elDraftName.value = d.name;
     elDraftSubject.value = mounted.subject || '';
     elDraftPreheader.value = mounted.preheader || '';
@@ -506,14 +519,53 @@ function selectDraft(id) {
     renderSidebar();
 }
 
-function createDraft(templateId) {
+function createDraft(templateId, strategyId) {
     captureActiveIntoStore();
-    const d = newDraft(undefined, templateId);
+    const d = newDraft(undefined, templateId, strategyId);
     store.drafts.push(d);
     store.activeId = d.id;
     persist();
     mountActive();
     renderSidebar();
+}
+
+function createDraftWithStrategy(strategyId) {
+    const s = window.getStrategy(strategyId);
+    if (!s) return;
+    createDraft('education', s.id);
+}
+
+// Spawn a draft with two variants pre-filled from an A/B starter pairing.
+function createABStarter(starterId) {
+    const starter = window.getABStarter(starterId);
+    if (!starter) return;
+    captureActiveIntoStore();
+    const d = newDraft('A/B: ' + starter.name, starter.templateId);
+    store.drafts.push(d);
+    store.activeId = d.id;
+    [starter.variantA, starter.variantB].forEach((stratId, idx) => {
+        const s = window.getStrategy(stratId);
+        if (!s) return;
+        const letter = idx === 0 ? 'A' : 'B';
+        d.variants.push(normalizeVariant({
+            id: newId(),
+            label: letter + ' · ' + s.name,
+            templateId: starter.templateId,
+            subject: s.copy.subject || '',
+            preheader: s.copy.preheader || '',
+            primaryCTA: { label: s.copy.ctaLabel || '', url: window.getTemplate(starter.templateId).defaults.primaryCTA.url },
+            html: window.buildStrategyHTML(starter.templateId, s.id),
+            accentColor: window.DEFAULT_ACCENT,
+            notes: s.description,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        }, starter.templateId));
+    });
+    d.activeVariantId = d.variants[0].id;
+    persist();
+    mountActive();
+    renderSidebar();
+    flash('A/B test created');
 }
 
 function duplicateDraft(id) {
@@ -656,25 +708,184 @@ function bindImageInputs() {
     });
 }
 
+// ---------- Photo drawer (Shopify Files) ----------
+
+let photoCache = null;
+
+function bindPhotoDrawer() {
+    const openBtn = document.getElementById('photos-toggle-btn');
+    const closeBtn = document.getElementById('photo-drawer-close');
+    const refreshBtn = document.getElementById('photo-drawer-refresh');
+    const search = document.getElementById('photo-search');
+    if (openBtn) openBtn.addEventListener('click', openPhotoDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closePhotoDrawer);
+    if (refreshBtn) refreshBtn.addEventListener('click', () => { photoCache = null; loadPhotos(); });
+    if (search) search.addEventListener('input', () => renderPhotoGrid(photoCache || [], search.value));
+    const dismiss = document.getElementById('photo-setup-dismiss');
+    if (dismiss) dismiss.addEventListener('click', () => hideSetupNotice(document.getElementById('photo-setup-notice')));
+}
+
+function openPhotoDrawer() {
+    const drawer = document.getElementById('photo-drawer');
+    if (!drawer) return;
+    drawer.hidden = false;
+    requestAnimationFrame(() => drawer.classList.add('is-open'));
+    if (!photoCache) loadPhotos();
+}
+
+function closePhotoDrawer() {
+    const drawer = document.getElementById('photo-drawer');
+    if (!drawer) return;
+    drawer.classList.remove('is-open');
+    setTimeout(() => { drawer.hidden = true; }, 220);
+}
+
+async function loadPhotos() {
+    const grid = document.getElementById('photo-grid');
+    if (grid) grid.innerHTML = '<div class="photo-empty">Loading…</div>';
+    try {
+        const res = await fetch('/api/shopify-files');
+        const data = await res.json();
+        if (!res.ok) {
+            if (data && data.code === 'NO_SHOPIFY') {
+                showSetupNotice(
+                    document.getElementById('photo-setup-notice'),
+                    data.help || 'Add SHOPIFY_STORE_DOMAIN + SHOPIFY_ADMIN_API_TOKEN to your Vercel env vars and redeploy.'
+                );
+                if (grid) grid.innerHTML = '';
+                return;
+            }
+            throw new Error(data.error || 'Failed to load photos.');
+        }
+        hideSetupNotice(document.getElementById('photo-setup-notice'));
+        photoCache = Array.isArray(data.files) ? data.files : [];
+        const search = document.getElementById('photo-search');
+        renderPhotoGrid(photoCache, search ? search.value : '');
+    } catch (e) {
+        if (grid) grid.innerHTML = '<div class="photo-empty">Couldn\'t load photos: ' + (e.message || 'unknown error') + '</div>';
+    }
+}
+
+function renderPhotoGrid(files, filter) {
+    const grid = document.getElementById('photo-grid');
+    if (!grid) return;
+    const q = (filter || '').trim().toLowerCase();
+    const rows = files.filter(f => !q || (f.alt || '').toLowerCase().includes(q) || (f.filename || '').toLowerCase().includes(q));
+    grid.innerHTML = '';
+    if (!rows.length) {
+        grid.innerHTML = '<div class="photo-empty">' + (files.length ? 'No matches.' : 'No photos in Shopify Files yet.') + '</div>';
+        return;
+    }
+    rows.forEach(f => {
+        const fig = document.createElement('figure');
+        fig.className = 'photo-thumb';
+        fig.draggable = true;
+        const img = document.createElement('img');
+        img.src = f.url;
+        img.alt = f.alt || f.filename || '';
+        img.loading = 'lazy';
+        const cap = document.createElement('figcaption');
+        cap.textContent = f.alt || f.filename || '';
+        fig.appendChild(img);
+        fig.appendChild(cap);
+        fig.addEventListener('dragstart', e => {
+            e.dataTransfer.effectAllowed = 'copy';
+            e.dataTransfer.setData('text/uri-list', f.url);
+            e.dataTransfer.setData('text/plain', f.url);
+            try {
+                e.dataTransfer.setData('application/x-olnian-image', JSON.stringify({ url: f.url, alt: img.alt }));
+            } catch (_) {}
+        });
+        fig.addEventListener('click', () => {
+            navigator.clipboard && navigator.clipboard.writeText(f.url).then(() => flash('Copied URL'));
+        });
+        grid.appendChild(fig);
+    });
+}
+
+// ---------- Image drop targets in the preview ----------
+
+function bindImageDropTargets() {
+    const root = elPreview.querySelector('#email-root');
+    if (!root) return;
+    ['#hero-img', '#product-img'].forEach(sel => {
+        const img = root.querySelector(sel);
+        if (!img) return;
+        img.addEventListener('dragover', e => {
+            e.preventDefault();
+            img.classList.add('is-drop-target');
+            e.dataTransfer.dropEffect = 'copy';
+        });
+        img.addEventListener('dragleave', () => img.classList.remove('is-drop-target'));
+        img.addEventListener('drop', e => {
+            e.preventDefault();
+            img.classList.remove('is-drop-target');
+            const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+            if (!url) return;
+            img.setAttribute('src', url);
+            if (sel === '#hero-img' && elHeroUrl) elHeroUrl.value = url;
+            if (sel === '#product-img' && elProductUrl) elProductUrl.value = url;
+            markDirty();
+            flash('Image updated');
+        });
+    });
+}
+
+// ---------- Generic setup notice (parametrised from showCoachSetupNotice pattern) ----------
+
+function showSetupNotice(noticeEl, help) {
+    if (!noticeEl) return;
+    const body = noticeEl.querySelector('.setup-notice-body, .coach-setup-body');
+    if (body) body.textContent = help;
+    noticeEl.hidden = false;
+}
+
+function hideSetupNotice(noticeEl) {
+    if (!noticeEl) return;
+    noticeEl.hidden = true;
+}
+
+function addPickerSection(label, hint) {
+    const li = document.createElement('li');
+    li.className = 'template-picker-section';
+    const title = document.createElement('strong');
+    title.textContent = label;
+    li.appendChild(title);
+    if (hint) {
+        const span = document.createElement('span');
+        span.textContent = hint;
+        li.appendChild(span);
+    }
+    elTemplatePicker.appendChild(li);
+}
+
+function addPickerItem(label, description, onClick) {
+    const li = document.createElement('li');
+    li.className = 'template-picker-item';
+    const title = document.createElement('strong');
+    title.textContent = label;
+    li.appendChild(title);
+    if (description) {
+        const desc = document.createElement('span');
+        desc.textContent = description;
+        li.appendChild(desc);
+    }
+    li.addEventListener('click', onClick);
+    elTemplatePicker.appendChild(li);
+}
+
 function bindTemplatePicker() {
     if (!elTemplatePicker || !elNewBtn) return;
     elTemplatePicker.innerHTML = '';
-    window.TEMPLATES.forEach(t => {
-        const li = document.createElement('li');
-        li.className = 'template-picker-item';
-        li.dataset.templateId = t.id;
-        const title = document.createElement('strong');
-        title.textContent = t.label;
-        const desc = document.createElement('span');
-        desc.textContent = t.description;
-        li.appendChild(title);
-        li.appendChild(desc);
-        li.addEventListener('click', () => {
-            closeTemplatePicker();
-            createDraft(t.id);
-        });
-        elTemplatePicker.appendChild(li);
-    });
+
+    addPickerSection('Templates', null);
+    window.TEMPLATES.forEach(t => addPickerItem(t.label, t.description, () => { closeTemplatePicker(); createDraft(t.id); }));
+
+    addPickerSection('Strategies', 'Applied to Product Education template.');
+    window.STRATEGIES.forEach(s => addPickerItem(s.name, s.description, () => { closeTemplatePicker(); createDraftWithStrategy(s.id); }));
+
+    addPickerSection('A/B Test Starters', 'One draft, two variants pre-filled.');
+    window.AB_STARTERS.forEach(a => addPickerItem(a.name, a.description, () => { closeTemplatePicker(); createABStarter(a.id); }));
 
     elNewBtn.addEventListener('click', e => {
         e.stopPropagation();
@@ -1207,6 +1418,7 @@ function init() {
     bindViewport();
     bindSelectionTracking();
     bindCoach();
+    bindPhotoDrawer();
 
     elPreview.addEventListener('input', markDirty);
     elDraftSubject.addEventListener('input', markDirty);
