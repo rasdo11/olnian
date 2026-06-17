@@ -1269,3 +1269,265 @@ html, body {
     transform: translateX(16px);
     background: #FFFFFF;
 }
+
+/* ---------- iPhone Gmail preview modal ---------- */
+
+.iphone-preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(8, 5, 3, 0.78);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 180ms ease;
+}
+
+.iphone-preview-modal.is-open { opacity: 1; }
+.iphone-preview-modal[hidden] { display: none; }
+
+.iphone-preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 22px;
+    background: #150C06;
+    border-bottom: 1px solid var(--border-on-dark);
+    flex-shrink: 0;
+}
+
+.iphone-preview-title {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.iphone-preview-eyebrow {
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-on-dark);
+}
+
+.iphone-preview-counter {
+    font-size: 10px;
+    color: var(--text-on-dark-sub);
+    letter-spacing: 0.05em;
+}
+
+.iphone-preview-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.iphone-device-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-on-dark-strong);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.iphone-device-toggle button {
+    background: transparent;
+    color: var(--text-on-dark-sub);
+    font-family: inherit;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: none;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+}
+
+.iphone-device-toggle button + button {
+    border-left: 1px solid var(--border-on-dark);
+}
+
+.iphone-device-toggle button:hover { color: var(--text-on-dark); }
+
+.iphone-device-toggle button.is-active {
+    background: var(--accent);
+    color: #FFFFFF;
+}
+
+.iphone-clickables-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-on-dark);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    user-select: none;
+}
+
+.iphone-clickables-toggle input { accent-color: var(--accent); }
+
+.iphone-preview-stage {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 22px 48px;
+}
+
+/* iPhone hardware shell. */
+.iphone-frame {
+    width: 390px;
+    background: #0E0703;
+    border: 10px solid #1A100A;
+    border-radius: 48px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.iphone-notch {
+    width: 120px;
+    height: 26px;
+    background: #000;
+    border-radius: 0 0 18px 18px;
+    margin: 0 auto;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+.iphone-statusbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font: 13px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    padding: 14px 28px 6px;
+    flex-shrink: 0;
+}
+
+.iphone-statusbar-time { font-weight: 600; }
+
+.iphone-statusbar-icons {
+    letter-spacing: 0.08em;
+    color: #1A1A1A;
+}
+
+.iphone-screen {
+    background: #FFFFFF;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 760px;
+}
+
+.gmail-app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px 10px;
+    border-bottom: 1px solid #E5E5E5;
+    background: #FFFFFF;
+    font: 18px/1 -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    color: #5F6368;
+    flex-shrink: 0;
+}
+
+.gmail-back { font-size: 26px; color: #444; }
+
+.gmail-app-icons {
+    font-size: 14px;
+    letter-spacing: 0.18em;
+}
+
+.gmail-meta {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #EEEEEE;
+    background: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.gmail-subject {
+    font: 600 17px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    color: #202124;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.gmail-sender-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gmail-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #2F2F2F;
+    color: #FFFFFF;
+    font: 600 16px/36px 'Belleza', Georgia, serif;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.gmail-sender-info { flex: 1; min-width: 0; }
+
+.gmail-sender {
+    font: 500 13px/1.3 -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+    color: #202124;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gmail-meta-sub {
+    font: 12px/1.3 -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #5F6368;
+}
+
+.gmail-preheader {
+    margin-top: 8px;
+    font: 12px/1.4 -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #5F6368;
+    font-style: italic;
+    word-break: break-word;
+}
+
+.gmail-preheader:empty { display: none; }
+
+.iphone-preview-iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #FFFFFF;
+    min-height: 600px;
+}
+
+.iphone-home-indicator {
+    height: 34px;
+    background: #FFFFFF;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.iphone-home-indicator::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    border-radius: 999px;
+    background: #1A1A1A;
+}

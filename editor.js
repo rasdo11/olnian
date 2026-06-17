@@ -962,6 +962,113 @@ function setReferralBlock(on) {
     captureActiveIntoStore();
 }
 
+// ---------- iPhone Gmail preview modal ----------
+
+const PHONE_CLICKABLES_CSS = [
+    'a[href], [data-cta-primary] { ',
+    '  outline: 2px dashed #F2663A !important;',
+    '  outline-offset: 2px !important;',
+    '  position: relative !important;',
+    '}',
+    'a[href]::after {',
+    '  content: attr(href);',
+    '  position: absolute;',
+    '  top: -18px;',
+    '  left: 0;',
+    '  font: 10px/1 -apple-system, BlinkMacSystemFont, sans-serif !important;',
+    '  background: #F2663A;',
+    '  color: #ffffff !important;',
+    '  padding: 2px 5px;',
+    '  border-radius: 2px;',
+    '  max-width: 240px;',
+    '  white-space: nowrap;',
+    '  overflow: hidden;',
+    '  text-overflow: ellipsis;',
+    '  z-index: 10;',
+    '  letter-spacing: 0 !important;',
+    '  text-transform: none !important;',
+    '}'
+].join('\n');
+
+function bindIphonePreview() {
+    const openBtn = document.getElementById('iphone-preview-btn');
+    const closeBtn = document.getElementById('iphone-preview-close');
+    const refreshBtn = document.getElementById('iphone-preview-refresh');
+    const showClickables = document.getElementById('iphone-show-clickables');
+    const modal = document.getElementById('iphone-preview-modal');
+    if (!openBtn || !modal) return;
+
+    openBtn.addEventListener('click', openIphonePreview);
+    if (closeBtn) closeBtn.addEventListener('click', closeIphonePreview);
+    if (refreshBtn) refreshBtn.addEventListener('click', renderIphonePreview);
+    if (showClickables) showClickables.addEventListener('change', renderIphonePreview);
+
+    modal.addEventListener('click', e => {
+        if (e.target === modal) closeIphonePreview();
+    });
+
+    document.querySelectorAll('.iphone-device-toggle button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const w = btn.getAttribute('data-width');
+            const frame = document.getElementById('iphone-frame');
+            if (frame) frame.style.width = w + 'px';
+            document.querySelectorAll('.iphone-device-toggle button').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+        });
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeIphonePreview();
+    });
+}
+
+function openIphonePreview() {
+    const modal = document.getElementById('iphone-preview-modal');
+    if (!modal) return;
+    renderIphonePreview();
+    modal.hidden = false;
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+}
+
+function closeIphonePreview() {
+    const modal = document.getElementById('iphone-preview-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    setTimeout(() => { modal.hidden = true; }, 180);
+}
+
+function renderIphonePreview() {
+    captureActiveIntoStore();
+    const d = activeDraft();
+    if (!d) return;
+    const v = activeVariant(d) || d;
+    const subject = v.subject || d.subject || '(no subject)';
+    const preheader = v.preheader || d.preheader || '';
+
+    const subjectEl = document.getElementById('iphone-preview-subject');
+    const preheaderEl = document.getElementById('iphone-preview-preheader');
+    if (subjectEl) subjectEl.textContent = subject;
+    if (preheaderEl) preheaderEl.textContent = preheader;
+
+    let doc = buildExportDocument(v);
+    const showClickables = document.getElementById('iphone-show-clickables');
+    if (showClickables && showClickables.checked) {
+        doc = doc.replace('</head>', '<style>' + PHONE_CLICKABLES_CSS + '</style></head>');
+    }
+
+    const iframe = document.getElementById('iphone-preview-frame');
+    if (iframe) iframe.srcdoc = doc;
+
+    const counter = document.getElementById('iphone-preview-counter');
+    if (counter) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = v.html || '';
+        const links = tmp.querySelectorAll('a[href]').length;
+        const primary = tmp.querySelectorAll('[data-cta-primary]').length;
+        counter.textContent = links + ' link' + (links === 1 ? '' : 's') + ' · ' + primary + ' primary CTA' + (primary === 1 ? '' : 's');
+    }
+}
+
 // ---------- Photo hover preview (escapes drawer overflow) ----------
 
 function showPhotoPreview(thumbEl, file) {
@@ -1598,6 +1705,7 @@ function init() {
     bindCoach();
     bindPhotoDrawer();
     bindBlocksPanel();
+    bindIphonePreview();
 
     elPreview.addEventListener('input', markDirty);
     elDraftSubject.addEventListener('input', markDirty);

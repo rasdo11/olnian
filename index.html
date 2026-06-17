@@ -77,6 +77,7 @@
             </div>
             <div class="toolbar-spacer"></div>
             <span id="save-indicator"></span>
+            <button id="iphone-preview-btn" class="btn" type="button" title="Preview as iPhone Gmail">iPhone Preview</button>
             <button id="save-btn" class="btn" type="button">Save Draft</button>
             <button id="copy-subject-btn" class="btn" type="button">Copy Subject</button>
             <button id="copy-preheader-btn" class="btn" type="button">Copy Preheader</button>
@@ -179,6 +180,56 @@
         </section>
     </aside>
 
+</div>
+
+<div id="iphone-preview-modal" class="iphone-preview-modal" hidden aria-modal="true" role="dialog">
+    <div class="iphone-preview-toolbar">
+        <div class="iphone-preview-title">
+            <span class="iphone-preview-eyebrow">iPhone Gmail Preview</span>
+            <span id="iphone-preview-counter" class="iphone-preview-counter"></span>
+        </div>
+        <div class="iphone-preview-controls">
+            <div class="iphone-device-toggle" role="group" aria-label="Device width">
+                <button type="button" data-device="se" data-width="375" title="iPhone SE">SE</button>
+                <button type="button" data-device="14" data-width="390" title="iPhone 14" class="is-active">14</button>
+                <button type="button" data-device="pro-max" data-width="430" title="iPhone 15 Pro Max">Max</button>
+            </div>
+            <label class="iphone-clickables-toggle" title="Highlight tappable links">
+                <input id="iphone-show-clickables" type="checkbox">
+                <span>Show tap targets</span>
+            </label>
+            <button id="iphone-preview-refresh" class="btn" type="button" title="Refresh from current draft">Refresh</button>
+            <button id="iphone-preview-close" class="btn" type="button" title="Close">Close</button>
+        </div>
+    </div>
+    <div class="iphone-preview-stage">
+        <div id="iphone-frame" class="iphone-frame" style="width:390px;">
+            <div class="iphone-notch"></div>
+            <div class="iphone-statusbar">
+                <span class="iphone-statusbar-time">9:41</span>
+                <span class="iphone-statusbar-icons">●●●● 5G ▮</span>
+            </div>
+            <div class="iphone-screen">
+                <div class="gmail-app-bar">
+                    <span class="gmail-back">‹</span>
+                    <span class="gmail-app-icons">📁 🗑 ✉ ⋯</span>
+                </div>
+                <div class="gmail-meta">
+                    <div id="iphone-preview-subject" class="gmail-subject"></div>
+                    <div class="gmail-sender-row">
+                        <div class="gmail-avatar">Ø</div>
+                        <div class="gmail-sender-info">
+                            <div class="gmail-sender">ØLNIAN &lt;hello@olnian.com&gt;</div>
+                            <div class="gmail-meta-sub">to me · just now</div>
+                        </div>
+                    </div>
+                    <div id="iphone-preview-preheader" class="gmail-preheader"></div>
+                </div>
+                <iframe id="iphone-preview-frame" class="iphone-preview-iframe" title="Email preview"></iframe>
+            </div>
+            <div class="iphone-home-indicator"></div>
+        </div>
+    </div>
 </div>
 
 <script src="email-template.js"></script>
