@@ -60,7 +60,7 @@ const DEFAULT_BRAND_MEMORY = [
 
 let elPreview, elDraftList;
 let elDraftName, elDraftSubject, elDraftPreheader, elHeroUrl, elProductUrl, elAccentColor;
-let elCtaLabel, elCtaUrl, elTemplatePicker, elNewDraftWrap;
+let elTemplatePicker, elNewDraftWrap;
 let elSaveIndicator, elNewBtn, elSaveBtn, elCopyBtn, elCopySubjectBtn, elCopyPreheaderBtn, elViewportToggle;
 let elInboxSubject, elInboxPreheader, elBrandMemory, elSuggestionList, elSavedSuggestionList;
 let elChatLog, elChatInput, elChatSendBtn, elActionButtons, elVariantList, elSelectedSection, elCoachStatus;
@@ -292,16 +292,14 @@ function mountActive() {
     const root = elPreview.querySelector('#email-root');
     normalizeWordmark(root);
     window.applyAccentToDOM(root, mounted.accentColor);
-    window.syncPrimaryCTAToDOM(root, mounted.primaryCTA);
     syncImageInputsFromDOM();
     bindImageDropTargets();
     bindSectionMenu();
+    bindElementMenu();
     elDraftName.value = d.name;
     elDraftSubject.value = mounted.subject || '';
     elDraftPreheader.value = mounted.preheader || '';
     elAccentColor.value = mounted.accentColor;
-    elCtaLabel.value = mounted.primaryCTA.label || '';
-    elCtaUrl.value = mounted.primaryCTA.url || '';
     selectedEditable = null;
     isDirty = false;
     renderMetadata();
@@ -321,7 +319,7 @@ function normalizeWordmark(root) {
 
 function migrateLegacyHTML(html, templateId) {
     if (!html) return html;
-    if (html.indexOf('data-v="5"') !== -1) return html;
+    if (html.indexOf('data-v="6"') !== -1) return html;
 
     const targetTemplate = window.getTemplate(templateId || inferTemplateId(html));
     const oldWrap = document.createElement('div');
@@ -627,21 +625,15 @@ function captureActiveIntoStore() {
     const cleaned = stripContentEditable(root.outerHTML);
     const subject = elDraftSubject.value.trim();
     const preheader = elDraftPreheader.value.trim();
-    const ctaLabel = elCtaLabel.value.trim();
-    const ctaUrl = elCtaUrl.value.trim();
-    const currentCTA = target.primaryCTA || { label: '', url: '' };
     const changed = cleaned !== target.html ||
         subject !== target.subject ||
         preheader !== target.preheader ||
-        elAccentColor.value !== target.accentColor ||
-        ctaLabel !== currentCTA.label ||
-        ctaUrl !== currentCTA.url;
+        elAccentColor.value !== target.accentColor;
     if (!changed) return false;
     target.html = cleaned;
     target.subject = subject;
     target.preheader = preheader;
     target.accentColor = elAccentColor.value;
-    target.primaryCTA = { label: ctaLabel, url: ctaUrl };
     target.updatedAt = Date.now();
     d.updatedAt = Date.now();
     if (!activeVariant(d)) {
@@ -649,7 +641,6 @@ function captureActiveIntoStore() {
         d.preheader = preheader;
         d.html = cleaned;
         d.accentColor = elAccentColor.value;
-        d.primaryCTA = { label: ctaLabel, url: ctaUrl };
     }
     return true;
 }
@@ -1071,11 +1062,10 @@ function bindSectionMenu() {
     ensureSectionMenu();
     const root = elPreview.querySelector('#email-root');
     if (!root) return;
-    const container = root.querySelector('.ef-email');
-    if (!container) return;
 
-    container.querySelectorAll(':scope > *').forEach(section => {
+    root.querySelectorAll(':scope > *').forEach(section => {
         if (section.classList.contains('ef-header') || section.classList.contains('ef-footer')) return;
+        if (section.classList.contains('ef-cta-wrap')) return;
         section.addEventListener('mouseenter', () => {
             activeSection = section;
             positionSectionMenu();
@@ -1093,6 +1083,7 @@ function bindSectionMenu() {
     if (scroller && !scroller.dataset.sectionMenuBound) {
         scroller.addEventListener('scroll', () => {
             if (activeSection) positionSectionMenu();
+            if (activeElement) positionElementMenu();
         });
         scroller.dataset.sectionMenuBound = 'true';
     }
@@ -1119,6 +1110,129 @@ function hideSectionMenu() {
     if (!menu) return;
     menu.hidden = true;
     activeSection = null;
+}
+
+// ---------- Inline element menu (CTA buttons + image links: edit link, delete) ----------
+
+let activeElement = null;
+let elementMenuPersist = false;
+let elementMenuEditing = false;
+
+function ensureElementMenu() {
+    let menu = document.getElementById('element-menu');
+    if (menu) return menu;
+    menu = document.createElement('div');
+    menu.id = 'element-menu';
+    menu.className = 'element-menu';
+    menu.hidden = true;
+    menu.innerHTML = [
+        '<button type="button" data-action="link" class="element-menu-link" title="Edit link">Link</button>',
+        '<input type="text" class="element-menu-input" placeholder="https://…" hidden>',
+        '<button type="button" data-action="save" class="element-menu-save" title="Save link" hidden>Save</button>',
+        '<button type="button" data-action="remove" class="element-menu-remove" title="Delete this button">&times;</button>'
+    ].join('');
+    document.body.appendChild(menu);
+
+    const input = menu.querySelector('.element-menu-input');
+    const linkBtn = menu.querySelector('.element-menu-link');
+    const saveBtn = menu.querySelector('.element-menu-save');
+    const removeBtn = menu.querySelector('.element-menu-remove');
+
+    function enterEditMode() {
+        if (!activeElement) return;
+        elementMenuEditing = true;
+        linkBtn.hidden = true;
+        removeBtn.hidden = true;
+        input.hidden = false;
+        saveBtn.hidden = false;
+        input.value = activeElement.getAttribute('href') || '';
+        input.focus();
+        input.select();
+    }
+    function commitLink() {
+        if (!activeElement) return;
+        const url = input.value.trim();
+        if (url) activeElement.setAttribute('href', url);
+        elementMenuEditing = false;
+        linkBtn.hidden = false;
+        removeBtn.hidden = activeElement.getAttribute('data-el-menu-kind') !== 'cta';
+        input.hidden = true;
+        saveBtn.hidden = true;
+        markDirty();
+        captureActiveIntoStore();
+    }
+
+    menu.addEventListener('mouseenter', () => { elementMenuPersist = true; });
+    menu.addEventListener('mouseleave', () => {
+        elementMenuPersist = false;
+        if (!elementMenuEditing) hideElementMenu();
+    });
+    linkBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); enterEditMode(); });
+    saveBtn.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); commitLink(); });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); commitLink(); }
+        if (e.key === 'Escape') { e.preventDefault(); elementMenuEditing = false; hideElementMenu(); }
+    });
+    removeBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!activeElement || activeElement.getAttribute('data-el-menu-kind') !== 'cta') return;
+        const wrap = activeElement.closest('.ef-cta-wrap') || activeElement.closest('table');
+        (wrap || activeElement).remove();
+        activeElement = null;
+        hideElementMenu();
+        markDirty();
+        captureActiveIntoStore();
+    });
+    return menu;
+}
+
+function bindElementMenu() {
+    ensureElementMenu();
+    const root = elPreview.querySelector('#email-root');
+    if (!root) return;
+    const targets = [];
+    root.querySelectorAll('[data-cta-primary="true"]').forEach(el => { el.setAttribute('data-el-menu-kind', 'cta'); targets.push(el); });
+    root.querySelectorAll('[data-img-link="true"]').forEach(el => { el.setAttribute('data-el-menu-kind', 'image'); targets.push(el); });
+    targets.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            if (elementMenuEditing) return;
+            hideSectionMenu();
+            activeElement = el;
+            positionElementMenu();
+        });
+        el.addEventListener('mouseleave', () => {
+            if (elementMenuPersist || elementMenuEditing) return;
+            setTimeout(() => {
+                if (elementMenuPersist || elementMenuEditing) return;
+                if (activeElement === el) hideElementMenu();
+            }, 120);
+        });
+    });
+}
+
+function positionElementMenu() {
+    const menu = ensureElementMenu();
+    if (!activeElement) { hideElementMenu(); return; }
+    const removeBtn = menu.querySelector('.element-menu-remove');
+    if (removeBtn) removeBtn.hidden = activeElement.getAttribute('data-el-menu-kind') !== 'cta';
+    menu.hidden = false;
+    const rect = activeElement.getBoundingClientRect();
+    const menuW = menu.offsetWidth || 100;
+    let left = rect.right - menuW - 6;
+    let top = rect.top - menu.offsetHeight - 6;
+    if (top < 6) top = rect.bottom + 6;
+    left = Math.max(6, left);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+
+function hideElementMenu() {
+    if (elementMenuEditing) return;
+    const menu = document.getElementById('element-menu');
+    if (!menu) return;
+    menu.hidden = true;
+    activeElement = null;
 }
 
 // ---------- iPhone Gmail preview modal ----------
@@ -1835,8 +1949,6 @@ function init() {
     elHeroUrl = document.getElementById('hero-url-input');
     elProductUrl = document.getElementById('product-url-input');
     elAccentColor = document.getElementById('accent-color-input');
-    elCtaLabel = document.getElementById('cta-label-input');
-    elCtaUrl = document.getElementById('cta-url-input');
     elNewDraftWrap = document.getElementById('new-draft-wrap');
     elTemplatePicker = document.getElementById('template-picker');
     elSaveIndicator = document.getElementById('save-indicator');
@@ -1903,17 +2015,6 @@ function init() {
         window.applyAccentToDOM(root, elAccentColor.value);
         markDirty();
     });
-
-    function syncCtaFromInputs() {
-        const m = activeMounted();
-        if (!m) return;
-        m.primaryCTA = { label: elCtaLabel.value, url: elCtaUrl.value };
-        const root = elPreview.querySelector('#email-root');
-        window.syncPrimaryCTAToDOM(root, m.primaryCTA);
-        markDirty();
-    }
-    elCtaLabel.addEventListener('input', syncCtaFromInputs);
-    elCtaUrl.addEventListener('input', syncCtaFromInputs);
 
     startAutosave();
 }

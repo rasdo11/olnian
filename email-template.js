@@ -3,6 +3,7 @@
 //     data-cta-primary markers for synced repeated CTAs.
 
 window.DEFAULT_ACCENT = '#F2663A';
+window.DEFAULT_IMAGE_LINK = 'https://olnian.com/products/creatine';
 
 // Replace literal accent color in a CSS or HTML string with a chosen hex.
 window.applyAccent = function (s, hex) {
@@ -141,6 +142,8 @@ img { border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: b
 .ef-footer-links { font-family: 'Nunito Sans', sans-serif; font-weight: 300; font-size: 11px; color: rgba(255,255,255,0.32); letter-spacing: 0.04em; margin: 0; line-height: 1.7; }
 .ef-footer-links a { color: rgba(255,255,255,0.42); text-decoration: underline; }
 
+.ef-img-link { display: block; text-decoration: none; }
+
 @media only screen and (max-width: 480px) {
     .ef-promo-stack td { display: block !important; width: 100% !important; text-align: left !important; padding: 6px 22px !important; }
     .ef-promo-stack td:first-child { padding-top: 14px !important; }
@@ -197,13 +200,13 @@ function primaryCtaBlock(label, url) {
 
 const PROMO_CTA = { label: 'Shop now — use code MOM15', url: 'https://olnian.com/products/creatine' };
 
-const PROMO_HTML = `<div id="email-root" data-v="5" data-template="promo" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
+const PROMO_HTML = `<div id="email-root" data-v="6" data-template="promo" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
 
 ${HEADER_HTML}
 
   <!-- HERO IMAGE -->
   <div class="ef-hero-wrap" id="hero-wrap" style="background:#EAD2B7;">
-    <img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display:block;width:100%;height:auto;border:0;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display:block;width:100%;height:auto;border:0;"></a>
   </div>
 
   <!-- HERO TEXT -->
@@ -217,7 +220,7 @@ ${HEADER_HTML}
 ${primaryCtaBlock(PROMO_CTA.label, PROMO_CTA.url)}
 
   <!-- PROMO BAND -->
-  <table class="ef-promo ef-promo-stack" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#F2663A" style="background-color:#F2663A;">
+  <table class="ef-promo ef-promo-stack" data-block="promo-band" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#F2663A" style="background-color:#F2663A;">
     <tr>
       <td align="left" valign="middle" style="padding:14px 22px;">
         <p class="ef-promo-left" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:13px;color:#FFFFFF;margin:0;line-height:1.5;letter-spacing:0.02em;">Mother's Day weekend only.<br>Expires Sunday May 10 at midnight PT.</p>
@@ -239,7 +242,7 @@ ${primaryCtaBlock(PROMO_CTA.label, PROMO_CTA.url)}
 
   <!-- PRODUCT -->
   <div class="ef-product" style="border-top:1px solid #BDBDBD;border-bottom:1px solid #BDBDBD;background:#FFFFFF;">
-    <img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display:block;width:100%;height:auto;border:0;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display:block;width:100%;height:auto;border:0;"></a>
     <div class="ef-product-info" style="padding:22px 22px 26px;">
       <p class="ef-product-name" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.38em;text-transform:uppercase;color:#2F2F2F;margin:0 0 6px;">Pure Creatine Monohydrate</p>
       <p class="ef-product-desc" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#6B6B6B;margin:0 0 16px;">Brain · Body · Balance</p>
@@ -263,7 +266,7 @@ ${primaryCtaBlock(PROMO_CTA.label, PROMO_CTA.url)}
   </div>
 
   <!-- STATS -->
-  <table class="ef-stats" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#EAD2B7" style="background-color:#EAD2B7;border-bottom:1px solid #BDBDBD;">
+  <table class="ef-stats" data-block="stats" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#EAD2B7" style="background-color:#EAD2B7;border-bottom:1px solid #BDBDBD;">
     <tr>
       <td align="center" valign="top" width="33%" style="padding:20px 8px;border-right:1px solid rgba(189,189,189,0.35);">
         <p class="ef-stat-num" style="font-family:'Belleza',Georgia,serif;font-size:28px;color:#F2663A;margin:0 0 4px;">5g</p>
@@ -301,13 +304,13 @@ ${FOOTER_HTML}
 
 const EDU_CTA = { label: 'Start the daily ritual', url: 'https://olnian.com/products/creatine' };
 
-const EDUCATION_HTML = `<div id="email-root" data-v="5" data-template="education" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
+const EDUCATION_HTML = `<div id="email-root" data-v="6" data-template="education" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
 
 ${HEADER_HTML}
 
   <!-- HERO IMAGE -->
   <div class="ef-hero-wrap" id="hero-wrap" style="background:#EAD2B7;">
-    <img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display:block;width:100%;height:auto;border:0;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/olnian-home3.png?v=1777952403" alt="ØLNIAN lifestyle" style="display:block;width:100%;height:auto;border:0;"></a>
   </div>
 
   <!-- HERO TEXT -->
@@ -329,7 +332,7 @@ ${primaryCtaBlock(EDU_CTA.label, EDU_CTA.url)}
   </div>
 
   <!-- BENEFITS -->
-  <div class="ef-benefits" style="background:#FFFFFF;padding:8px 22px 26px;border-bottom:1px solid #BDBDBD;">
+  <div class="ef-benefits" data-block="benefits" style="background:#FFFFFF;padding:8px 22px 26px;border-bottom:1px solid #BDBDBD;">
     <p class="ef-eyebrow" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.32em;text-transform:uppercase;color:#F2663A;margin:18px 0 6px;">What you'll feel</p>
     <table class="ef-benefit" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" style="border-bottom:1px solid #D6D6D6;">
       <tr>
@@ -368,7 +371,7 @@ ${primaryCtaBlock(EDU_CTA.label, EDU_CTA.url)}
 
   <!-- PRODUCT -->
   <div class="ef-product" style="border-top:1px solid #BDBDBD;border-bottom:1px solid #BDBDBD;background:#FFFFFF;">
-    <img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display:block;width:100%;height:auto;border:0;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/pdp-1-hero-white31.png?v=1777954914" alt="ØLNIAN Pure Creatine" style="display:block;width:100%;height:auto;border:0;"></a>
     <div class="ef-product-info" style="padding:22px 22px 26px;">
       <p class="ef-product-name" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.38em;text-transform:uppercase;color:#2F2F2F;margin:0 0 6px;">Pure Creatine Monohydrate</p>
       <p class="ef-product-desc" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#6B6B6B;margin:0 0 16px;">Brain · Body · Balance</p>
