@@ -403,6 +403,83 @@ ${FOOTER_HTML}
 
 </div>`;
 
+// ---------- Skin Routine template ----------
+
+const SKIN_CTA = { label: 'Shop Creatine', url: 'https://olnian.com/products/creatine' };
+
+const SKIN_ROUTINE_HTML = `<div id="email-root" data-v="6" data-template="skin-routine" style="max-width:600px;margin:0 auto;background:#FFFFFF;font-family:'Nunito Sans','Helvetica Neue',Arial,sans-serif;">
+
+${HEADER_HTML}
+
+  <!-- HERO IMAGE -->
+  <div class="ef-hero-wrap" id="hero-wrap" style="background:#EAD2B7;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-hero-img" id="hero-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/creatine_graphic4.png?v=1781798838" alt="ØLNIAN Creatine for women" style="display:block;width:100%;height:auto;border:0;"></a>
+  </div>
+
+  <!-- HERO TEXT -->
+  <div class="ef-hero-text" style="background:#FFFFFF;padding:28px 22px 22px;">
+    <p class="ef-hero-kicker" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#F2663A;margin:0 0 12px;">What's missing</p>
+    <h1 class="ef-hero-headline" style="font-family:'Belleza',Georgia,serif;font-size:28px;font-weight:400;line-height:1.18;color:#2F2F2F;margin:0;letter-spacing:0.01em;">Your skin routine<br>is missing one thing.</h1>
+    <p class="ef-hero-sub" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.6;color:#3A3A3A;margin:14px 0 0;">Not another serum. Not a collagen powder. Something your body already makes — and starts running low on in your 30s.</p>
+  </div>
+
+  <!-- ABOVE-FOLD PRIMARY CTA -->
+${primaryCtaBlock(SKIN_CTA.label, SKIN_CTA.url)}
+
+  <!-- BODY COPY -->
+  <div class="ef-body" style="padding:28px 22px;background:#FFFFFF;border-bottom:1px solid #BDBDBD;">
+    <p class="ef-eyebrow" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.32em;text-transform:uppercase;color:#F2663A;margin:0 0 14px;">The one thing</p>
+    <h2 class="ef-h2" style="font-family:'Belleza',Georgia,serif;font-size:24px;font-weight:400;line-height:1.22;color:#2F2F2F;margin:0 0 16px;letter-spacing:0.01em;">Creatine. 5g a day in water. That's it.</h2>
+    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0 0 14px;">Women who take it notice clearer thinking, better sleep, more energy for movement, and skin that looks like it's getting enough rest. Because it is.</p>
+    <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0;">Research shows women ages 35–70 see results in as little as 3 weeks. No loading phase. No complicated routine. Just one clean ingredient that belongs next to your moisturizer.</p>
+  </div>
+
+  <!-- PRODUCT -->
+  <div class="ef-product" style="border-top:1px solid #BDBDBD;border-bottom:1px solid #BDBDBD;background:#FFFFFF;">
+    <a class="ef-img-link" data-img-link="true" href="${window.DEFAULT_IMAGE_LINK}" style="display:block;text-decoration:none;"><img class="ef-product-img" id="product-img" src="https://cdn.shopify.com/s/files/1/0678/6239/6994/files/CNN_Creatine.jpg?v=1781977664" alt="Premium Creatine Monohydrate" style="display:block;width:100%;height:auto;border:0;"></a>
+    <div class="ef-product-info" style="padding:22px 22px 26px;">
+      <p class="ef-product-name" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.38em;text-transform:uppercase;color:#2F2F2F;margin:0 0 6px;">What is creatine?</p>
+      <p class="ef-p" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:16px;line-height:1.65;color:#3A3A3A;margin:0 0 22px;">A natural compound your body produces — and uses for energy, brain function, and muscle recovery. After 35, production drops. A daily 5g dose brings it back.</p>
+      <table role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tr>
+          <td bgcolor="#F2663A" align="center" style="background-color:#F2663A;border-radius:1px;">
+            <a class="ef-btn" data-cta-primary="true" href="${SKIN_CTA.url}" style="display:block;padding:18px 0;font-family:'Nunito Sans',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;">${SKIN_CTA.label}</a>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TRUST BAND -->
+  <table class="ef-promo ef-promo-stack" data-block="trust-band" role="presentation" border="0" cellspacing="0" cellpadding="0" width="100%" bgcolor="#F2663A" style="background-color:#F2663A;">
+    <tr>
+      <td align="left" valign="middle" style="padding:18px 22px;">
+        <p class="ef-promo-left" style="font-family:'Belleza',Georgia,serif;font-size:22px;color:#FFFFFF;margin:0;line-height:1.2;letter-spacing:0.01em;">Why you haven't<br>heard of us.</p>
+      </td>
+      <td align="right" valign="middle" style="padding:18px 22px;">
+        <span class="ef-promo-code-label" style="display:block;font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:#FFFFFF;opacity:0.8;margin:0 0 6px;">★★★★★</span>
+        <span class="ef-promo-left" style="display:block;font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:13px;color:#FFFFFF;line-height:1.5;letter-spacing:0.02em;">No Amazon. No influencers. Every bag is milled, tested, and weighed the week it ships.</span>
+      </td>
+    </tr>
+  </table>
+
+  <!-- CLOSING -->
+  <div class="ef-closing" style="padding:32px 22px;text-align:center;background:#FFFFFF;border-bottom:1px solid #BDBDBD;">
+    <h2 class="ef-closing-h" style="font-family:'Belleza',Georgia,serif;font-size:24px;font-weight:400;margin:0 0 10px;line-height:1.25;color:#2F2F2F;letter-spacing:0.01em;">One clean ingredient.<br>Belongs next to your moisturizer.</h2>
+    <p class="ef-closing-sub" style="font-family:'Nunito Sans',sans-serif;font-weight:300;font-size:13px;color:#6B6B6B;margin:0 0 22px;letter-spacing:0.04em;">5g a day. Third-party tested. No fillers, no flavoring, no warehouse shelf time.</p>
+    <table role="presentation" border="0" cellspacing="0" cellpadding="0" align="center" style="margin:0 auto;">
+      <tr>
+        <td bgcolor="#F2663A" align="center" style="background-color:#F2663A;border-radius:1px;">
+          <a class="ef-btn" data-cta-primary="true" href="${SKIN_CTA.url}" style="display:inline-block;padding:18px 32px;font-family:'Nunito Sans',sans-serif;font-weight:400;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#FFFFFF;text-decoration:none;">${SKIN_CTA.label}</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+${FOOTER_HTML}
+
+</div>`;
+
 // ---------- Registry ----------
 
 window.TEMPLATES = [
@@ -427,6 +504,17 @@ window.TEMPLATES = [
             primaryCTA: { label: EDU_CTA.label, url: EDU_CTA.url }
         },
         html: EDUCATION_HTML
+    },
+    {
+        id: 'skin-routine',
+        label: 'Skin Routine',
+        shortLabel: 'SKIN',
+        description: 'Skincare-adjacent angle. Positions creatine as the missing step in a daily beauty routine.',
+        defaults: {
+            previewText: "It's not collagen. It's not retinol. And it works faster than both.",
+            primaryCTA: { label: SKIN_CTA.label, url: SKIN_CTA.url }
+        },
+        html: SKIN_ROUTINE_HTML
     }
 ];
 
